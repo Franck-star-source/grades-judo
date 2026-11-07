@@ -1,0 +1,871 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiches jury grades judo</title>
+<meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
+<meta name="author" content="Franck Bourasseau">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Layout : réglages de session, liste des candidats importée, bandeau candidat, 3 onglets UV adaptés au dan ; chaque UV = une page A4 imprimée */
+:root{
+  --bg:#f4f3ee; --surface:#ffffff; --fg:#1c1f26; --muted:#5d6370; --line:#dcdcd3;
+  --ai:#24407a; --ai-soft:#e4e9f4;
+  --uv1:#6a3fa0; --uv1-soft:#efe8f8; --uv1-mid:#d9c9f0;
+  --uv2:#13707f; --uv2-soft:#e0f1f3; --uv2-mid:#bfe2e7;
+  --uv3:#c2410c; --uv3-soft:#fbe9df; --uv3-mid:#f5cdb6;
+  --ok:#2f6b3f; --ok-soft:#e3f0e5; --warn:#9a5b00; --warn-soft:#fbf0dc; --bad:#a3332b; --bad-soft:#f8e3e0;
+  --d1:#8a5532; --d2:#1f6f8b; --d3:#6a3fa0; --d4:#b8321f;
+  --fam1:#fde7c8; --fam2:#dcebfb; --fam3:#dff3df; --fam4:#f6dff0; --fam5:#e7e3fb; --fam6:#fbe1e1; --fam7:#fff3c4;
+  --hero:#1d2f63; --hero2:#6a3fa0;
+  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN",Georgia,serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body)}
+.wrap{max-width:1100px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:grid;gap:14px}
+.wrap>*,.card>*,.sheet>*{min-width:0}
+.fo select{max-width:100%}
+.fo>*{min-width:0}
+#csel{width:100%;max-width:100%;text-overflow:ellipsis}
+header.hero{position:relative;overflow:hidden;border-radius:18px;padding:18px 20px;color:#fff;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 56px),linear-gradient(120deg,var(--hero),var(--hero2) 70%,var(--uv3));
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px}
+.eyebrow{font:500 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+h1{font:800 clamp(24px,4.5vw,32px)/1.15 var(--f-display);margin:2px 0 0}
+h2{font:600 22px/1.25 var(--f-display);margin:0}
+h3{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+p{margin:0}
+.hint{color:var(--muted);font-size:13.5px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{appearance:none;border:0;background:var(--ai);color:#fff;font:600 14px var(--f-body);padding:10px 16px;border-radius:9px;cursor:pointer}
+.btn.ghost{background:var(--surface);color:var(--fg);border:1px solid var(--line)}
+.btn.light{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.4)}
+.prsel{display:inline-flex;gap:4px;padding:4px;border-radius:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35)}
+.prsel label{display:inline-flex;gap:5px;align-items:center;font:600 13px var(--f-body);padding:5px 9px;border-radius:7px;cursor:pointer;color:#fff}
+.prsel label:has(input:checked){background:#fff;color:var(--hero)}
+.prsel input{width:16px;height:16px;accent-color:var(--hero)}
+.btn.sm{padding:6px 10px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
+details.card>summary{cursor:pointer;font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.list{border-top:5px solid var(--ai)}
+.lhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.file{position:relative;overflow:hidden}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:8px;max-height:330px;overflow:auto;padding:2px}
+.cand{appearance:none;text-align:left;border:1.5px solid var(--line);border-left-width:6px;background:var(--bg);border-radius:10px;padding:8px 10px;cursor:pointer;display:grid;gap:3px;font:14px var(--f-body);color:var(--fg)}
+.cand.dd1{border-left-color:var(--d1)} .cand.dd2{border-left-color:var(--d2)} .cand.dd3{border-left-color:var(--d3)} .cand.dd4{border-left-color:var(--d4)}
+.cand[aria-current="true"]{border-color:var(--ai);background:var(--ai-soft)}
+.cand b{font-size:14.5px}
+.cand small{color:var(--muted);font-size:12px;line-height:1.3}
+.st{display:flex;gap:4px;flex-wrap:wrap}
+.st i{font:normal 600 10.5px var(--f-mono);padding:1px 6px;border-radius:5px;background:var(--line);color:var(--muted)}
+.st i.ok{background:var(--ok-soft);color:var(--ok)} .st i.ko{background:var(--bad-soft);color:var(--bad)}
+.st i.dan{color:#fff} .dan1{background:var(--d1)!important} .dan2{background:var(--d2)!important} .dan3{background:var(--d3)!important} .dan4{background:var(--d4)!important}
+.privacy{font-size:12.5px;color:var(--ok);background:var(--ok-soft);padding:6px 10px;border-radius:8px}
+.err{font-size:13.5px;color:var(--bad)}
+.ident{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px;align-items:start}
+.f{display:grid;gap:4px;min-width:0}
+.f label,.lab{font:600 12px var(--f-mono);color:var(--muted);letter-spacing:.04em}
+input[type=text],input[type=number],select,textarea{font:15px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+textarea{resize:vertical;min-height:44px}
+td input[type=text],td select{padding:5px 8px;font-size:14px}
+.age{font-size:13px;font-weight:600;color:var(--uv1)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;padding:5px 10px;border:1.5px solid var(--line);border-radius:999px;cursor:pointer;background:var(--surface)}
+.chips label:has(input:checked){background:var(--uv1-soft);border-color:var(--uv1);color:var(--uv1);font-weight:600}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap}
+nav.tabs button{appearance:none;border:2px solid var(--line);background:var(--surface);color:var(--fg);font:600 14px var(--f-body);padding:9px 14px;border-radius:999px;cursor:pointer;display:flex;gap:8px;align-items:center}
+nav.tabs button .dot{width:10px;height:10px;border-radius:50%;background:var(--line)}
+nav.tabs button[data-s="ok"] .dot{background:var(--ok)} nav.tabs button[data-s="ko"] .dot{background:var(--bad)}
+nav.tabs button[data-ni]{border-style:dashed;opacity:.6}
+nav.tabs button .ni{font:500 11px var(--f-mono);color:inherit;opacity:.85}
+.fo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
+.fo select{width:auto;min-width:min(100%,280px);font-weight:600}
+.fo.old{background:var(--warn-soft);border-color:var(--warn)}
+.fo .lab{color:var(--fg)}
+.chip.old{background:var(--warn)!important}
+.addbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;border:1.5px dashed var(--warn);background:var(--warn-soft);font-size:14px}
+.addbar.added{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.addbar b{font-weight:600}
+.st i.plus{background:var(--ok-soft);color:var(--ok)}
+tr.demo td{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(0,0,0,.035) 6px 12px)}
+tr.demo td:nth-child(2)::after{content:' · démontrée par le candidat';font:600 11px var(--f-mono);color:var(--warn)}
+.swap{font-size:13px;color:var(--warn);font-weight:600}
+.csel select{font-weight:600;font-size:16px;padding:10px 12px;border:2px solid var(--ai);background:var(--ai-soft)}
+.btn.del{color:var(--bad);border-color:var(--bad)}
+.xinfo{font-size:13.5px;color:var(--ai);background:var(--ai-soft);padding:6px 10px;border-radius:8px}
+.lfil{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lfil .lab{margin-right:2px}
+.st i.ar{background:var(--warn-soft);color:var(--warn)}
+nav.tabs #t1[aria-selected="true"]{background:var(--uv1);border-color:var(--uv1);color:#fff}
+nav.tabs #t2[aria-selected="true"]{background:var(--uv2);border-color:var(--uv2);color:#fff}
+nav.tabs #t3[aria-selected="true"]{background:var(--uv3);border-color:var(--uv3);color:#fff}
+.sheet{display:grid;gap:14px;border-top:6px solid var(--uv1);background:linear-gradient(180deg,var(--uv1-soft),var(--surface) 140px)}
+.sheet.u2{border-top-color:var(--uv2);background:linear-gradient(180deg,var(--uv2-soft),var(--surface) 140px)}
+.sheet.u3{border-top-color:var(--uv3);background:linear-gradient(180deg,var(--uv3-soft),var(--surface) 140px)}
+.shead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.u1 h2{color:var(--uv1)} .u2 h2{color:var(--uv2)} .u3 h2{color:var(--uv3)}
+h4{margin:4px 0 0;font:600 16px var(--f-display)}
+.chip{font:600 11.5px var(--f-mono);padding:3px 10px;border-radius:999px;color:#fff;background:var(--uv1)}
+.u2 .chip{background:var(--uv2)} .u3 .chip{background:var(--uv3)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+thead th{font:600 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--fg)}
+.u1 thead th{background:var(--uv1-mid)} .u2 thead th{background:var(--uv2-mid)} .u3 thead th{background:var(--uv3-mid)}
+thead th.f-c{background:#cfe8d3!important} thead th.f-p{background:#e6efc4!important} thead th.f-m{background:#f7dfb0!important} thead th.f-g{background:#f3c2bc!important} thead th.f-o{background:#e9b3ad!important}
+tbody tr:last-child>*{border-bottom:0}
+td.c,th.c{text-align:center;width:72px}
+td.grp{font:500 12px var(--f-mono);width:130px}
+td.grp span{display:inline-block;padding:2px 8px;border-radius:6px}
+.fm0{background:var(--fam1)} .fm1{background:var(--fam2)} .fm2{background:var(--fam3)} .fm3{background:var(--fam4)} .fm4{background:var(--fam5)} .fm5{background:var(--fam6)} .fm6{background:var(--fam7)}
+input[type=radio],input[type=checkbox]{width:20px;height:20px;margin:0;cursor:pointer;accent-color:var(--ai)}
+.u1 input{accent-color:var(--uv1)} .u2 input{accent-color:var(--uv2)} .u3 input{accent-color:var(--uv3)}
+tr.req td{background:var(--uv2-soft)}
+tr.off td.c input:not([data-req]){opacity:.25}
+tr.f-g td,tr.f-o td{background:var(--bad-soft)} tr.f-m td{background:var(--warn-soft)} tr.f-c td{background:#f2f9f3}
+.rule{display:grid;gap:6px;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px dashed var(--uv2)}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.ck{font:500 12.5px var(--f-mono);padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.ck.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.ck.ko{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.sugg{border-radius:10px;padding:12px 14px;display:grid;gap:3px;background:var(--ai-soft);border-left:5px solid var(--ai)}
+.sugg b{font-size:15.5px}
+.sugg.ok{background:var(--ok-soft);border-left-color:var(--ok)} .sugg.ko{background:var(--bad-soft);border-left-color:var(--bad)} .sugg.q{background:var(--warn-soft);border-left-color:var(--warn)}
+.sugg.mini{padding:8px 12px}
+.sugg.mini b{font-size:14px}
+.dec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px}
+.radios{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.radios label{display:flex;gap:6px;align-items:center;font-weight:600;cursor:pointer;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface)}
+.radios label:has(input[value=ok]:checked),.radios label:has(input[value=oui]:checked){background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.radios label:has(input[value=ko]:checked),.radios label:has(input[value=non]:checked){background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.radios label:has(input[value=disp]:checked),.radios label:has(input[value=wait]:checked){background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.sign{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.sign .box{border:1px dashed var(--line);border-radius:8px;padding:8px 10px;min-height:76px;display:grid;gap:6px;align-content:start;background:var(--surface)}
+.sign .box span{font:600 11.5px var(--f-mono);color:var(--muted)}
+.dur{width:90px!important;font-weight:600}
+.confirm{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:14px}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:640px){.dec{grid-template-columns:1fr}}
+.print-ident{display:none;grid-template-columns:repeat(4,1fr);gap:4px 10px;font-size:11px}
+.print-ident div{border-bottom:1px solid #999;padding:2px 0}
+.print-ident span{color:#555}
+@page{size:A4;margin:9mm 10mm}
+/* Mode impression : appliqué par le script avant l'impression (bouton ou Ctrl+P), pour mesurer et ajuster chaque fiche à une page A4 */
+html.pm .wrap{width:190mm;max-width:190mm;margin:0}
+  html.pm body{background:#fff;font-size:11px}
+  html.pm .wrap{padding:0;gap:6px}
+  html.pm header.hero,html.pm nav.tabs,html.pm .bar,html.pm .noprint,html.pm footer,html.pm .sugg,html.pm .list,html.pm #ident,html.pm #settings{display:none!important}
+  html.pm .card{border:0;padding:0;gap:4px;background:#fff!important}
+  html.pm .sheet{display:grid!important;break-after:page;border-top:3px solid #000;padding-top:6px}
+  html.pm .print-ident{display:grid!important}
+  html.pm .tw{overflow:visible;border:1px solid #999}
+  html.pm table{min-width:0;font-size:10px}
+  html.pm th,html.pm td{padding:1px 5px;border-color:#bbb;line-height:1.15}
+  html.pm thead th{background:#eee!important}
+  html.pm tr.req td,html.pm tr.f-g td,html.pm tr.f-o td,html.pm tr.f-m td,html.pm tr.f-c td{background:none}
+  html.pm tr.off td.c input{opacity:1!important}
+  html.pm td.grp span{background:none!important;padding:0}
+  html.pm input,html.pm select,html.pm textarea{border:0;border-bottom:1px solid #999;border-radius:0;background:none;padding:1px 2px}
+  html.pm .chip{color:#000;background:none!important;border:1px solid #000}
+  html.pm .fo{padding:0;border:0;background:none}
+  html.pm .fo select{border:0;padding:0;font-size:11px;appearance:none;-webkit-appearance:none}
+  html.pm h2,html.pm h4{color:#000!important}
+  html.pm input[type=radio],html.pm input[type=checkbox]{width:11px;height:11px}
+  html.pm .rule{padding:2px 4px;gap:2px;border:0}
+  html.pm .checks{display:none!important}
+  html.pm .radios label{border:0;padding:0 6px 0 0;background:none!important;color:#000!important}
+  html.pm ::placeholder{color:transparent}
+  html.pm .sign .box{min-height:34px;padding:4px 8px}
+  html.pm .sheet{gap:3px!important;margin:0!important}
+  html.pm h4{font-size:12px;margin:2px 0 0}
+  html.pm .dec textarea{min-height:24px}
+  html.pm table.has-req tr.off{display:none}
+  html.pm .swap{display:none}
+  html.pm td select{appearance:none;-webkit-appearance:none;background:none}
+  html.pm select:has(option[value=""]:checked){color:transparent}
+  html.pm .chips label{border:0;padding:0 6px 0 0;background:none!important}
+  html.pm .chips label:not(:has(input:checked)){display:none}
+  html.pm .sheet.skip{display:none!important}
+  html.pm .pm-hide{display:none!important}
+  html.pm .tsplit{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-items:start}
+  html.pm .tsplit table{font-size:9.5px}
+  html.pm .tsplit th.c,html.pm .tsplit td.c{width:30px;padding:0 1px}
+  html.pm .tsplit thead th{font-size:7px;letter-spacing:0;padding:1px 2px}
+  html.pm .tsplit td.grp{width:auto;font-size:8.5px}
+  html.pm .tsplit td{white-space:nowrap;padding:0 3px}
+@media print{ html:not(.pm) .wrap>*:not(.sheet){display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <span class="eyebrow">FFJDA · Règlement 2026-2027 · CORG Île-de-France</span>
+      <h1>Fiches jury · grades judo 1er au 4e dan</h1>
+    </div>
+    <div class="bar">
+      <span class="prsel" role="group" aria-label="Fiches à imprimer"><label><input type="checkbox" data-pr="1" checked> UV1</label><label><input type="checkbox" data-pr="2" checked> UV2</label><label><input type="checkbox" data-pr="3" checked> UV3</label></span>
+      <button class="btn light" type="button" id="print">Imprimer</button>
+    </div>
+  </header>
+
+  <details class="card" id="settings">
+    <summary>Réglages de la session (coordonnateur)</summary>
+    <div class="ident">
+      <div class="f"><label for="g-sess">Session, lieu</label><input id="g-sess" type="text" data-g="sess"></div>
+      <div class="f"><label for="g-date">Date</label><input id="g-date" type="text" data-g="date" placeholder="jj/mm/aaaa"></div>
+      <div class="f"><label for="g-ky">Exercices d'application UV3-B</label><select id="g-ky" data-g="ky"><option value="ky">1 kakari-geiko + 1 yaku-soku-geiko</option><option value="kk">2 kakari-geiko</option><option value="yy">2 yaku-soku-geiko</option></select></div>
+      <div class="f"><label for="g-cumul">Programme UV2</label><select id="g-cumul" data-g="cumul"><option value="">Programme du dan seulement</option><option value="1">Programme cumulé (dan + dans inférieurs)</option></select></div>
+    </div>
+    <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
+  </details>
+
+  <section class="card list" aria-label="Liste des candidats">
+    <div class="lhead">
+      <h3>Candidats de la session</h3>
+      <div class="bar">
+        <span class="btn file"><span>Importer les listes Excel</span><input type="file" id="xlsx" accept=".xlsx,.xls,.csv" multiple aria-label="Importer les listes des inscriptions"></span>
+        <button class="btn ghost sm" type="button" id="prev">◀ Précédent</button>
+        <button class="btn ghost sm" type="button" id="next">Suivant ▶</button>
+        <button class="btn ghost sm" type="button" id="clearAll">Vider la session</button>
+      </div>
+    </div>
+    <p class="privacy">Le fichier est lu uniquement dans ce navigateur, il n'est envoyé nulle part. Le n° de licence, le club et les coordonnées ne sont ni affichés ni imprimés.</p>
+    <p class="err" id="xerr" hidden></p>
+    <p class="xinfo" id="xinfo" hidden></p>
+    <div class="bar" id="lfilter" hidden></div>
+    <p class="hint" id="lempty">Importez les exports « Liste des inscriptions » (.xlsx) : UV1, UV2 et UV3, ensemble ou l'un après l'autre. Chaque candidat est regroupé avec les UV auxquelles il est inscrit. Le dan, les katas et la formule (ancien ou nouveau règlement) se règlent d'après la colonne Catégorie. Les inscriptions annulées sont écartées.</p>
+    <div class="cands" id="cands" hidden></div>
+    <span class="confirm" id="confirm" hidden>Effacer la liste et toutes les fiches de la session ? <button class="btn ghost sm" type="button" id="yes">Oui, tout effacer</button><button class="btn ghost sm" type="button" id="no">Annuler</button></span>
+  </section>
+
+  <section class="card" id="ident" aria-label="Candidat">
+    <h3>Candidat évalué</h3>
+    <div class="f csel" id="cselw"><label for="csel">Choisir le candidat</label><span class="hint" id="cselc"></span><select id="csel"></select>
+      <div class="bar"><button class="btn sm" type="button" id="manual">+ Ajouter un candidat</button><button class="btn ghost sm" type="button" id="delc">Supprimer ce candidat</button>
+      <span class="confirm" id="delconf" hidden><span id="delname"></span> <button class="btn ghost sm del" type="button" id="delyes">Oui, supprimer</button><button class="btn ghost sm" type="button" id="delno">Annuler</button></span></div></div>
+    <div class="ident">
+      <div class="f"><label for="i-nom">Nom</label><input id="i-nom" type="text" data-k="nom"></div>
+      <div class="f"><label for="i-prenom">Prénom</label><input id="i-prenom" type="text" data-k="prenom"></div>
+      <div class="f"><label for="i-annee">Né(e) en</label><input id="i-annee" type="number" inputmode="numeric" min="1930" max="2015" data-k="annee"><span class="age" id="age"></span></div>
+      <div class="f"><label for="i-dan">Dan visé</label><select id="i-dan" data-k="dan"><option value="1">1er dan</option><option value="2">2e dan</option><option value="3">3e dan</option><option value="4">4e dan</option></select></div>
+      <div class="f"><label for="i-uke">Partenaire (uke)</label><input id="i-uke" type="text" data-k="uke"></div>
+      <div class="f"><label for="i-ep">Épreuve(s)</label><input id="i-ep" type="text" data-k="ep"></div>
+      <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
+    </div>
+  </section>
+
+  <nav class="tabs noprint" role="tablist">
+    <button role="tab" id="t1" aria-controls="s1" aria-selected="true"><span class="dot"></span>UV1 · Kata</button>
+    <button role="tab" id="t2" aria-controls="s2" aria-selected="false"><span class="dot"></span>UV2 · Technique</button>
+    <button role="tab" id="t3" aria-controls="s3" aria-selected="false"><span class="dot"></span>UV3 · Combinée</button>
+  </nav>
+
+  <section class="card sheet u1" id="s1" role="tabpanel" aria-labelledby="t1"></section>
+  <section class="card sheet u2" id="s2" role="tabpanel" aria-labelledby="t2" hidden></section>
+  <section class="card sheet u3" id="s3" role="tabpanel" aria-labelledby="t3" hidden></section>
+
+  <footer>Outil créé par Franck Bourasseau · Règlement des grades FFJDA 2026-2027 · Programmes UV2 d'après les synthèses de l'annexe 1 · Ancien règlement : contenus du règlement 2025-2026, pour les candidats en transition. Repères de décision et durées UV3-B : positions CORG Île-de-France, modifiables. La décision appartient au jury. Les saisies restent sur cet appareil ; « Vider la session » les efface.</footer>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DAN = d => d == 1 ? '1er dan' : d + 'e dan';
+
+/* ===== Référentiel ===== */
+const KATAS = {
+  nage:{name:'Nage-no-kata', series:[['Te-waza',['Uki-otoshi','Seoi-nage','Kata-guruma']],['Koshi-waza',['Uki-goshi','Harai-goshi','Tsurikomi-goshi']],['Ashi-waza',['Okuri-ashi-harai','Sasae-tsurikomi-ashi','Uchi-mata']],['Ma-sutemi-waza',['Tomoe-nage','Ura-nage','Sumi-gaeshi']],['Yoko-sutemi-waza',['Yoko-gake','Yoko-guruma','Uki-waza']]]},
+  katame:{name:'Katame-no-kata', series:[['Osaekomi-waza',['Kesa-gatame','Kata-gatame','Kami-shiho-gatame','Yoko-shiho-gatame','Kuzure-kami-shiho-gatame']],['Shime-waza',['Kata-juji-jime','Hadaka-jime','Okuri-eri-jime','Kata-ha-jime','Gyaku-juji-jime']],['Kansetsu-waza',['Ude-garami','Ude-hishigi-juji-gatame','Ude-hishigi-ude-gatame','Ude-hishigi-hiza-gatame','Ashi-garami']]]},
+  ju:{name:'Ju-no-kata', series:[['Ikkyo',['Tsuki-dashi','Kata-oshi','Ryote-dori','Kata-mawashi','Ago-oshi']],['Nikyo',['Kiri-oroshi','Ryokata-oshi','Naname-uchi','Katate-dori','Katate-age']],['Sankyo',['Obi-tori','Mune-oshi','Tsuki-age','Uchi-oroshi','Ryogan-tsuki']]]},
+  kime:{name:'Kime-no-kata', series:[['Idori',['Ryote-dori','Tsukkake','Suri-age','Yoko-uchi','Ushiro-dori','Tsukkomi','Kiri-komi','Yoko-tsuki']],['Tachiai',['Ryote-dori','Sode-tori','Tsukkake','Tsuki-age','Suri-age','Yoko-uchi','Ke-age','Ushiro-dori','Tsukkomi','Kiri-komi','Nuki-kake','Kiri-oroshi']]]},
+  goshin:{name:'Kodokan goshin-jitsu', series:[['Kumitsukareta baai',['Ryote-dori','Hidari-eri-dori','Migi-eri-dori','Kataude-dori','Ushiro-eri-dori','Ushiro-jime','Kakae-dori']],['Hanareta baai',['Naname-uchi','Ago-tsuki','Gammen-tsuki','Mae-geri','Yoko-geri']],['Tanto',['Tsukkake','Choku-zuki','Naname-zuki']],['Jo',['Furi-age','Furi-oroshi','Morote-zuki']],['Kenju',['Shomen-zuke','Koshi-gamae','Haimen-zuke']]]},
+  gonosen:{name:'Go-no-sen-no-kata', series:[['Attaque → contre',['O-soto-gari → O-soto-gari','Hiza-guruma → Hiza-guruma','O-uchi-gari → Okuri-ashi-harai','De-ashi-harai → De-ashi-harai','Ko-soto-gake → Tai-otoshi','Ko-uchi-gari → Sasae-tsurikomi-ashi','Kubi-nage → Ushiro-goshi','Koshi-guruma → Uki-goshi','Hane-goshi → Sasae-tsurikomi-ashi','Harai-goshi → Utsuri-goshi','Uchi-mata → Te-guruma','Seoi-nage → Sumi-gaeshi']]]}
+};
+const FAUTES = [['c','Correct'],['p','Petite faute'],['m','Faute moyenne'],['g','Faute grave'],['o','Oubli']];
+const PROG = {
+  1:{N:{Te:['Ippon-seoi-nage','Morote-seoi-nage','Kata-guruma','Tai-otoshi','Uki-otoshi'],Koshi:['Harai-goshi','Koshi-guruma','Kubi-nage','O-goshi','Tsurikomi-goshi','Uchi-mata','Uki-goshi'],Ashi:['De-ashi-barai','Hiza-guruma','Ko-soto-gari','Ko-uchi-gari','Okuri-ashi-barai','O-soto-gari','O-uchi-gari','Sasae-tsurikomi-ashi'],Sutemi:['Sumi-gaeshi','Tomoe-nage']},
+     W:{Osaekomi:['Hon-gesa-gatame','Ushiro-gesa-gatame','Kami-shiho-gatame','Yoko-shiho-gatame','Tate-shiho-gatame'],Shime:['Gyaku-juji-jime','Kata-juji-jime','Nami-juji-jime','Hadaka-jime','Okuri-eri-jime'],Kansetsu:['Ude-garami','Ude-hishigi-juji-gatame','Ude-hishigi-ude-gatame']}},
+  2:{N:{Te:['Eri-seoi-nage','Te-guruma','Morote-gari','Kuchiki-taoshi'],Koshi:['Hane-goshi','Sode-tsurikomi-goshi','Tsuri-goshi'],Ashi:['O-guruma','Ashi-guruma','Ko-soto-gake','O-soto-otoshi','Tsubame-gaeshi'],Sutemi:['Ura-nage','Tani-otoshi','Yoko-guruma','Yoko-gake','Ko-uchi-makikomi','Yoko-tomoe-nage','Uki-waza']},
+     W:{Osaekomi:['Kuzure-kami-shiho-gatame','Kuzure-kesa-gatame','Kuzure-tate-shiho-gatame','Kuzure-yoko-shiho-gatame'],Shime:['Sankaku-jime','Kata-ha-jime','Kata-te-jime','Sode-guruma-jime'],Kansetsu:['Ude-hishigi-hiza-gatame','Ude-hishigi-waki-gatame']}},
+  3:{N:{Te:['Sumi-otoshi','Kibisu-gaeshi','Uchi-mata-sukashi','Sukui-nage','Yama-arashi','Seoi-otoshi'],Koshi:['Utsuri-goshi','Ushiro-goshi'],Ashi:['Harai-tsurikomi-ashi','O-soto-guruma','O-soto-gaeshi'],Sutemi:['Soto-makikomi','Harai-makikomi','Yoko-wakare','Yoko-otoshi','Tawara-gaeshi','Daki-wakare']},
+     W:{Osaekomi:['Makura-gesa-gatame','Kata-gatame'],Shime:['Morote-jime','Tsukkomi-jime','Ashi-gatame-jime','Ryote-jime'],Kansetsu:['Ude-hishigi-ashi-gatame','Ude-hishigi-sankaku-gatame','Ude-hishigi-hara-gatame']}}
+};
+const QUOTA = {1:{N:6,W:4},2:{N:6,W:3},3:{N:3,W:2}};
+const CAND = {2:{N:1,W:1,txt:"1 nage-waza et 1 ne-waza au choix du candidat, 3 à 4 minutes."},3:{N:3,W:2,txt:"3 nage-waza dans des directions différentes (3 min minimum) et 2 ne-waza à partir de situations de combat (3 min minimum), 8 minutes maximum."}};
+const UV2TXT = {1:"Le jury choisit 6 nage-waza en déplacement et 4 ne-waza en situation d'étude. 5 minutes maximum. Une méconnaissance tolérée par domaine.",2:"Partie 1 au choix du candidat, puis le jury choisit 6 nage-waza et 3 ne-waza différents (5 minutes maximum). UV non fractionnable.",3:"Partie 1 au choix du candidat, puis le jury choisit 3 nage-waza et 2 ne-waza (5 minutes maximum). UV non fractionnable.",4:"Épreuve 1 : go-no-sen en tori. Épreuve 2 : tokui-waza nage-waza, 3 minutes. Épreuve 3 : tokui-waza ne-waza, 2 minutes. UV non fractionnable."};
+const CRIT3 = [['Qualité technique','kuzushi, placement, forme'],['Déplacement et adaptation','avancée, recul, directions'],['Rythme et continuité','sur toute la durée'],['Respect des consignes','du coordonnateur'],['Sécurité et contrôle de uke','chutes, maîtrise'],['Attitude','rôles de tori et de uke, étiquette']];
+const CRIT4N = [['Opportunités','saisir le bon moment'],['Séquences tactiques','enchaînements, feintes'],['Liaisons debout-sol','continuité vers le sol'],['Efficacité et contrôle','projection, maîtrise de uke']];
+const CRIT4W = [['Contrôle','immobilisation, maîtrise'],['Enchaînements','passages, retournements'],['Efficacité','étranglements, clés'],['Sécurité','contrôle de uke']];
+/* UV3-B : durées par défaut (positions CORG IDF, modifiables) */
+function rowsB(dan, ky){
+  const ex = ky==='kk' ? ['Kakari-geiko','Kakari-geiko'] : ky==='yy' ? ['Yaku-soku-geiko','Yaku-soku-geiko'] : ['Kakari-geiko','Yaku-soku-geiko'];
+  const E = [[ex[0]+', exercice d\'application 1','2 min'],[ex[1]+', exercice d\'application 2','2 min']];
+  if (dan == 1) return [['Uchi-komi en déplacement, technique 1, sur avancée de uke','45 s'],['Uchi-komi en déplacement, technique 2, sur recul de uke','45 s'],...E];
+  if (dan == 2) return [['Uchi-komi en déplacement, technique 1','45 s'],['Uchi-komi en déplacement, technique 2','45 s'],['Nage-komi en déplacement, technique 1','45 s'],['Nage-komi en déplacement, technique 2','45 s'],...E];
+  if (dan == 3) return [['Uchi-komi, technique 1','20 s'],['Uchi-komi, technique 2','20 s'],['Uchi-komi, technique 3','20 s'],['Nage-komi, technique 1','30 s'],['Nage-komi, technique 2','30 s'],...E];
+  return [['Uchi-komi','3 min'],['Nage-komi','2 min'],[ex[0]+', exercice d\'application 1','2 min 30'],[ex[1]+', exercice d\'application 2','2 min 30']];
+}
+
+/* UV2 : contenu selon le dan et la formule (nouveau règlement, ancienne dominante compétition ou technique) */
+function uv2Cfg(d, f){
+  const ky = DB.g.ky, ex = ky==='kk' ? ['Kakari-geiko','Kakari-geiko'] : ky==='yy' ? ['Yaku-soku-geiko','Yaku-soku-geiko'] : ['Kakari-geiko','Yaku-soku-geiko'];
+  const E = t => [[ex[0]+', exercice d\'application 1',t],[ex[1]+', exercice d\'application 2',t]];
+  if (f === 'nr') return {txt:UV2TXT[d], cand: d==2 ? ['N','W'] : d==3 ? ['N','N','N','W','W'] : [], candTxt: CAND[d] ? CAND[d].txt : '', q: QUOTA[d] || null, def:[], ex:[], tokui: d==4, gos: d==4};
+  const T = f === 'tech', lab = 'Ancien règlement, dominante ' + (T ? 'technique' : 'compétition') + '. ';
+  if (d == 1) return {txt: lab + 'Le jury impose 6 nage-waza, 4 ne-waza et 2 défenses (réponses libres sur les séries A et B des 20 attaques imposées). Une méconnaissance tolérée par domaine, 5 minutes.' + (T ? ' Partie B : uchi-komi et 2 exercices. UV non fractionnable.' : ''),
+    cand:[], q:{N:6,W:4}, def:['Défense, série A','Défense, série B'], exTitle:'Partie B · Uchi-komi et exercices', ex: T ? [['Uchi-komi sur avancée de uke',"1'30"],['Uchi-komi sur recul de uke',"1'30"],...E("2'")] : []};
+  if (d == 2) return {txt: lab + 'a) 1 nage-waza, 1 ne-waza et 1 défense au choix (3 à 4 minutes). b) Le jury impose 2 nage-waza, 2 ne-waza et 2 défenses de la série C (5 minutes).' + (T ? ' c) Uchi-komi, nage-komi et 2 exercices.' : ''),
+    cand:['N','W','D'], candTxt:'1 nage-waza, 1 ne-waza et 1 défense au choix, 3 à 4 minutes.', q:{N:2,W:2}, def:['Défense, série C','Défense, série C'], exTitle:'Partie C · Uchi-komi, nage-komi et exercices',
+    ex: T ? [['Uchi-komi, technique 1',"1'30"],['Uchi-komi, technique 2',"1'30"],['Nage-komi, technique 1',"1'30"],['Nage-komi, technique 2',"1'30"],...E("2'")] : []};
+  if (d == 3) return {txt: lab + 'a) 3 nage-waza dans 3 directions, 2 ne-waza et des défenses sur saisies, coups et armes, 9 minutes maximum. b) Le jury impose 2 nage-waza, 2 ne-waza et 2 défenses de la série D (5 minutes).' + (T ? ' c) Uchi-komi, nage-komi et 2 exercices.' : ''),
+    cand:['N','N','N','W','W','D'], candTxt:'3 nage-waza dans 3 directions (3 min minimum), 2 ne-waza (3 min minimum), défenses sur saisies, coups et armes (1 min minimum) ; 9 minutes maximum.', q:{N:2,W:2}, def:['Défense, série D','Défense, série D'], exTitle:'Partie C · Uchi-komi, nage-komi et exercices',
+    ex: T ? [['Uchi-komi, technique 1',"1'"],['Uchi-komi, technique 2',"1'"],['Uchi-komi, technique 3',"1'"],['Nage-komi, technique 1',"1'"],['Nage-komi, technique 2',"1'"],...E("2'")] : []};
+  return {txt: lab + 'Tokui-waza nage-waza (3 min minimum), ne-waza (2 min minimum), défenses sur saisies, coups et armes (2 min minimum) ; 10 minutes maximum.' + (T ? ' Partie B : 10 minutes maximum d\'exercices.' : ''),
+    cand:[], q:null, tokui:true, gos:false, def:['Défenses sur saisies','Défenses sur coups','Défenses sur armes'], exTitle:'Partie B · Exercices (10 minutes maximum)',
+    ex: T ? [['Uchi-komi',"3'"],['Nage-komi',"2'"],[ex[0],"2'30"],[ex[1],"2'30"]] : []};
+}
+
+/* Techniques démontrées par le candidat (partie 1) : jamais reprises dans le choix du jury */
+const norm = t => String(t || '').replace(/\s*\(\dD\)\s*$/, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/barai/g, 'harai').replace(/[^a-z]/g, '');
+const ALLT = dom => [...new Set([1,2,3].flatMap(x => Object.values(PROG[x][dom]).flat()))].sort();
+/* Liste déroulante des techniques, groupées par famille (programme 1er au 3e dan) */
+const famLists = dom => { const o = {}; [1,2,3].forEach(x => Object.entries(PROG[x][dom]).forEach(([f,l]) => o[f] = [...new Set([...(o[f]||[]), ...l])])); return o; };
+const techSelect = (k, doms, label) => `<select data-k="${k}" aria-label="${label}"><option value="">— choisir —</option>${doms.map(dom => Object.entries(famLists(dom)).map(([f,l]) => `<optgroup label="${f}-waza">${l.slice().sort().map(t => `<option>${t}</option>`).join('')}</optgroup>`).join('')).join('')}</select>`;
+
+/* ===== État ===== */
+const KEY = 'fiches-jury-v2';
+let DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all'};
+try{ const d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d && Array.isArray(d.list)) DB = Object.assign(DB, d); }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} };
+const cur = () => DB.list.find(c => c.id === DB.cur) || null;
+let S = {};
+const season = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); })();
+const over40 = () => { const y = +S.annee; return y && season - y >= 40; };
+const dan = () => +(S.dan || 1);
+
+function parseCat(ep){
+  const t = String(ep || ''), m = t.match(/(\d)\s*D\b/i);
+  const k = [];
+  if (/nage.?no.?kata/i.test(t)) k.push('nage');
+  if (/katame/i.test(t)) k.push('katame');
+  if (/ju.?no.?kata/i.test(t)) k.push('ju');
+  if (/kime/i.test(t)) k.push('kime');
+  if (/goshin/i.test(t)) k.push('goshin');
+  if (/go.?no.?sen/i.test(t)) k.push('gonosen');
+  return {dan: m ? +m[1] : null, katas: k};
+}
+const defKatas = d => ({1:['nage'],2:['nage'],3:['katame'],4:['ju']})[d];
+/* Formule par UV : d'après la catégorie de l'export ([AR] = ancien règlement), modifiable par le jury */
+function autoFo(c, u){
+  const x = c && c.uvs && c.uvs[u];
+  if (!x || !/\[AR\]/i.test(x.ep) || /\[NR\]/i.test(x.ep)) return 'nr';
+  if (u === 1) return 'old';
+  if (u === 2) return /dom\.?\s*tech/i.test(x.ep) ? 'tech' : 'comp';
+  return 'nr';
+}
+const OLDK = {1:['nage'],2:['nage'],3:['katame','goshin'],4:['kime']};
+function katasFor(c, d, f){
+  const p = parseCat(c && c.uvs && c.uvs[1] ? c.uvs[1].ep : (c ? c.ep : ''));
+  if (p.katas.length && (f === 'old' || p.katas.every(k => defKatas(d).includes(k)))) return p.katas;
+  return f === 'old' ? OLDK[d] : defKatas(d);
+}
+const ins = () => { const c = cur(); const u = c && c.uvs ? Object.keys(c.uvs).map(Number) : []; return u.length ? u : [1,2,3]; };
+const fo1 = () => S.fo1 || 'nr', fo2 = () => S.fo2 || 'nr';
+function initData(c){
+  const d = c.dan && c.dan <= 4 ? c.dan : (parseCat(c.ep).dan || 1);
+  const f1 = autoFo(c,1), f2 = autoFo(c,2);
+  return {nom:c.nom, prenom:c.prenom, annee:c.annee||'', uke:c.uke||'', ep:c.ep||'', dan:String(Math.min(4,d)), ordre:String(DB.list.indexOf(c)+1), fo1:f1, fo2:f2, katas:katasFor(c, Math.min(4,d), f1), nseries: d == 1 ? '3' : '5'};
+}
+function loadCurrent(){
+  const c = cur();
+  if (!c){ S = {}; return; }
+  if (!DB.data[c.id]) DB.data[c.id] = initData(c);
+  S = DB.data[c.id];
+}
+function store(){ const c = cur(); if (c) DB.data[c.id] = S; save(); }
+
+/* ===== Rendu des fiches selon le dan ===== */
+const famClass = (i) => 'fm' + (i % 7);
+function kataTable(kid){
+  const K = KATAS[kid];
+  let rows = [['—','Salut et ouverture']];
+  if (K.free) for (let i = 1; i <= K.free; i++) rows.push(['Contre-prise '+i, null]);
+  else { const ser = kid === 'nage' ? K.series.slice(0, +S.nseries || 5) : K.series; ser.forEach(([g, list]) => list.forEach(t => rows.push([g, t]))); }
+  rows.push(['—','Fermeture et salut']);
+  return `<h4>${K.name}${kid==='nage' && dan()==1 ? ' · 3 premières séries' : ''}</h4>
+  <div class="tw"><table class="kt" data-kata="${kid}"><thead><tr><th>Série</th><th>Technique</th>${FAUTES.map(([v,l]) => `<th class="c f-${v}">${l}</th>`).join('')}</tr></thead><tbody>
+  ${rows.map(([g,t],i) => `<tr data-row="${i}"><td class="grp">${g}</td><td>${t === null ? `<input type="text" data-k="gn${i}" aria-label="${g}" placeholder="attaque / contre">` : t}</td>${FAUTES.map(([v,l]) => `<td class="c"><input type="radio" name="k-${kid}-${i}" value="${v}" aria-label="${t||g} : ${l}"></td>`).join('')}</tr>`).join('')}
+  </tbody></table></div><div class="sugg mini" id="sk-${kid}"></div>`;
+}
+function decHTML(u, label){
+  return `<div class="dec">
+  <div class="f"><span class="lab">Décision du jury${label||''}</span><div class="radios"><label><input type="radio" name="d${u}" value="ok"> Acquise</label><label><input type="radio" name="d${u}" value="ko"> Non acquise</label></div></div>
+  <div class="f"><label for="m${u}">Motif si non acquise</label><textarea id="m${u}" data-k="m${u}"></textarea></div>
+  <div class="sign" style="grid-column:1/-1"><div class="box"><span>Évaluateur 1 · nom et signature</span><input type="text" data-k="e1-${u}" aria-label="Évaluateur 1"></div><div class="box"><span>Évaluateur 2 · nom et signature</span><input type="text" data-k="e2-${u}" aria-label="Évaluateur 2"></div><div class="box"><span>Cadre réservé CORG · signature et cachet</span></div></div></div>`;
+}
+function progFor(d, dom){
+  const out = {};
+  const dans = DB.g.cumul ? [1,2,3].filter(x => x <= d) : [d];
+  dans.forEach(x => Object.entries(PROG[x][dom]).forEach(([fm, list]) => { out[fm] = (out[fm] || []).concat(list.map(t => DB.g.cumul && x !== d ? t + ' (' + x + 'D)' : t)); }));
+  return out;
+}
+function techTable(data, dom, d){
+  return `<div class="tw"><table class="tech" id="t${dom}"><thead><tr><th>Famille</th><th>Technique</th><th class="c">Demandée</th><th class="c">Maîtrisée</th><th class="c">Méconnaissance</th></tr></thead><tbody>
+  ${Object.entries(data).map(([fm, list], fi) => list.map(t => { const id = d + dom + '|' + t;
+    return `<tr data-t="${esc(id)}" data-fam="${fm}" class="off"><td class="grp"><span class="${famClass(dom==='N'?fi:fi+4)}">${fm}-waza</span></td><td>${t}</td>
+    <td class="c"><input type="checkbox" data-req="1" aria-label="${t} : demandée"></td>
+    <td class="c"><input type="radio" name="r${esc(id)}" value="ok" aria-label="${t} : maîtrisée"></td>
+    <td class="c"><input type="radio" name="r${esc(id)}" value="ko" aria-label="${t} : méconnaissance"></td></tr>`; }).join('')).join('')}
+  </tbody></table></div>`;
+}
+function critTable(list, prefix){
+  return `<div class="tw"><table><thead><tr><th>Critère</th><th class="c f-c">Satisfaisant</th><th class="c f-m">Fragile</th><th class="c f-g">Insuffisant</th></tr></thead><tbody>
+  ${list.map(([c,s],i) => `<tr><td><b>${c}</b> <span class="hint">${s}</span></td>${['s','f','i'].map(v => `<td class="c"><input type="radio" name="${prefix}${i}" value="${v}" aria-label="${c} : ${{s:'satisfaisant',f:'fragile',i:'insuffisant'}[v]}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+let rendered = '';
+function renderSheets(){
+  const d = dan(), sig = d + '|' + (S.katas||[]).join(',') + '|' + S.nseries + '|' + DB.g.cumul + '|' + DB.g.ky + '|' + DB.cur + '|' + fo1() + '|' + fo2();
+  if (sig === rendered) return; rendered = sig;
+  const pid = '<div class="print-ident"></div>';
+  // UV1
+  const allK = Object.entries(KATAS).map(([k,v]) => `<label><input type="checkbox" data-kata="${k}"${(S.katas||[]).includes(k)?' checked':''}> ${v.name}</label>`).join('');
+  const f1 = fo1();
+  const K1N = {1:'3 premières séries du nage-no-kata en tori, puis 1 série en uke tirée par le jury. 40 ans et plus : tori seulement.',2:'Les 5 séries du nage-no-kata en tori.',3:'Katame-no-kata en tori.',4:'Ju-no-kata en tori. Au 5e dan : kime-no-kata, ou ju-no-kata pour qui a présenté le kime au 4e dan.'};
+  const K1O = {1:'Compétition : 3 premières séries du nage-no-kata en tori, tout ou partie en uke. Technique : nage-no-kata ou goshin-jitsu en entier en tori. Nés en 1976 et avant : tori seulement.',2:'Compétition : nage-no-kata entier en tori. Technique : nage-no-kata ou goshin-jitsu, différent de celui du 1er dan.',3:'Compétition : katame-no-kata et goshin-jitsu. Technique : katame-no-kata et nage-no-kata ou goshin-jitsu. Le kata réussi reste acquis ; seul le kata manquant se représente.',4:'Kime-no-kata et un kata parmi nage-no-kata, katame-no-kata, goshin-jitsu, go-no-sen. Le kata réussi reste acquis ; seul le kata manquant se représente.'};
+  $('#s1').innerHTML = `<div class="shead"><h2>UV1 · Kata</h2><span class="chip${f1==='old'?' old':''}">${DAN(d)} · ${f1==='old'?'ancien règlement':'nouveau règlement'}</span></div>${pid}
+    <div class="fo noprint${f1==='old'?' old':''}"><label class="lab" for="fo1">Formule</label><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement 2026-2027</option><option value="old">Ancien règlement, pour terminer (transition)</option></select></div>
+    <p class="hint">${f1==='old' ? 'Ancien règlement. ' + K1O[d] + ' Cochez le ou les katas présentés aujourd\'hui.' : 'Nouveau règlement. ' + K1N[d]}</p>
+    <div class="f noprint"><span class="lab">Kata(s) présenté(s)</span><div class="chips" id="kchips">${allK}</div>
+    ${(S.katas||[]).includes('nage') ? `<div class="radios" style="margin-top:6px"><span class="lab">Nage-no-kata :</span><label><input type="radio" name="nseries-ui" value="3"${S.nseries==='3'?' checked':''}> 3 séries</label><label><input type="radio" name="nseries-ui" value="5"${S.nseries!=='3'?' checked':''}> 5 séries</label></div>` : ''}</div>
+    ${(S.katas||[]).map(kataTable).join('') || '<p class="hint">Cochez au moins un kata.</p>'}
+    ${d == 1 ? `<h4>Uke</h4><div class="tw"><table><thead><tr><th>Série tirée</th><th class="c">Correct</th><th class="c">Insuffisant</th><th class="c">Dispensé</th></tr></thead><tbody><tr>
+      <td><select data-k="ukeSerie" aria-label="Série tirée"><option value="">—</option><option>Te-waza</option><option>Koshi-waza</option><option>Ashi-waza</option></select></td>
+      <td class="c"><input type="radio" name="uke" value="ok" aria-label="Uke correct"></td><td class="c"><input type="radio" name="uke" value="ko" aria-label="Uke insuffisant"></td><td class="c"><input type="radio" name="uke" value="disp" aria-label="Uke dispensé"></td></tr></tbody></table></div>` : ''}
+    <div class="sugg" id="sg1"></div>${decHTML(1)}`;
+  // UV2
+  const f2 = fo2(), C = uv2Cfg(d, f2), DL = {N:'Nage-waza', W:'Ne-waza', D:'Défense'};
+  let h2 = `<div class="shead"><h2>UV2 · Technique</h2><span class="chip${f2!=='nr'?' old':''}">${DAN(d)} · ${f2==='nr'?'nouveau règlement':'ancien règlement, '+(f2==='tech'?'dom. technique':'dom. compétition')}</span></div>${pid}
+    <div class="fo noprint${f2!=='nr'?' old':''}"><label class="lab" for="fo2">Formule</label><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement 2026-2027</option><option value="comp">Ancien règlement, dominante compétition</option><option value="tech">Ancien règlement, dominante technique</option></select></div>
+    <p class="hint">${C.txt}</p>`;
+  if (C.cand.length) h2 += `<h4>Partie 1 · au choix du candidat</h4><p class="hint">${C.candTxt}</p><div class="tw"><table><thead><tr><th>Domaine</th><th>Technique présentée</th>${d==3?'<th>Direction / situation</th>':''}<th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
+      ${C.cand.map((dm,i) => `<tr><td class="grp">${DL[dm]}</td><td>${dm === 'D' ? `<input type="text" data-k="ct${i}" aria-label="${DL[dm]} ${i+1}">` : techSelect('ct'+i, [dm], DL[dm]+' '+(i+1))}</td>${d==3?`<td><input type="text" data-k="cd${i}" aria-label="Direction ${i+1}"></td>`:''}<td class="c"><input type="radio" name="cc${i}" value="ok" aria-label="maîtrisée"></td><td class="c"><input type="radio" name="cc${i}" value="ko" aria-label="insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
+  if (C.q){
+    if (C.cand.length) h2 += `<h4>Partie 2 · techniques imposées par le jury</h4>`;
+    h2 += `<div class="rule"><b>Règle CORG Île-de-France : ${C.q.N >= 4 ? 'chaque famille abordée' : 'familles toutes différentes'}, jamais 3 techniques de la même famille.</b>
+      <span class="hint">${C.q.N} nage-waza et ${C.q.W} ne-waza. ${DB.g.cumul ? 'Programme cumulé.' : 'Programme du ' + DAN(d) + '.'}</span>
+      <div class="checks" id="fam"></div>${C.cand.length ? '<span class="hint">Les techniques démontrées en partie 1 sont exclues du choix du jury.</span><span class="swap" id="swap"></span>' : ''}
+      <div class="bar noprint"><button class="btn ghost sm" type="button" id="draw">Proposer un tirage équilibré</button><button class="btn ghost sm" type="button" id="undraw">Effacer le choix</button></div></div>
+      <h3>Nage-waza</h3>${techTable(progFor(d,'N'),'N',d)}<h3>Ne-waza</h3>${techTable(progFor(d,'W'),'W',d)}`;
+  }
+  if (C.gos) h2 += `<h4>Épreuve 1 · Go-no-sen en tori</h4><div class="radios"><label><input type="radio" name="gos" value="ok"> Go-no-sen réussi avant la réforme : épreuve 1 acquise</label><label><input type="radio" name="gos" value="exam"> Évalué aujourd'hui</label></div>
+      <div id="gosgrid">${kataTable('gonosen')}</div>`;
+  if (C.tokui) h2 += `<h4>${C.gos?'Épreuve 2 · ':''}Tokui-waza nage-waza (3 min${f2==='nr'?'':' minimum'})</h4><div class="f"><label>Techniques présentées</label><input type="text" data-k="tn" aria-label="Tokui-waza nage-waza"></div>${critTable(CRIT4N,'cn')}
+      <h4>${C.gos?'Épreuve 3 · ':''}Tokui-waza ne-waza (2 min${f2==='nr'?'':' minimum'})</h4><div class="f"><label>Techniques présentées</label><input type="text" data-k="tw" aria-label="Tokui-waza ne-waza"></div>${critTable(CRIT4W,'cw')}`;
+  if (C.def.length) h2 += `<h4>Défenses${C.q ? ' imposées par le jury' : ''}</h4><div class="tw"><table><thead><tr><th>Défense</th><th>Attaque / réponse présentée</th><th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
+      ${C.def.map((l,i) => `<tr><td class="grp">${l}</td><td><input type="text" data-k="dft${i}" aria-label="${l} ${i+1}"></td><td class="c"><input type="radio" name="df${i}" value="ok" aria-label="${l} : maîtrisée"></td><td class="c"><input type="radio" name="df${i}" value="ko" aria-label="${l} : insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
+  if (C.ex.length) h2 += `<h4>${C.exTitle}</h4><div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
+      ${C.ex.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td>${du}</td><td>${techSelect('ot'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="od${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>${critTable(CRIT3,'ox')}`;
+  h2 += `<div class="f" style="max-width:260px"><label>Durée</label><select data-k="dur2"><option value="">—</option><option value="ok">Dans le temps</option><option value="ko">Temps dépassé</option></select></div><div class="sugg" id="sg2"></div>${decHTML(2)}`;
+  $('#s2').innerHTML = h2;
+  // UV3
+  const rb = rowsB(d, DB.g.ky);
+  $('#s3').innerHTML = `<div class="shead"><h2>UV3 · Efficacité, option combinée</h2><span class="chip">${DAN(d)}</span></div>${pid}
+    ${fo1()!=='nr'||fo2()!=='nr' ? '<p class="hint"><b>Le candidat termine l\'UV1 ou l\'UV2 à l\'ancien règlement ; l\'UV3-B est une épreuve du nouveau règlement.</b></p>' : ''}
+    <p class="hint">Partie A : 20 points en shiai judo, dispense à 40 ans et plus. Partie B : exercices évalués par le jury, passables avant les 20 points. L'UV est enregistrée quand A et B sont acquises.</p>
+    <h4>Partie A · Points</h4><div class="radios"><label><input type="radio" name="pa" value="ok"> 20 points atteints</label><label><input type="radio" name="pa" value="disp"> Dispensé (40 ans et +)</label><label><input type="radio" name="pa" value="wait"> Pas encore atteints</label></div>
+    <div class="f" style="max-width:320px"><label>Points (dont avant la réforme)</label><input type="text" data-k="pts" placeholder="ex. 24 dont 14"></div>
+    <h4>Partie B · Déroulé</h4>
+    <div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
+    ${rb.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td><input type="text" class="dur" data-g="dur${d}-${i}" aria-label="Durée ${i+1}" value="${esc(DB.g['dur'+d+'-'+i] ?? du)}"></td><td>${techSelect('bt'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="bd${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>
+    <h4>Partie B · Grille</h4>${critTable(CRIT3,'cr')}
+    <div class="sugg" id="sg3"></div>${decHTML(3, ' · partie B')}
+    <div class="radios"><b>UV3 complète :</b><label><input type="radio" name="uvc" value="oui"> Oui, A et B acquises</label><label><input type="radio" name="uvc" value="non"> Non, partie A en attente</label></div>`;
+}
+
+/* ===== Restauration ===== */
+function restore(){
+  $$('[data-k]').forEach(el => { const k = el.dataset.k, v = S[k];
+    if (el.tagName === 'SELECT' && v && ![...el.options].some(o => o.value === v)) el.add(new Option(v, v));
+    if (el.type === 'checkbox') el.checked = !!v; else if (v !== undefined) el.value = v; else if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
+  $$('[data-g]').forEach(el => { if (el.classList.contains('dur')) return; const v = DB.g[el.dataset.g]; if (v !== undefined) el.value = v; });
+  $$('.sheet input[type=radio]').forEach(r => { r.checked = S['r:'+r.name] === r.value; });
+  $$('tr[data-t]').forEach(tr => { tr.querySelector('[data-req]').checked = !!S['q:'+tr.dataset.t]; });
+}
+
+/* ===== Calculs ===== */
+function setSugg(el, cls, t, dd){ if (!el) return; el.className = el.className.includes('mini') ? 'sugg mini ' + cls : 'sugg ' + cls; el.innerHTML = `<b>${t}</b><span>${dd}</span>`; }
+function kataEval(kid){
+  const rows = $$(`table.kt[data-kata="${kid}"] tbody tr`);
+  const f = rows.map(tr => S['r:k-'+kid+'-'+tr.dataset.row] || '');
+  rows.forEach((tr,i) => tr.className = f[i] ? 'f-'+f[i] : '');
+  const n = k => f.filter(x => x===k).length, done = f.filter(Boolean).length;
+  if (n('g') || n('o')) return ['ko','Kata non réussi', `${n('o')} oubli(s), ${n('g')} faute(s) grave(s).`];
+  if (done < rows.length) return ['','Évaluation en cours', `${done}/${rows.length} lignes renseignées.`];
+  if (n('m') >= 2) return ['q','À l\'appréciation du jury', `${n('m')} fautes moyennes.`];
+  return ['ok','Kata réussi', `${n('p')} petite(s) faute(s), ${n('m')} faute(s) moyenne(s).`];
+}
+function critEval(prefix, n){
+  const c = [...Array(n)].map((_,i) => S['r:'+prefix+i] || ''); return {ins:c.filter(x=>x==='i').length, fr:c.filter(x=>x==='f').length, nc:c.filter(Boolean).length, c};
+}
+function calc(){
+  const d = dan();
+  $('#age').textContent = S.annee ? (over40() ? '40 ans et plus : partie A dispensée' + (d==1?', uke dispensé':'') : 'Moins de 40 ans') : '';
+  // UV1
+  const ks = (S.katas||[]).map(k => [k, kataEval(k)]);
+  ks.forEach(([k, r]) => setSugg($('#sk-'+k), ...r));
+  let s1;
+  const uke = S['r:uke'] || '', ukeDisp = fo1() === 'old' ? (+S.annee && +S.annee <= 1976) : over40();
+  if (!ks.length) s1 = ['q','Aucun kata coché',''];
+  else if (ks.some(([,r]) => r[0]==='ko')) s1 = ['ko','Non acquise conseillée', ks.length > 1 ? 'Au moins un kata non réussi. Ancien règlement : le kata réussi reste acquis.' : 'Kata non réussi.'];
+  else if (d == 1 && uke === 'ko') s1 = ['ko','Non acquise conseillée','Rôle de uke insuffisant.'];
+  else if (ks.some(([,r]) => r[0]==='') || (d == 1 && !uke && !ukeDisp)) s1 = ['','Évaluation en cours', d==1 && !uke && !ukeDisp ? 'Uke à évaluer.' : 'Lignes à renseigner.'];
+  else if (ks.some(([,r]) => r[0]==='q')) s1 = ['q','À l\'appréciation du jury','Plusieurs fautes moyennes.'];
+  else s1 = ['ok','Acquise conseillée', ks.length > 1 ? 'Tous les katas réussis.' : 'Kata réussi.'];
+  setSugg($('#sg1'), ...s1);
+  // UV2
+  let s2;
+  {
+    const C = uv2Cfg(d, fo2()), ko = [], pend = [], qq = []; let choice = null;
+    const nc = C.cand.length, cIns = [...Array(nc)].filter((_,i) => S['r:cc'+i]==='ko').length, cEv = [...Array(nc)].filter((_,i) => S['r:cc'+i]).length;
+    if (C.q){
+      const q = C.q;
+      const req = dom => $$(`#t${dom} tr[data-t]`).filter(tr => tr.querySelector('[data-req]').checked);
+      const rN = req('N'), rW = req('W');
+      const cs = new Set(C.cand.map((_,i) => norm(S['ct'+i])).filter(Boolean));
+      $$('tr[data-t]').forEach(tr => { const cb = tr.querySelector('[data-req]'), on = cb.checked, demo = cs.has(norm(tr.dataset.t.split('|')[1]));
+        tr.classList.toggle('off', !on); tr.classList.toggle('req', on); tr.classList.toggle('demo', demo); cb.disabled = demo && !on; tr.querySelectorAll('input[type=radio]').forEach(r => r.disabled = !on); });
+      if ($('#swap')) $('#swap').textContent = S.swap ? 'Remplacée : ' + S.swap : '';
+      ['N','W'].forEach(dm => { const t = $('#t'+dm); if (t) t.classList.toggle('has-req', !!t.querySelector('[data-req]:checked')); });
+      const cnt = rows => { const m = {}; rows.forEach(tr => m[tr.dataset.fam] = (m[tr.dataset.fam]||0)+1); return m; };
+      const cN = cnt(rN), cW = cnt(rW);
+      const fN = Object.keys(progFor(d,'N')), fW = Object.keys(progFor(d,'W'));
+      const famOk = (fams, c, quota) => quota >= fams.length ? fams.every(f => (c[f]||0) >= 1 && (c[f]||0) <= 2) : Object.values(c).every(v => v === 1);
+      const chips = [...fN.map(f => [f, cN[f]||0, q.N >= fN.length]), ...fW.map(f => [f, cW[f]||0, q.W >= fW.length])];
+      $('#fam').innerHTML = chips.map(([f,k,all]) => { const ok = all ? (k>=1 && k<=2) : k <= 1; return `<span class="ck ${ok?'ok':'ko'}">${ok?'✓':'✗'} ${f} ${k}</span>`; }).join('') + `<span class="ck ${rN.length===q.N?'ok':'ko'}">Nage ${rN.length}/${q.N}</span><span class="ck ${rW.length===q.W?'ok':'ko'}">Ne ${rW.length}/${q.W}</span>`;
+      const mk = l => l.filter(tr => S['r:r'+tr.dataset.t] === 'ko').length, ev = l => l.filter(tr => S['r:r'+tr.dataset.t]).length;
+      const mN = mk(rN), mW = mk(rW);
+      const dup = [...rN, ...rW].some(tr => cs.has(norm(tr.dataset.t.split('|')[1])));
+      if (Object.values(cN).some(v => v>=3) || Object.values(cW).some(v => v>=3)) choice = '3 techniques ou plus dans la même famille.';
+      else if (rN.length !== q.N || rW.length !== q.W || !famOk(fN,cN,q.N) || !famOk(fW,cW,q.W)) choice = `Il faut ${q.N} nage-waza et ${q.W} ne-waza, réparties selon la règle des familles.`;
+      else if (dup) choice = 'Une technique du jury est déjà présentée par le candidat en partie 1.';
+      if (mN >= 2 || mW >= 2) ko.push(`méconnaissances jury : ${mN} nage, ${mW} ne`);
+      if (ev(rN) + ev(rW) < q.N + q.W) pend.push(`${ev(rN)+ev(rW)}/${q.N+q.W} techniques du jury`);
+    }
+    if (nc){ if (cIns) ko.push(`partie 1 insuffisante : ${cIns}`); if (cEv < nc) pend.push(`${cEv}/${nc} en partie 1`); }
+    if (C.def.length){
+      const di = C.def.filter((_,i) => S['r:df'+i]==='ko').length, de = C.def.filter((_,i) => S['r:df'+i]).length;
+      if (di >= 2) ko.push(`${di} défenses insuffisantes`); else if (di === 1 && !C.q) qq.push('une défense insuffisante');
+      if (de < C.def.length) pend.push(`${de}/${C.def.length} défenses`);
+    }
+    if (C.gos){
+      const gos = S['r:gos'] || '';
+      $('#gosgrid').hidden = gos !== 'exam';
+      const g = gos === 'ok' ? ['ok'] : gos === 'exam' ? kataEval('gonosen') : [''];
+      if (gos === 'exam') setSugg($('#sk-gonosen'), ...g);
+      if (g[0] === 'ko') ko.push('go-no-sen non réussi'); else if (!gos) pend.push('go-no-sen : acquis ou évalué aujourd\'hui ?'); else if (g[0] === '') pend.push('go-no-sen'); else if (g[0] === 'q') qq.push('go-no-sen avec fautes moyennes');
+    }
+    if (C.tokui){
+      const a = critEval('cn', CRIT4N.length), b = critEval('cw', CRIT4W.length);
+      if (b.c[3] === 'i') ko.push('sécurité insuffisante au sol'); else if (a.ins + b.ins >= 2) ko.push(`${a.ins + b.ins} critères tokui-waza insuffisants`);
+      else if (a.ins + b.ins === 1 || a.fr + b.fr >= 3) qq.push('tokui-waza : un point faible ou plusieurs fragilités');
+      if (a.nc < CRIT4N.length || b.nc < CRIT4W.length) pend.push('critères tokui-waza');
+    }
+    if (C.ex.length){
+      const e = critEval('ox', CRIT3.length);
+      if (e.c[4] === 'i') ko.push('exercices : sécurité de uke non assurée'); else if (e.ins >= 2) ko.push(`exercices : ${e.ins} critères insuffisants`);
+      else if (e.ins === 1 || e.fr >= 3) qq.push('exercices : un point faible ou plusieurs fragilités');
+      if (e.nc < CRIT3.length) pend.push(`${e.nc}/${CRIT3.length} critères des exercices`);
+    }
+    if (S.dur2 === 'ko') ko.push('temps dépassé');
+    const cap = t => t.charAt(0).toUpperCase() + t.slice(1) + '.';
+    if (choice) s2 = ['q', C.q && /Il faut/.test(choice) ? 'Choix du jury incomplet' : 'Choix du jury à revoir', choice];
+    else if (ko.length) s2 = ['ko','Non acquise conseillée', cap(ko.join(' · '))];
+    else if (pend.length) s2 = ['','Évaluation en cours', cap(pend.join(', ') + ' à renseigner')];
+    else if (qq.length) s2 = ['q','À l\'appréciation du jury', cap(qq.join(' · '))];
+    else s2 = ['ok','Acquise conseillée','Ensemble satisfaisant.'];
+  }
+  setSugg($('#sg2'), ...s2);
+  // UV3
+  const e = critEval('cr', CRIT3.length);
+  let s3;
+  if (e.c[4] === 'i') s3 = ['ko','Partie B : non acquise conseillée','La sécurité de uke n\'est pas assurée.'];
+  else if (e.ins >= 2) s3 = ['ko','Partie B : non acquise conseillée', `${e.ins} critères insuffisants.`];
+  else if (e.nc < CRIT3.length) s3 = ['','Évaluation en cours', `${e.nc}/${CRIT3.length} critères renseignés.`];
+  else if (e.ins === 1 || e.fr >= 3) s3 = ['q','Partie B : à l\'appréciation du jury','Un point faible ou plusieurs fragilités.'];
+  else s3 = ['ok','Partie B : acquise conseillée','Ensemble satisfaisant.'];
+  setSugg($('#sg3'), ...s3);
+  if (over40() && !S['r:pa']){ S['r:pa'] = 'disp'; const r = $('input[name=pa][value=disp]'); if (r) r.checked = true; }
+  [1,2,3].forEach(u => { $('#t'+u).dataset.s = S['r:d'+u] || ''; });
+  const c = cur(), I = ins();
+  [1,2,3].forEach(u => {
+    const x = c && c.uvs && c.uvs[u], ni = !I.includes(u);
+    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Ordre :</span> ${esc(S.ordre)}</div>`;
+    const tb = $('#t'+u); tb.toggleAttribute('data-ni', ni);
+    let sp = tb.querySelector('.ni'); if (ni && !sp){ sp = document.createElement('span'); sp.className = 'ni'; sp.textContent = '· non inscrit'; tb.appendChild(sp); } if (!ni && sp) sp.remove();
+    /* UV non inscrite dans l'export : ajout sur place possible */
+    const sh = $('#s'+u); let ab = sh.querySelector('.addbar');
+    const show = c && c.uvs && Object.keys(c.uvs).length && (ni || (x && x.added));
+    if (!show){ if (ab) ab.remove(); return; }
+    if (!ab){ ab = document.createElement('div'); sh.querySelector('.shead').after(ab); }
+    ab.className = 'addbar noprint' + (ni ? '' : ' added');
+    ab.innerHTML = ni ? `<span><b>Candidat non inscrit à l'UV${u}</b> dans les exports importés.</span><button class="btn sm" type="button" data-adduv="${u}">Ajouter l'UV${u} pour ce candidat</button>`
+      : `<span><b>UV${u} ajoutée sur place</b>, hors export. Pensez à régulariser l'inscription sur l'extranet.</span><button class="btn ghost sm" type="button" data-deluv="${u}">Retirer l'UV${u}</button>`;
+  });
+}
+function renderList(){
+  $('#lempty').hidden = DB.list.length > 0;
+  const dOf = c => +((DB.data[c.id]||{}).dan || c.dan || parseCat(c.ep).dan || 1);
+  const uOf = c => c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number) : [1,2,3];
+  const dans = [...new Set(DB.list.map(dOf))].sort();
+  const hasUV = DB.list.some(c => c.uvs && Object.keys(c.uvs).length);
+  $('#lfilter').hidden = !DB.list.length || (dans.length < 2 && !hasUV);
+  const fu = DB.fuv || 'all';
+  $('#lfilter').innerHTML = `<span class="lfil"><span class="lab">Dan</span>${['all', ...dans].map(x => `<button type="button" class="btn ${DB.filter==x?'':'ghost'} sm" data-f="${x}">${x==='all'?'Tous':DAN(x)}</button>`).join('')}</span>`
+    + (hasUV ? `<span class="lfil"><span class="lab">Épreuve</span>${['all',1,2,3].map(x => `<button type="button" class="btn ${fu==x?'':'ghost'} sm" data-u="${x}">${x==='all'?'Toutes':'UV'+x+' · '+DB.list.filter(c => uOf(c).includes(x)).length}</button>`).join('')}</span>` : '');
+  $('#cands').innerHTML = DB.list.map((c,i) => {
+    const dd = DB.data[c.id] || {}, dn = dOf(c), us = uOf(c);
+    if (DB.filter !== 'all' && DB.filter != dn) return '';
+    if (fu !== 'all' && !us.includes(+fu)) return '';
+    const old = u => (dd['fo'+u] || autoFo(c,u)) !== 'nr';
+    const st = us.map(u => { const v = dd['r:d'+u]; const plus = c.uvs && c.uvs[u] && c.uvs[u].added; return `<i class="${v||(plus?'plus':(u<3 && old(u)?'ar':''))}">UV${u}${plus?' +':''}${u<3 && old(u)?' AR':''}${v==='ok'?' ✓':v==='ko'?' ✗':''}</i>`; }).join('');
+    return `<button type="button" class="cand dd${dn}" data-id="${esc(c.id)}" aria-current="${c.id===DB.cur}"><b>${i+1}. ${esc(c.nom)} ${esc(c.prenom)}</b><small>${c.annee ? 'Né(e) en '+esc(c.annee)+' · ' : ''}${esc(c.ep || 'Saisie manuelle')}</small><span class="st"><i class="dan dan${dn}">${dn}D</i>${st}</span></button>`;
+  }).join('');
+  renderSelect();
+}
+/* Liste déroulante des noms : ordre alphabétique, selon les filtres Dan et Épreuve */
+function renderSelect(){
+  const ids = $$('.cand').map(b => b.dataset.id), list = DB.list.filter(c => ids.includes(c.id))
+    .sort((a,b) => (a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom, 'fr', {sensitivity:'base'}));
+  $('#csel').hidden = !DB.list.length; $('#delc').hidden = !cur(); $('#delconf').hidden = true;
+  $('#cselc').textContent = list.length + ' candidat' + (list.length > 1 ? 's' : '') + (list.length < DB.list.length ? ' (filtrés) sur ' + DB.list.length : '') + ' · AR = ancien règlement · + = UV ajoutée sur place · ✓ / ✗ = décision';
+  /* Statut par UV dans le libellé : AR = ancien règlement, + = ajoutée sur place, ✓ / ✗ = décision du jury */
+  const uOf = c => { const dd = DB.data[c.id] || {}, us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [];
+    return us.map(u => { const v = dd['r:d'+u], f = u < 3 ? (dd['fo'+u] || autoFo(c,u)) : 'nr';
+      return 'UV' + u + (c.uvs[u].added ? '+' : '') + (f !== 'nr' ? ' AR' : '') + (v === 'ok' ? ' ✓' : v === 'ko' ? ' ✗' : ''); }).join(' · '); };
+  const opt = c => { const dd = DB.data[c.id] || {}, dn = +(dd.dan || c.dan || 1), u = uOf(c); return `<option value="${esc(c.id)}"${c.id===DB.cur?' selected':''}>${(esc(c.nom) + ' ' + esc(c.prenom)).trim() || '(nouveau candidat, saisir le nom)'} · ${dn}D${u ? ' · '+u : ''}</option>`; };
+  $('#csel').innerHTML = (list.some(c => c.id === DB.cur) ? '' : '<option value="">— choisir —</option>') + list.map(opt).join('');
+}
+/* Onglet ouvert : l'UV filtrée, sinon une UV à laquelle le candidat est inscrit */
+function showTab(u){ $$('[role=tab]').forEach(x => { const on = x.id === 't'+u; x.setAttribute('aria-selected', on); $('#'+x.getAttribute('aria-controls')).hidden = !on; }); }
+function autoTab(){
+  const I = ins(), fu = DB.fuv && DB.fuv !== 'all' ? +DB.fuv : null;
+  const curU = +($('[role=tab][aria-selected=true]')||{id:'t1'}).id.slice(1);
+  if (fu && I.includes(fu)) showTab(fu); else if (!I.includes(curU)) showTab(I[0]);
+}
+function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); }
+$('#csel').addEventListener('change', e => { if (!e.target.value) return; DB.cur = e.target.value; save(); refresh(); });
+
+/* ===== Import Excel ===== */
+/* Empreinte non réversible : le n° de licence sert à repérer les doublons mais n'est jamais conservé */
+const fp = s => { let h1 = 0x811c9dc5, h2 = 0x1505; for (const ch of String(s)){ const c = ch.charCodeAt(0); h1 = Math.imul(h1 ^ c, 16777619) >>> 0; h2 = (Math.imul(h2, 33) + c) >>> 0; } return 'c' + h1.toString(36) + h2.toString(36); };
+const pickCol = (row, names) => { for (const n of names){ const k = Object.keys(row).find(x => x.trim().toUpperCase() === n); if (k && row[k] != null && row[k] !== '') return row[k]; } return ''; };
+function yearOf(v){
+  if (v instanceof Date) return v.getFullYear();
+  if (typeof v === 'number' && v > 1000 && v < 3000) return v;
+  if (typeof v === 'number' && typeof XLSX !== 'undefined'){ const d = XLSX.SSF.parse_date_code(v); return d ? d.y : ''; }
+  const m = String(v).match(/(19|20)\d{2}/); return m ? +m[0] : '';
+}
+const uvOf = (act, cat) => { const t = act + ' ' + cat; return /UV\s*3|volet\s*b/i.test(t) ? 3 : /UV\s*2|technique\s*\(/i.test(t) ? 2 : /UV\s*1|kata/i.test(t) ? 1 : 0; };
+$('#xlsx').addEventListener('change', async e => {
+  const files = [...e.target.files]; e.target.value = ''; if (!files.length) return;
+  $('#xerr').hidden = true; $('#xinfo').hidden = true;
+  if (typeof XLSX === 'undefined'){ $('#xerr').textContent = 'La lecture des fichiers Excel n\'a pas pu se charger. Vérifiez la connexion internet puis rechargez la page.'; $('#xerr').hidden = false; return; }
+  const errs = [], seenUV = {1:0,2:0,3:0}; let added = 0, rowsN = 0;
+  for (const file of files){
+    try{
+      const wb = XLSX.read(await file.arrayBuffer(), {cellDates:true});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+      let n = 0;
+      rows.forEach(r => {
+        if (String(pickCol(r, ['STATUT'])).toLowerCase().startsWith('annul')) return;
+        const nom = String(pickCol(r, ['NOM'])).trim(), prenom = String(pickCol(r, ['PRENOM','PRÉNOM'])).trim();
+        if (!nom && !prenom) return;
+        n++;
+        const lic = String(pickCol(r, ['NUMERO_LICENCE','LICENCE','N° LICENCE'])).trim();
+        const un = String(pickCol(r, ['NOM_PARTENAIRE'])).trim(), up = String(pickCol(r, ['PRENOM_PARTENAIRE'])).trim();
+        const ep = String(pickCol(r, ['CATEGORIE','CATÉGORIE','EPREUVE'])).trim(), act = String(pickCol(r, ['ACTIVITE','ACTIVITÉ'])).trim();
+        const id = fp(lic || (nom + '|' + prenom)), uv = uvOf(act, ep), uke = [un, up].filter(Boolean).join(' ');
+        let c = DB.list.find(x => x.id === id);
+        if (!c){ c = {id, nom, prenom, annee: yearOf(pickCol(r, ['NAISSANCE','DATE_NAISSANCE'])), uke, uvs:{}}; DB.list.push(c); added++; }
+        if (!c.uvs) c.uvs = {};
+        if (uv){ c.uvs[uv] = {ep, uke}; seenUV[uv]++; }
+        else c.ep = ep;
+        const p = parseCat(ep); if (p.dan) c.dan = p.dan;
+        c.ep = Object.keys(c.uvs).length ? Object.entries(c.uvs).sort().map(([u,x]) => x.ep).join(' · ') : c.ep;
+        if (!c.uke && uke) c.uke = uke;
+        if (!DB.g.sess && act) DB.g.sess = act.replace(/\s*\(\d+\)\s*$/, '').replace(/\s*(PASSAGE DE GRADE\s*)?UV\s*\d.*$/i, '').trim();
+        /* fiche déjà ouverte : mise à jour des épreuves et de la formule tant que le jury n'a rien saisi */
+        const S0 = DB.data[id];
+        if (S0){ S0.ep = c.ep; if (!S0.uke) S0.uke = c.uke;
+          if (!Object.keys(S0).some(k => k.startsWith('r:') || k.startsWith('q:'))){ const fresh = initData(c); ['fo1','fo2','katas','dan','nseries'].forEach(k => S0[k] = fresh[k]); } }
+      });
+      rowsN += n;
+      if (!n) errs.push(file.name + ' : aucun candidat (colonnes NOM et PRENOM attendues).');
+    }catch(err){ errs.push(file.name + ' : fichier illisible, utilisez l\'export .xlsx de la liste des inscriptions.'); }
+  }
+  if (errs.length){ $('#xerr').textContent = errs.join(' '); $('#xerr').hidden = false; }
+  if (DB.list.length){
+    if (!DB.cur) DB.cur = DB.list[0].id;
+    const tot = seenUV[1] + seenUV[2] + seenUV[3];
+    $('#xinfo').textContent = `${files.length} fichier${files.length>1?'s':''} lu${files.length>1?'s':''} · ${rowsN} inscription${rowsN>1?'s':''}${tot ? ` (UV1 : ${seenUV[1]}, UV2 : ${seenUV[2]}, UV3 : ${seenUV[3]})` : ''} · ${added} nouveau${added>1?'x':''} candidat${added>1?'s':''} · ${DB.list.length} au total.`;
+    $('#xinfo').hidden = false;
+    save(); refresh();
+  }
+});
+
+/* Une technique saisie en partie 1 qui figure déjà dans le choix du jury est remplacée par une autre de la même famille */
+function avoidDemo(){
+  const C = uv2Cfg(dan(), fo2()); if (!C.q || !C.cand.length) return;
+  const cs = new Set(C.cand.map((_,i) => norm(S['ct'+i])).filter(Boolean)), nm = tr => tr.dataset.t.split('|')[1], done = [];
+  ['N','W'].forEach(dom => {
+    const rows = $$(`#t${dom} tr[data-t]`);
+    rows.filter(tr => S['q:'+tr.dataset.t] && cs.has(norm(nm(tr)))).forEach(tr => {
+      delete S['q:'+tr.dataset.t]; delete S['r:r'+tr.dataset.t];
+      const pool = rows.filter(r => !S['q:'+r.dataset.t] && !cs.has(norm(nm(r))));
+      let opt = pool.filter(r => r.dataset.fam === tr.dataset.fam);
+      if (!opt.length){ const cnt = {}; rows.filter(r => S['q:'+r.dataset.t]).forEach(r => cnt[r.dataset.fam] = (cnt[r.dataset.fam]||0)+1);
+        const min = Math.min(...pool.map(r => cnt[r.dataset.fam]||0)); opt = pool.filter(r => (cnt[r.dataset.fam]||0) === min); }
+      if (opt.length){ const r = opt[Math.floor(Math.random()*opt.length)]; S['q:'+r.dataset.t] = true; done.push(nm(tr) + ' → ' + nm(r)); }
+      else done.push(nm(tr) + ' retirée');
+    });
+  });
+  if (done.length) S.swap = done.join(', ');
+}
+
+/* ===== Événements ===== */
+function addManual(){
+  const id = 'manuel-' + Date.now();
+  DB.list.push({id, nom:'', prenom:'', annee:'', ep:'', uke:''}); DB.cur = id;
+  DB.data[id] = {dan:'1', ordre:String(DB.list.length), katas:['nage'], nseries:'3'};
+  loadCurrent();
+}
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'xlsx' || t.id === 'csel') return;
+  if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
+  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
+  if (!t.closest('#ident, .sheet')) return;
+  if (!cur()){ addManual(); }
+  if (t.dataset.kata){ const k = t.dataset.kata; S.katas = (S.katas||[]).filter(x => x !== k); if (t.checked) S.katas.push(k); store(); rendered=''; renderSheets(); restore(); calc(); return; }
+  if (t.name === 'nseries-ui'){ S.nseries = t.value; store(); rendered=''; renderSheets(); restore(); calc(); return; }
+  if (t.type === 'radio') S['r:'+t.name] = t.value;
+  else if (t.dataset.req) S['q:'+t.closest('tr').dataset.t] = t.checked;
+  else if (t.dataset.k){ S[t.dataset.k] = t.type === 'checkbox' ? t.checked : t.value; if (/^ct\d+$/.test(t.dataset.k)){ avoidDemo(); restore(); } }
+  if (t.dataset.k === 'dan'){ S.katas = katasFor(cur(), +t.value, fo1()); S.nseries = t.value === '1' ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
+  if (t.dataset.k === 'fo1'){ S.katas = katasFor(cur(), dan(), t.value); S.nseries = dan() == 1 ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
+  if (t.dataset.k === 'fo2'){ store(); rendered=''; renderSheets(); restore(); }
+  if (t.id === 'i-nom' || t.id === 'i-prenom'){ const c = cur(); if (c){ c.nom = S.nom || ''; c.prenom = S.prenom || ''; } }
+  store(); calc(); renderList();
+});
+$('#manual').addEventListener('click', () => { DB.filter = 'all'; DB.fuv = 'all'; addManual(); save(); refresh(); $('#i-nom').focus(); });
+/* Suppression d'un candidat : liste et fiches de ce candidat */
+$('#delc').addEventListener('click', () => { const c = cur(); if (!c) return; $('#delname').textContent = `Supprimer ${(c.nom + ' ' + c.prenom).trim() || 'ce candidat'} et ses fiches ?`; $('#delconf').hidden = false; });
+$('#delno').addEventListener('click', () => { $('#delconf').hidden = true; });
+$('#delyes').addEventListener('click', () => {
+  const ids = $$('#csel option').map(o => o.value).filter(Boolean), i = ids.indexOf(DB.cur);
+  const gone = DB.cur; DB.list = DB.list.filter(c => c.id !== gone); delete DB.data[gone];
+  const rest = ids.filter(x => x !== gone); DB.cur = rest[Math.min(Math.max(i,0), rest.length-1)] || (DB.list[0] && DB.list[0].id) || null;
+  save(); refresh();
+});
+$('#cands').addEventListener('click', e => { const b = e.target.closest('.cand'); if (!b) return; DB.cur = b.dataset.id; save(); refresh(); });
+$('#lfilter').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.u){ DB.fuv = b.dataset.u === 'all' ? 'all' : +b.dataset.u; save(); renderList();
+    const ids = $$('.cand').map(x => x.dataset.id); if (ids.length && !ids.includes(DB.cur)){ DB.cur = ids[0]; save(); refresh(); } else autoTab(); return; }
+  DB.filter = b.dataset.f === 'all' ? 'all' : +b.dataset.f; save(); renderList(); });
+/* Précédent / suivant : dans l'ordre de la liste déroulante (alphabétique, filtrée) */
+const step = dd => { const ids = $$('#csel option').map(o => o.value).filter(Boolean); if (!ids.length) return; const i = ids.indexOf(DB.cur); const j = i < 0 ? 0 : Math.min(ids.length-1, Math.max(0, i+dd)); DB.cur = ids[j]; save(); refresh(); };
+$('#prev').addEventListener('click', () => step(-1));
+$('#next').addEventListener('click', () => step(1));
+$$('[role=tab]').forEach(b => b.addEventListener('click', () => showTab(+b.id.slice(1))));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+/* Tirage : une technique par famille, compléments dans des familles différentes ; si moins de techniques que de familles, familles toutes différentes */
+function drawDomain(data, total){
+  const fams = Object.keys(data).filter(f => data[f].length), out = [];
+  if (total < fams.length){ shuffle(fams).slice(0, total).forEach(f => out.push(pick(data[f]))); return out; }
+  fams.forEach(f => out.push(pick(data[f])));
+  shuffle(fams.filter(f => data[f].length >= 2)).slice(0, total - fams.length).forEach(f => out.push(pick(data[f].filter(t => !out.includes(t)))));
+  return out;
+}
+document.addEventListener('click', e => {
+  const add = e.target.closest('[data-adduv],[data-deluv]');
+  if (add){
+    const c = cur(); if (!c) return;
+    if (!c.uvs) c.uvs = {};
+    if (add.dataset.adduv){ const u = +add.dataset.adduv; c.uvs[u] = {ep: `${dan()}D - UV${u} (ajout sur place)`, uke: S.uke || '', added: true}; }
+    else { const u = +add.dataset.deluv; delete c.uvs[u]; }
+    c.ep = Object.entries(c.uvs).sort().map(([u,x]) => x.ep).join(' · '); S.ep = c.ep;
+    store(); rendered = ''; renderSheets(); restore(); calc(); renderList();
+    if (add.dataset.adduv) showTab(+add.dataset.adduv); else autoTab();
+    return;
+  }
+  if (e.target.id === 'draw' || e.target.id === 'undraw'){
+    const d = dan(); if (!cur()) addManual();
+    const cs = new Set(uv2Cfg(d, fo2()).cand.map((_,i) => norm(S['ct'+i])).filter(Boolean)); S.swap = '';
+    const strip = o => Object.fromEntries(Object.entries(o).map(([f,l]) => [f, l.filter(t => !cs.has(norm(t)))]));
+    const q = uv2Cfg(d, fo2()).q; if (!q) return;
+    const sel = e.target.id === 'draw' ? [...drawDomain(strip(progFor(d,'N')), q.N).map(t => d+'N|'+t), ...drawDomain(strip(progFor(d,'W')), q.W).map(t => d+'W|'+t)] : [];
+    $$('tr[data-t]').forEach(tr => { const id = tr.dataset.t; S['q:'+id] = sel.includes(id); if (!sel.includes(id)) delete S['r:r'+id]; });
+    store(); restore(); calc(); renderList();
+  }
+});
+/* Impression : fiches cochées seulement, chaque fiche réduite si besoin pour tenir sur une page A4 */
+let pmHidden = null;
+function enterPrint(){
+  const H = document.documentElement; if (H.classList.contains('pm')) return;
+  let sel = [1,2,3].filter(u => DB.g['p'+u] !== false); if (!sel.length) sel = [1,2,3];
+  const I = ins(), si = sel.filter(u => I.includes(u)); if (si.length) sel = si;
+  pmHidden = $$('.sheet').map(x => x.hidden);
+  $$('.sheet').forEach((x,i) => { x.hidden = false; x.style.zoom = ''; x.classList.toggle('skip', !sel.includes(i+1)); x.style.breakAfter = i+1 === sel[sel.length-1] ? 'auto' : 'page'; });
+  H.classList.add('pm');
+  const avail = 279 * 96 / 25.4 - 14;
+  $$('.sheet:not(.skip)').forEach(x => {
+    /* Liste vierge trop longue : imprimée sur deux colonnes */
+    if (x.getBoundingClientRect().height > avail) x.querySelectorAll('table.tech:not(.has-req)').forEach(t => {
+      const rows = [...t.tBodies[0].rows], half = Math.ceil(rows.length / 2), box = document.createElement('div');
+      box.className = 'tsplit pm-tmp';
+      [rows.slice(0, half), rows.slice(half)].forEach(part => {
+        const w = document.createElement('div'), tb = t.cloneNode(false), body = document.createElement('tbody');
+        w.className = 'tw'; tb.removeAttribute('id'); tb.appendChild(t.tHead.cloneNode(true));
+        part.forEach(r => { const c = r.cloneNode(true); c.querySelectorAll('input').forEach(i => { i.name = ''; i.checked = false; }); body.appendChild(c); });
+        tb.appendChild(body); w.appendChild(tb); box.appendChild(w);
+      });
+      t.parentElement.classList.add('pm-hide'); t.parentElement.after(box);
+    });
+    const h = x.getBoundingClientRect().height; if (h > avail) x.style.zoom = (Math.floor(avail / h * 1000) / 1000).toString(); });
+}
+function exitPrint(){
+  document.documentElement.classList.remove('pm');
+  $$('.pm-tmp').forEach(x => x.remove()); $$('.pm-hide').forEach(x => x.classList.remove('pm-hide'));
+  $$('.sheet').forEach((x,i) => { x.style.zoom = ''; x.style.breakAfter = ''; x.classList.remove('skip'); if (pmHidden) x.hidden = pmHidden[i]; });
+  pmHidden = null;
+}
+window.addEventListener('beforeprint', enterPrint);
+window.addEventListener('afterprint', exitPrint);
+$('#print').addEventListener('click', () => { enterPrint(); try{ window.print(); }catch(err){} });
+$('#clearAll').addEventListener('click', () => { $('#confirm').hidden = false; });
+$('#no').addEventListener('click', () => { $('#confirm').hidden = true; });
+$('#yes').addEventListener('click', () => {
+  DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all'}; save(); $('#xinfo').hidden = true;
+  $$('#settings input').forEach(i => i.value = '');
+  $('#confirm').hidden = true; refresh(); window.scrollTo({top:0});
+});
+refresh();
+})();
+</script>
+</body>
+</html>
+
+</body></html>
