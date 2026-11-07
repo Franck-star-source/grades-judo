@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Grades judo 1er au 4e dan : ce que vous gardez et ce qu'il vous reste à passer après la réforme FFJDA de septembre 2026. Outil créé par Franck Bourasseau.">
+<meta name="author" content="Franck Bourasseau">
+<style>*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Mon passage de grade judo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout : colonne unique étroite, une question par écran, plan personnel en fin de parcours */
+:root{
+  --bg:#f6f6f2; --surface:#ffffff; --fg:#1c1f26; --muted:#5d6370; --line:#dcdcd3;
+  --ai:#24407a; --ai-soft:#e4e9f4; --sumi:#6b5b4a; --sumi-soft:#efe9e1;
+  --warn:#9a5b00; --warn-soft:#fbf0dc; --ok:#2f6b3f; --ok-soft:#e3f0e5;
+  --uv1:#6a3fa0; --uv1-soft:#efe8f8; --uv2:#13707f; --uv2-soft:#e0f1f3; --uv3:#c2410c; --uv3-soft:#fbe9df; --uv4:#2f7d32; --uv4-soft:#e4f2e3;
+  --hero:#1d2f63; --hero2:#2e4a96; --on-hero:#ffffff; --belt:#151515; --brown:#6b3f22; --accent:#c2410c;
+  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN",Georgia,serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --uv1:#b99be6; --uv1-soft:#2a2238; --uv2:#6cc6d3; --uv2-soft:#16292d; --uv3:#f39a6b; --uv3-soft:#33221a; --uv4:#8fcf8f; --uv4-soft:#1b2a1c;
+  --hero:#1a2750; --hero2:#2b4386; --on-hero:#ffffff; --belt:#0b0b0b; --brown:#8a5532; --accent:#f39a6b;
+  --bg:#13161c; --surface:#1b1f27; --fg:#e8e8e3; --muted:#a1a6b2; --line:#2d323d;
+  --ai:#8fa9e6; --ai-soft:#1f2a42; --sumi:#c9b39a; --sumi-soft:#2b251f;
+  --warn:#e8b25c; --warn-soft:#33281a; --ok:#86c595; --ok-soft:#1c2c21; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --uv1:#b99be6; --uv1-soft:#2a2238; --uv2:#6cc6d3; --uv2-soft:#16292d; --uv3:#f39a6b; --uv3-soft:#33221a; --uv4:#8fcf8f; --uv4-soft:#1b2a1c;
+  --hero:#1a2750; --hero2:#2b4386; --on-hero:#ffffff; --belt:#0b0b0b; --brown:#8a5532; --accent:#f39a6b;
+  --bg:#13161c; --surface:#1b1f27; --fg:#e8e8e3; --muted:#a1a6b2; --line:#2d323d;
+  --ai:#8fa9e6; --ai-soft:#1f2a42; --sumi:#c9b39a; --sumi-soft:#2b251f;
+  --warn:#e8b25c; --warn-soft:#33281a; --ok:#86c595; --ok-soft:#1c2c21; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;gap:18px}
+header{display:grid;gap:6px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1.12;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:clamp(22px,5vw,27px);line-height:1.25;margin:0;text-wrap:balance}
+h3{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+p{margin:0}
+.sub{color:var(--muted);max-width:60ch}
+.prog{display:grid;gap:6px}
+.prog .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.prog .bar span{display:block;height:100%;background:var(--ai);transition:width .3s}
+.prog small{font:500 12px var(--f-mono);color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:16px}
+.help{color:var(--muted);font-size:14.5px}
+.choices{display:grid;gap:10px}
+.choices.two{grid-template-columns:1fr 1fr}
+.choice{appearance:none;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:12px;padding:14px 16px;font:500 16px var(--f-body);cursor:pointer;display:grid;gap:2px}
+.choice.none{border-style:dashed}
+.choice small{color:var(--muted);font-weight:400;font-size:13.5px}
+.choice:hover{border-color:var(--ai)}
+.choice[aria-pressed="true"]{border-color:var(--ai);background:var(--ai-soft)}
+.choice .big{font-family:var(--f-display);font-size:24px;font-weight:800}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+input[type=number]{font:600 22px var(--f-mono);padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);width:100%;max-width:200px}
+.seg{display:grid;gap:8px}
+.segrow{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.segrow b{font-size:15px}
+.segrow small{color:var(--muted);font-size:13px}
+.segbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.segbtns button{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:8px 6px;font:500 13.5px var(--f-body);cursor:pointer}
+.segbtns button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;background:var(--ai);color:var(--bg);font:600 15px var(--f-body);padding:12px 20px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:none;color:var(--fg);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.err{color:var(--warn);font-size:14px}
+/* Résultat */
+.verdict{border-radius:16px;padding:18px 20px;display:grid;gap:6px}
+.verdict.tr{background:var(--warn-soft)}
+.verdict.nr{background:var(--ai-soft)}
+.verdict b{font-family:var(--f-display);font-size:22px;line-height:1.25}
+.deadline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.deadline .d{font:600 20px var(--f-mono)}
+.list{display:grid;gap:10px}
+.uv{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.uv > div{min-width:0;display:grid;gap:4px}
+.uv b{font-size:15.5px}
+.uv p{font-size:14.5px}
+.uv .tick{width:24px;height:24px;margin:1px 0 0;accent-color:var(--ok);cursor:pointer}
+.uv.done{background:var(--ok-soft);border-color:transparent}
+.uv .badge{width:24px;height:24px;border-radius:50%;background:var(--ok);color:var(--bg);display:grid;place-items:center;font:600 14px var(--f-body)}
+.uv.ask{border-color:var(--warn)}
+.uv .opt{display:grid;gap:6px;margin-top:4px}
+.uv .opt div{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px}
+.pill{display:inline-block;font:500 11px var(--f-mono);padding:2px 8px;border-radius:6px;background:var(--warn-soft);color:var(--warn);width:fit-content}
+.tip{border-left:3px solid var(--ai);background:var(--ai-soft);padding:10px 14px;border-radius:0 10px 10px 0;font-size:14.5px}
+.ask-box{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 14px;border-radius:0 10px 10px 0;display:grid;gap:6px;font-size:14.5px}
+.ask-box ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.recap{font-size:13.5px;color:var(--muted)}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:4px}
+footer a{color:var(--ai)}
+/* Couleur */
+header.hero{position:relative;overflow:hidden;border-radius:20px;padding:22px 20px 26px;color:var(--on-hero);
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 112px),
+    linear-gradient(135deg, var(--hero), var(--hero2))}
+header.hero .eyebrow{color:rgba(255,255,255,.75)}
+header.hero .sub{color:rgba(255,255,255,.88)}
+header.hero h1{color:var(--on-hero)}
+header.hero svg{position:absolute;right:-12px;bottom:-6px;width:180px;opacity:.95;pointer-events:none}
+header.hero > *{position:relative}
+.uvkey{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.uvkey span{font:600 11.5px var(--f-mono);padding:3px 9px;border-radius:999px;color:#fff}
+.k1{background:#6a3fa0}.k2{background:#13707f}.k3{background:#c2410c}.k4{background:#2f7d32}
+.prog .bar span{background:linear-gradient(90deg,var(--uv1),var(--uv2),var(--uv3),var(--uv4))}
+.card{border-top:4px solid var(--ai)}
+.card.c-uv1{border-top-color:var(--uv1)} .card.c-uv2{border-top-color:var(--uv2)} .card.c-uv3{border-top-color:var(--uv3)} .card.c-uv4{border-top-color:var(--uv4)}
+.choice[data-dan]{position:relative;padding-bottom:26px}
+.choice[data-dan]::after{content:"";position:absolute;left:16px;right:16px;bottom:12px;height:7px;border-radius:3px;background:var(--belt)}
+.choice[data-dan="1"]::after{background:linear-gradient(90deg,var(--brown) 0 50%,var(--belt) 50%)}
+.choice[data-dan]:hover,.choice[data-dan][aria-pressed="true"]{border-color:var(--accent);background:var(--uv3-soft)}
+.btn{background:var(--ai)}
+.btn.go{background:var(--accent)}
+.verdict.tr{background:linear-gradient(135deg,var(--warn-soft),var(--uv3-soft))}
+.verdict.nr{background:linear-gradient(135deg,var(--ai-soft),var(--uv1-soft))}
+.uv{border-left:5px solid var(--line)}
+.uv .chip{font:600 11px var(--f-mono);padding:2px 8px;border-radius:999px;color:var(--bg);width:fit-content}
+.uv.u1{border-left-color:var(--uv1)} .uv.u1 .chip{background:var(--uv1)}
+.uv.u2{border-left-color:var(--uv2)} .uv.u2 .chip{background:var(--uv2)}
+.uv.u3{border-left-color:var(--uv3)} .uv.u3 .chip{background:var(--uv3)}
+.uv.u4{border-left-color:var(--uv4)} .uv.u4 .chip{background:var(--uv4)}
+.uv.done.u1{background:var(--uv1-soft)} .uv.done.u2{background:var(--uv2-soft)} .uv.done.u3{background:var(--uv3-soft)} .uv.done.u4{background:var(--uv4-soft)}
+.uv.done .badge{background:var(--ok)}
+.uv .opt div:first-child{border-left:3px solid var(--uv3)}
+.uv .opt div:last-child{border-left:3px solid var(--uv2)}
+.list h3{display:flex;align-items:center;gap:8px}
+.list h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ok)}
+.list.todo h3::before{background:var(--accent)}
+.segrow.r2{border-left:4px solid var(--uv2)} .segrow.r3{border-left:4px solid var(--uv3)} .segrow.r4{border-left:4px solid var(--uv4)}
+.segbtns button[aria-pressed="true"]{background:var(--ai);border-color:var(--ai);color:var(--bg)}
+@media (max-width:420px){.choices.two{grid-template-columns:1fr} header.hero svg{width:130px;opacity:.5}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <svg viewBox="0 0 200 110" aria-hidden="true">
+      <path d="M0 52 H200 V70 H0Z" fill="var(--belt)"/>
+      <path d="M0 52 H200" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <path d="M86 44 L118 44 L122 76 L82 76Z" fill="var(--belt)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
+      <path d="M92 74 L70 110 L88 110 L104 78Z" fill="var(--belt)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
+      <path d="M110 74 L136 110 L118 110 L100 78Z" fill="var(--belt)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
+    </svg>
+    <span class="eyebrow">Judo · ceinture noire 1er au 4e dan</span>
+    <h1>Mon passage de grade judo</h1>
+    <p class="sub">Le règlement des grades a changé le 1er septembre 2026. Répondez à quelques questions : vous saurez ce que vous gardez et ce qu'il vous reste à passer.</p>
+    <div class="uvkey" aria-label="Les 4 UV"><span class="k1">UV1 Kata</span><span class="k2">UV2 Technique</span><span class="k3">UV3 Efficacité</span><span class="k4">UV4 Engagement</span></div>
+  </header>
+
+  <div class="prog" id="prog"><div class="bar"><span id="progBar"></span></div><small id="progTxt"></small></div>
+
+  <main id="stage"></main>
+
+  <footer>
+    <b style="color:var(--fg)">Outil créé par Franck Bourasseau</b>
+    <span>D'après les textes officiels des grades FFJDA 2025-2026 et 2026-2027. Outil d'information : seuls les textes officiels et la commission des grades de votre région font foi.</span>
+    <span>Sources : <a href="https://www.ffjudo.com/resource-file/document/1790927392_ff301db31bacdcbb3b21.pdf" target="_blank" rel="noopener">Textes officiels 2026-2027</a> · <a href="https://judo-ligue93.fr/pdf/bloc_onepage/2432/reglement_des_grades__2025_2026.pdf" target="_blank" rel="noopener">Textes officiels 2025-2026</a></span>
+  </footer>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DAN = d => d===1 ? '1er dan' : d+'e dan';
+
+/* Katas de l'ancien règlement, par dan */
+const OLDK = {
+  1:[["nage3","Nage-no-kata, 3 premières séries","voie compétition"],["nageAll","Nage-no-kata entier","voie technique"],["goshin","Goshin-jitsu entier","voie technique"]],
+  2:[["nage","Nage-no-kata entier",""],["goshin","Goshin-jitsu entier","voie technique"]],
+  3:[["katame","Katame-no-kata",""],["goshin","Goshin-jitsu",""],["nage","Nage-no-kata","voie technique"]],
+  4:[["kime","Kime-no-kata",""],["nage","Nage-no-kata",""],["katame","Katame-no-kata",""],["goshin","Goshin-jitsu",""],["gonosen","Go-no-sen-no-kata",""]]
+};
+const KN = {nage3:"nage-no-kata (3 séries)",nageAll:"nage-no-kata",nage:"nage-no-kata",goshin:"goshin-jitsu",katame:"katame-no-kata",kime:"kime-no-kata",gonosen:"go-no-sen"};
+const K1 = {1:"les 3 premières séries du nage-no-kata en tori, et une série en uke choisie par le jury",2:"les 5 séries du nage-no-kata en tori",3:"le katame-no-kata en tori",4:"le ju-no-kata en tori"};
+const K2 = {
+  1:"10 techniques choisies par le jury dans la liste officielle : 6 debout (nage-waza) en déplacement et 4 au sol (ne-waza). 5 minutes maximum.",
+  2:"1 technique debout et 1 au sol de votre choix (3 à 4 minutes), puis 6 techniques debout et 3 au sol choisies par le jury (5 minutes maximum).",
+  3:"3 techniques debout dans des directions différentes et 2 au sol, à votre choix (8 minutes maximum), puis 3 debout et 2 au sol choisies par le jury.",
+  4:"Le go-no-sen (contre-prises) en tori, puis votre tokui-waza debout (3 minutes) et au sol (2 minutes)."
+};
+const KB = {1:"uchi-komi sur 2 techniques (une sur avancée, une sur recul) et 2 exercices de kakari-geiko ou yaku-soku-geiko de 2 minutes",
+  2:"uchi-komi sur 2 techniques, nage-komi et 2 exercices de kakari-geiko ou yaku-soku-geiko de 2 minutes",
+  3:"uchi-komi sur 3 techniques, nage-komi sur 2 techniques et 2 exercices de kakari-geiko ou yaku-soku-geiko",
+  4:"10 minutes maximum d'uchi-komi, de nage-komi et de kakari-geiko ou yaku-soku-geiko"};
+
+/* État */
+const KEY = 'mpg-v1';
+let S = {step:0, dan:null, year:'', started:null, dom:null, k:[], kNew:false, kNone:false, uv2:'no', uv3:'no', uv4:'no', pts:0, done:{}};
+try{ const s = JSON.parse(localStorage.getItem(KEY)||'null'); if (s && typeof s === 'object') S = Object.assign(S, s); }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+
+/* Étapes */
+const STEPS = ['dan','year','started','dom','katas','uvs','pts','result'];
+function flow(){ return S.started === false ? ['dan','year','started','result'] : STEPS; }
+function go(id){ S.step = flow().indexOf(id); save(); render(); window.scrollTo({top:0}); }
+function next(){ const f = flow(); S.step = Math.min(f.length-1, S.step+1); save(); render(); window.scrollTo({top:0}); }
+function back(){ S.step = Math.max(0, S.step-1); save(); render(); window.scrollTo({top:0}); }
+
+function navHTML(canNext, label){
+  return `<div class="nav">${S.step>0?'<button class="btn ghost" type="button" data-act="back">Retour</button>':'<span></span>'}${canNext!==null?`<button class="btn${label?' go':''}" type="button" data-act="next"${canNext?'':' disabled'}>${label||'Suivant'}</button>`:''}</div>`;
+}
+
+function render(){
+  const f = flow(), id = f[S.step] || 'dan';
+  const qCount = f.length - 1, isRes = id === 'result';
+  $('#prog').hidden = isRes;
+  $('#progBar').style.width = (S.step / qCount * 100) + '%';
+  $('#progTxt').textContent = `Question ${S.step+1} sur ${qCount}`;
+  let h = '';
+  if (id === 'dan'){
+    h = `<section class="card"><h2>Quel grade préparez-vous ?</h2>
+      <div class="choices two">${[1,2,3,4].map(d => `<button class="choice" type="button" data-dan="${d}" aria-pressed="${S.dan===d}"><span class="big">${DAN(d)}</span><small>${d===1?'depuis la ceinture marron':'depuis le '+DAN(d-1)}</small></button>`).join('')}</div></section>`;
+  }
+  else if (id === 'year'){
+    h = `<section class="card"><h2>Votre année de naissance</h2>
+      <p class="help">Elle sert à savoir si vous avez 40 ans et plus au sens du règlement, ce qui allège certaines épreuves.</p>
+      <label for="yr" class="help">Année</label><input id="yr" type="number" inputmode="numeric" min="1930" max="2015" placeholder="1985" value="${esc(S.year)}">
+      <p class="err" id="yrErr" hidden>Indiquez une année entre 1930 et 2015.</p>
+      ${navHTML(validYear(S.year))}</section>`;
+  }
+  else if (id === 'started'){
+    h = `<section class="card"><h2>Aviez-vous déjà commencé ce grade avant le 1er septembre 2026 ?</h2>
+      <p class="help">Par exemple : un kata réussi, une UV validée ou des points marqués en shiai.</p>
+      <div class="choices">
+        <button class="choice" type="button" data-started="1" aria-pressed="${S.started===true}">Oui<small>J'avais déjà validé quelque chose</small></button>
+        <button class="choice" type="button" data-started="0" aria-pressed="${S.started===false}">Non<small>Je commence mon ${DAN(S.dan)} maintenant</small></button>
+      </div>${navHTML(null)}</section>`;
+  }
+  else if (id === 'dom'){
+    h = `<section class="card"><h2>Dans quelle voie étiez-vous inscrit(e) ?</h2>
+      <p class="help">Avant la réforme, il fallait choisir entre la voie compétition et la voie technique. Cette distinction n'existe plus.</p>
+      <div class="choices">
+        <button class="choice" type="button" data-dom="comp" aria-pressed="${S.dom==='comp'}">Voie compétition<small>avec des combats pour marquer les points</small></button>
+        <button class="choice" type="button" data-dom="tech" aria-pressed="${S.dom==='tech'}">Voie technique<small>avec des exercices et 20 points</small></button>
+        <button class="choice" type="button" data-dom="none" aria-pressed="${S.dom==='none'}">Je ne sais pas</button>
+      </div>${navHTML(null)}</section>`;
+  }
+  else if (id === 'katas'){
+    h = `<section class="card c-uv1"><h2>Quels katas avez-vous réussis pour ce grade ?</h2>
+      <p class="help">Touchez chaque kata réussi devant un jury.</p>
+      <div class="choices">${OLDK[S.dan].map(([k,l,s]) => `<button class="choice" type="button" data-k="${k}" aria-pressed="${S.k.includes(k)}">${l}${s?`<small>${s}</small>`:''}</button>`).join('')}
+        <button class="choice" type="button" data-knew="1" aria-pressed="${S.kNew}">J'ai validé mon kata depuis septembre 2026<small>au nouveau règlement</small></button>
+        <button class="choice none" type="button" data-knone="1" aria-pressed="${!!S.kNone}">Aucun kata réussi<small>je n'ai encore réussi aucun kata pour ce grade</small></button>
+      </div>${navHTML(S.k.length > 0 || S.kNew || !!S.kNone)}
+      <p class="help" ${S.k.length || S.kNew || S.kNone ? 'hidden' : ''}>Choisissez au moins une réponse, ou « Aucun kata réussi ».</p></section>`;
+  }
+  else if (id === 'uvs'){
+    const row = (f, t, s) => `<div class="segrow r${f.slice(2)}"><b>${t}</b><small>${s}</small><div class="segbtns" role="group" aria-label="${t}">
+      ${[['no','Non'],['old','Avant sept. 2026'],['new','Depuis sept. 2026']].map(([v,l]) => `<button type="button" data-uv="${f}" data-v="${v}" aria-pressed="${S[f]===v}">${l}</button>`).join('')}</div></div>`;
+    h = `<section class="card"><h2>Avez-vous validé d'autres UV ?</h2>
+      <p class="help">Une UV compte seulement si elle est entièrement validée.</p>
+      <div class="seg">${row('uv2','UV2 · Technique','les techniques debout et au sol devant le jury')}${row('uv3','UV3 · Efficacité','les points en shiai, ou les 20 points de la voie technique')}${row('uv4','UV4 · Engagement','stage, arbitrage ou commissaire sportif')}</div>
+      ${navHTML(true)}</section>`;
+  }
+  else if (id === 'pts'){
+    h = `<section class="card c-uv3"><h2>Combien de points en shiai judo aviez-vous déjà marqués ?</h2>
+      <p class="help">Seulement si votre UV3 n'est pas encore validée. Ippon = 10 points, waza-ari = 7 points, contre des adversaires de même grade ou plus. Les points en jujitsu ne comptent pas.</p>
+      <label for="pts" class="help">Points</label><input id="pts" type="number" inputmode="numeric" min="0" max="200" value="${esc(S.pts||0)}">
+      ${navHTML(true, 'Voir mon plan')}</section>`;
+  }
+  else h = resultHTML();
+  $('#stage').innerHTML = h;
+  const yr = $('#yr'); if (yr) yr.focus();
+}
+const validYear = y => +y >= 1930 && +y <= 2015;
+
+/* Calcul */
+function evaluate(){
+  const dan = S.dan, year = +S.year, started = S.started !== false;
+  const got = started ? S.k.filter(k => OLDK[dan].some(x => x[0]===k)) : [];
+  const kNew = started && S.kNew;
+  const uv = f => started ? S[f] : 'no';
+  const uv2 = uv('uv2'), uv3 = uv('uv3'), uv4 = uv('uv4'), pts = started ? +S.pts||0 : 0, dom = started ? S.dom : null;
+  const over40 = year <= 1987;
+  let u1 = 'no';
+  if (kNew) u1 = 'new';
+  else if (got.length){
+    if (dan <= 2) u1 = 'old';
+    else if (dan === 3) u1 = got.includes('katame') && (got.includes('goshin') || got.includes('nage')) ? 'old' : got.includes('katame') ? 'katame' : 'useless';
+    else u1 = got.includes('kime') && got.length >= 2 ? 'old' : got.includes('kime') ? 'kime' : 'p4';
+  }
+  const trans = u1 === 'old' || u1 === 'katame' || uv2 === 'old' || uv3 === 'old';
+  const have = [], todo = [];
+  const keep = trans ? ' Elle reste valable jusqu\'au 31 décembre 2028.' : '';
+  // UV1
+  if (u1 === 'new') have.push(['UV1 · Kata', 'Votre kata est validé.']);
+  else if (u1 === 'old') have.push(['UV1 · Kata', `Validée avec : ${got.map(k=>KN[k]).join(' + ')}.${keep}`]);
+  else if (u1 === 'katame') have.push(['UV1 · Kata', 'Votre katame-no-kata réussi avant la réforme est identique au kata du nouveau 3e dan : il reste acquis. Le goshin-jitsu ne vous est plus demandé. Votre UV1 reste valable jusqu\'au 31 décembre 2028.']);
+  else if (u1 === 'useless') todo.push({id:'uv1', t:'UV1 · Kata', p:`Présentez le katame-no-kata en tori. C'est désormais le seul kata du 3e dan : votre ${got.map(k=>KN[k]).join(' et votre ')} ne compte plus pour le grade judo.`});
+  else if (u1 === 'kime') have.push(['UV1 · Kata', 'Votre kime-no-kata réussi avant la réforme, le kata obligatoire de l\'ancien 4e dan, vaut UV1.' + keep]);
+  else if (u1 === 'p4') todo.push({id:'uv1', t:'UV1 · Kata', p:`Présentez le ju-no-kata en tori.${trans ? ' Vous pouvez aussi demander à terminer avec les katas de l\'ancien règlement : il vous manquerait le kime-no-kata.' : ''}`});
+  else todo.push({id:'uv1', t:'UV1 · Kata', p:`Présentez ${K1[dan]}.${dan===1 && over40 ? ' À 40 ans et plus, vous ne faites que le rôle de tori.' : ''}${trans ? ' Vous pouvez aussi demander à présenter les katas de l\'ancien règlement.' : ''}`});
+  // UV2
+  if (uv2 !== 'no') have.push(['UV2 · Technique', 'Validée.' + (uv2==='old' ? keep : '')]);
+  else if (dan === 4 && got.includes('gonosen')){
+    have.push(['UV2 · Technique, en partie', 'Votre go-no-sen réussi avant la réforme est conservé : il vaut l\'épreuve 1 de l\'UV2.']);
+    todo.push({id:'uv2', t:'UV2 · Technique, fin de l\'UV', p:'Il vous reste votre tokui-waza debout (3 minutes) et au sol (2 minutes).'});
+  }
+  else todo.push({id:'uv2', t:'UV2 · Technique', p: K2[dan] + ' Plus aucune défense de jujitsu n\'est demandée.'});
+  // UV3
+  const exoDone = dom === 'tech' && uv2 === 'old';
+  if (uv3 !== 'no'){
+    have.push(['UV3 · Efficacité', 'Validée.' + (uv3==='old' ? keep : '')]);
+  } else if (exoDone && (over40 || pts >= 20)){
+    have.push(['UV3 · Efficacité', `Acquise : vos exercices réussis en UV2 technique sont conservés${over40 ? ', et à 40 ans et plus vous n\'avez pas de points à marquer' : `, et vos ${pts} points couvrent les 20 points`}.` + keep]);
+  } else {
+    const comb = exoDone ? `Vos exercices réussis en UV2 technique sont conservés : il ne vous reste que ${pts > 0 ? `${20-pts} points` : '20 points'} en shiai judo.`
+      : over40 ? `Vous avez 40 ans et plus : pas de points à marquer. Il vous reste une épreuve d'exercices : ${KB[dan]}.`
+      : pts >= 20 ? `Vos points couvrent déjà les 20 points. Il vous reste une épreuve d'exercices : ${KB[dan]}.`
+      : `${pts > 0 ? `Encore ${20-pts} points` : '20 points'} en shiai judo, puis une épreuve d'exercices : ${KB[dan]}.`;
+    const sport = `100 points en shiai judo${pts > 0 ? ` (il vous en manque ${Math.max(0,100-pts)})` : ''}, ou 5 victoires d'affilée totalisant 44 points dans une même compétition.`;
+    const p = pts > 0 ? `Vos ${pts} points marqués avant la réforme sont conservés. Deux options au choix :` : `Deux options au choix :`;
+    const extra = dom === 'tech' && year <= 1986 && !exoDone ? 'La dispense d\'UV3 de l\'ancienne voie technique ne s\'applique plus.' : '';
+    todo.push({id:'uv3', t:'UV3 · Efficacité', p, opts:[['Option sportive', sport],['Option combinée', comb]], extra});
+  }
+  // UV4
+  if (uv4 === 'new') have.push(['UV4 · Engagement', 'Validée.']);
+  else if (uv4 === 'old') have.push(['UV4 · Engagement', 'Validée avant la réforme : elle reste acquise.' + keep]);
+  else todo.push({id:'uv4', t:'UV4 · Engagement', p:`${dan<=2 ? 'Une demi-journée' : 'Une journée'} de stage, ou une mission de commissaire sportif ou d'arbitre. Si vous êtes arbitre ou commissaire sportif en activité, elle peut être validée par équivalence.`});
+  if (dan === 4) todo.push({id:'note5', t:'Pour la suite · 5e dan', p: (got.includes('kime') || u1 === 'kime') ? 'Vous avez présenté le kime-no-kata au 4e dan : au 5e dan, vous présenterez le ju-no-kata.' : 'Au 5e dan, vous présenterez le kime-no-kata.', note:true});
+  return {dan, trans, have, todo};
+}
+
+function resultHTML(){
+  const R = evaluate();
+  const v = R.trans
+    ? `<div class="verdict tr"><b>Vous terminez votre ${DAN(R.dan)} avec la transition</b><p>Ce que vous avez validé avant le 1er septembre 2026 est conservé. Ce qui reste se passe au nouveau règlement.</p><div class="deadline"><span>Tout doit être validé avant le</span><span class="d">31/12/2028</span></div><p>Votre diplôme sera un grade de <b>judo</b>. La mention judo-jujitsu de l'ancien règlement ne s'applique plus.</p></div>`
+    : `<div class="verdict nr"><b>Vous passez votre ${DAN(R.dan)} au nouveau règlement</b><p>Les 4 UV se passent dans l'ordre que vous voulez. Chaque UV réussie est définitivement acquise.</p></div>`;
+  const un = t => t.slice(2,3);
+  const split = t => { const [a, ...b] = t.split(' · '); return [a, b.join(' · ')]; };
+  const haveH = R.have.length ? `<section class="list"><h3>Ce que vous avez déjà</h3>${R.have.map(([t,p]) => { const [c,n] = split(t); return `<div class="uv done u${un(t)}"><span class="badge" aria-hidden="true">✓</span><div><span class="chip">${c}</span><b>${n}</b><p>${p}</p></div></div>`; }).join('')}</section>` : '';
+  const notes = R.todo.filter(t => t.note); R.todo = R.todo.filter(t => !t.note);
+  const allH = !R.todo.length ? `<div class="verdict nr"><b>Toutes vos UV sont acquises</b><p>Votre ${DAN(R.dan)} est complet. Il sera homologué dès que les conditions d'âge et de délai sont remplies.</p></div>` : '';
+  const todoH = R.todo.length ? `<section class="list todo"><h3>Ce qu'il vous reste à passer</h3>${R.todo.map(t => { const [c,n] = split(t.t); return `
+    <label class="uv u${un(t.t)}"><input class="tick" type="checkbox" data-done="${t.id}"${S.done[t.id]?' checked':''} aria-label="${t.t} : cochez quand c'est fait"><div><span class="chip">${c}</span><b>${n}</b><p>${t.p}</p>${t.opts?`<div class="opt">${t.opts.map(([a,b]) => `<div><b>${a}</b> · ${b}</div>`).join('')}</div>`:''}${t.extra?`<p class="help">${t.extra}</p>`:''}</div></label>`; }).join('')}</section>` : '';
+  const noteH = notes.map(t => `<div class="tip"><b>${t.t.replace(' · ',', ')}</b> · ${t.p}</div>`).join('');
+  return `${v}${haveH}${todoH}${allH}${noteH}
+    <div class="tip">Les épreuves se passent lors des sessions de grades de votre département ou de votre ligue. Votre professeur vous indique les dates et les inscriptions.</div>
+    <p class="recap">Vos réponses : ${DAN(R.dan)} · né(e) en ${esc(S.year)} · ${S.started===false?'grade commencé après la réforme':'grade commencé avant la réforme'}. <button class="btn ghost" type="button" data-act="edit" style="padding:4px 10px;font-size:13px">Modifier</button></p>
+    <div class="actions"><button class="btn" type="button" data-act="copy">Copier mon plan</button><button class="btn ghost" type="button" data-act="restart">Recommencer</button></div>`;
+}
+function planText(){
+  const R = evaluate();
+  const L = [`Mon passage de grade judo · ${DAN(R.dan)}`, R.trans ? 'En transition : tout valider avant le 31/12/2028.' : 'Nouveau règlement.'];
+  if (R.trans) L.push('Diplôme : grade de judo (plus de mention judo-jujitsu).');
+  if (R.have.length) L.push('', 'Déjà validé :', ...R.have.map(([t,p]) => `- ${t} : ${p}`));
+  const notes = R.todo.filter(t => t.note); R.todo = R.todo.filter(t => !t.note);
+  if (R.todo.length) L.push('', 'À passer :', ...R.todo.map(t => `- ${t.t} : ${t.p}${t.opts ? ' ' + t.opts.map(([a,b]) => `${a} : ${b}`).join(' / ') : ''}${t.extra||''}`));
+  notes.forEach(t => L.push('', t.p));
+  return L.join('\n');
+}
+
+/* Événements */
+$('#stage').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.dan){ const d = +b.dataset.dan; if (d !== S.dan){ S.k = []; S.kNew = false; S.kNone = false; S.done = {}; } S.dan = d; next(); return; }
+  if (b.dataset.started){ S.started = b.dataset.started === '1'; S.done = {}; next(); return; }
+  if (b.dataset.dom){ S.dom = b.dataset.dom; next(); return; }
+  if (b.dataset.k){ const k = b.dataset.k; S.k = S.k.includes(k) ? S.k.filter(x => x!==k) : [...S.k, k]; S.kNone = false; save(); render(); return; }
+  if (b.dataset.knew){ S.kNew = !S.kNew; S.kNone = false; save(); render(); return; }
+  if (b.dataset.knone){ S.kNone = !S.kNone; if (S.kNone){ S.k = []; S.kNew = false; } save(); render(); return; }
+  if (b.dataset.uv){ S[b.dataset.uv] = b.dataset.v; save(); b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+  const a = b.dataset.act;
+  if (a === 'next'){
+    if (flow()[S.step] === 'year' && !validYear(S.year)){ $('#yrErr').hidden = false; return; }
+    next();
+  }
+  if (a === 'back') back();
+  if (a === 'edit'){ S.step = 0; save(); render(); }
+  if (a === 'restart'){ S = {step:0, dan:null, year:'', started:null, dom:null, k:[], kNew:false, kNone:false, uv2:'no', uv3:'no', uv4:'no', pts:0, done:{}}; save(); render(); window.scrollTo({top:0}); }
+  if (a === 'copy'){
+    const t = planText();
+    try{ await navigator.clipboard.writeText(t); b.textContent = 'Plan copié'; }
+    catch(err){ b.textContent = 'Copie impossible ici'; }
+    setTimeout(() => b.textContent = 'Copier mon plan', 2500);
+  }
+});
+$('#stage').addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'yr'){ S.year = t.value; save(); const n = $('[data-act=next]'); if (n) n.disabled = !validYear(S.year); if (validYear(S.year)) $('#yrErr').hidden = true; }
+  if (t.id === 'pts'){ S.pts = t.value; save(); }
+  if (t.dataset.done){ S.done[t.dataset.done] = t.checked; save(); }
+});
+$('#stage').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.target.id === 'yr' || e.target.id === 'pts')){ e.preventDefault(); const n = $('[data-act=next]'); if (n && !n.disabled) n.click(); }
+});
+if (S.step >= flow().length) S.step = 0;
+if (!S.dan && S.step > 0) S.step = 0;
+render();
+})();
+</script>
+</body>
+</html>
