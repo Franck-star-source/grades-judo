@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!doctype html>
 <html lang="fr">
 <head>
@@ -247,10 +246,11 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
         <span class="btn file"><span>Importer les listes Excel</span><input type="file" id="xlsx" accept=".xlsx,.xls,.csv" multiple aria-label="Importer les listes des inscriptions"></span>
         <button class="btn ghost sm" type="button" id="prev">◀ Précédent</button>
         <button class="btn ghost sm" type="button" id="next">Suivant ▶</button>
+        <button class="btn ghost sm" type="button" id="mails">✉ Récapitulatif de session</button>
         <button class="btn ghost sm" type="button" id="clearAll">Vider la session</button>
       </div>
     </div>
-    <p class="privacy">Le fichier est lu uniquement dans ce navigateur, il n'est envoyé nulle part. Le n° de licence, le club et les coordonnées ne sont ni affichés ni imprimés.</p>
+    <p class="privacy">Le fichier est lu uniquement dans ce navigateur, il n'est envoyé nulle part. Le n° de licence, le club et les coordonnées ne sont ni affichés ni imprimés. L'adresse mail personnelle sert seulement au bouton « Résultat au candidat ».</p>
     <p class="err" id="xerr" hidden></p>
     <p class="xinfo" id="xinfo" hidden></p>
     <div class="bar" id="lfilter" hidden></div>
@@ -262,7 +262,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   <section class="card" id="ident" aria-label="Candidat">
     <h3>Candidat évalué</h3>
     <div class="f csel" id="cselw"><label for="csel">Choisir le candidat</label><span class="hint" id="cselc"></span><select id="csel"></select>
-      <div class="bar"><button class="btn sm" type="button" id="manual">+ Ajouter un candidat</button><button class="btn ghost sm" type="button" id="delc">Supprimer ce candidat</button>
+      <div class="bar"><button class="btn sm" type="button" id="manual">+ Ajouter un candidat</button><button class="btn ghost sm" type="button" id="mailc">✉ Résultat au candidat</button><button class="btn ghost sm" type="button" id="delc">Supprimer ce candidat</button>
       <span class="confirm" id="delconf" hidden><span id="delname"></span> <button class="btn ghost sm del" type="button" id="delyes">Oui, supprimer</button><button class="btn ghost sm" type="button" id="delno">Annuler</button></span></div></div>
     <div class="ident">
       <div class="f"><label for="i-nom">Nom</label><input id="i-nom" type="text" data-k="nom"></div>
@@ -658,7 +658,7 @@ function renderList(){
 function renderSelect(){
   const ids = $$('.cand').map(b => b.dataset.id), list = DB.list.filter(c => ids.includes(c.id))
     .sort((a,b) => (a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom, 'fr', {sensitivity:'base'}));
-  $('#csel').hidden = !DB.list.length; $('#delc').hidden = !cur(); $('#delconf').hidden = true;
+  $('#csel').hidden = !DB.list.length; $('#delc').hidden = $('#mailc').hidden = !cur(); $('#mails').hidden = !DB.list.length; $('#delconf').hidden = true;
   $('#cselc').textContent = list.length + ' candidat' + (list.length > 1 ? 's' : '') + (list.length < DB.list.length ? ' (filtrés) sur ' + DB.list.length : '') + ' · AR = ancien règlement · + = UV ajoutée sur place · ✓ / ✗ = décision';
   /* Statut par UV dans le libellé : AR = ancien règlement, + = ajoutée sur place, ✓ / ✗ = décision du jury */
   const uOf = c => { const dd = DB.data[c.id] || {}, us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [];
@@ -710,6 +710,7 @@ $('#xlsx').addEventListener('change', async e => {
         let c = DB.list.find(x => x.id === id);
         if (!c){ c = {id, nom, prenom, annee: yearOf(pickCol(r, ['NAISSANCE','DATE_NAISSANCE'])), uke, uvs:{}}; DB.list.push(c); added++; }
         if (!c.uvs) c.uvs = {};
+        const mail = String(pickCol(r, ['MAIL_PERSO','MAIL_INSCRIPTION'])).trim(); if (mail && !c.mail) c.mail = mail;
         if (uv){ c.uvs[uv] = {ep, uke}; seenUV[uv]++; }
         else c.ep = ep;
         const p = parseCat(ep); if (p.dan) c.dan = p.dan;
@@ -778,6 +779,30 @@ document.addEventListener('input', e => {
   if (t.dataset.k === 'fo2'){ store(); rendered=''; renderSheets(); restore(); }
   if (t.id === 'i-nom' || t.id === 'i-prenom'){ const c = cur(); if (c){ c.nom = S.nom || ''; c.prenom = S.prenom || ''; } }
   store(); calc(); renderList();
+});
+/* Mails : ouverture de la messagerie de l'appareil, rien n'est envoyé par la page */
+const UVN = {1:'UV1 Kata', 2:'UV2 Technique', 3:'UV3 Efficacité, option combinée'};
+function uvLine(dd, c, u){
+  const v = dd['r:d'+u], m = (dd['m'+u] || '').trim();
+  let t = v === 'ok' ? 'acquise' : v === 'ko' ? 'non acquise' + (m ? ' (' + m + ')' : '') : 'non évaluée';
+  if (u === 3 && v) t = 'partie B ' + t + (dd['r:uvc'] === 'oui' ? ', UV3 complète' : dd['r:uvc'] === 'non' ? ', partie A (points) en attente' : '');
+  return '- ' + UVN[u] + ' : ' + t;
+}
+const usOf = c => c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
+const sessTxt = () => [DB.g.sess, DB.g.date].filter(Boolean).join(' du ');
+function openMail(to, subj, body){ const a = document.createElement('a'); a.href = 'mailto:' + encodeURIComponent(to || '').replace(/%40/g,'@') + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body); a.click(); }
+$('#mailc').addEventListener('click', () => {
+  const c = cur(); if (!c) return; const dd = DB.data[c.id] || {}, d = +(dd.dan || 1);
+  const body = `Bonjour ${dd.prenom || c.prenom || ''},\n\nVoici vos résultats pour le passage du ${DAN(d)}${sessTxt() ? ', session ' + sessTxt() : ''} :\n\n${usOf(c).map(u => uvLine(dd, c, u)).join('\n')}\n\nCes résultats seront enregistrés par la commission des grades.\n\nSportivement,\nLe jury`;
+  openMail(c.mail || '', `Passage de grade ${DAN(d)} : vos résultats`, body);
+});
+$('#mails').addEventListener('click', () => {
+  const ids = $$('#csel option').map(o => o.value).filter(Boolean);
+  const lines = DB.list.filter(c => ids.includes(c.id)).sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr')).map(c => {
+    const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1);
+    return `${(dd.nom || c.nom || '').toUpperCase()} ${dd.prenom || c.prenom || ''} · ${DAN(d)}\n${usOf(c).map(u => '  ' + uvLine(dd, c, u)).join('\n')}`;
+  });
+  openMail('', 'Récapitulatif passage de grades' + (sessTxt() ? ' · ' + sessTxt() : ''), `Bonjour,\n\nRécapitulatif des décisions du jury${sessTxt() ? ', session ' + sessTxt() : ''} (${lines.length} candidat${lines.length>1?'s':''}) :\n\n${lines.join('\n\n')}\n\nCordialement`);
 });
 $('#manual').addEventListener('click', () => { DB.filter = 'all'; DB.fuv = 'all'; addManual(); save(); refresh(); $('#i-nom').focus(); });
 /* Suppression d'un candidat : liste et fiches de ce candidat */
@@ -877,5 +902,3 @@ refresh();
 </script>
 </body>
 </html>
-
-</body></html>
