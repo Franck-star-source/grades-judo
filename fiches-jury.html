@@ -159,8 +159,8 @@ tr.f-g td,tr.f-o td{background:var(--bad-soft)} tr.f-m td{background:var(--warn-
 .decbox.set-ko{border-color:var(--bad);background:var(--bad-soft);box-shadow:none}
 .dech{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .dech b{font:700 16px var(--f-body)}
-.req{font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--bad);padding:3px 9px;border-radius:999px}
-.set-ok .req{background:var(--ok)}
+.oblig{font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--bad);padding:3px 9px;border-radius:999px}
+.set-ok .oblig{background:var(--ok)}
 .decch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dk{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:10px 12px;border-radius:12px;border:2.5px solid var(--line);background:var(--surface);font:800 18px var(--f-body);letter-spacing:.04em;cursor:pointer;color:var(--fg)}
 .dk input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
@@ -193,6 +193,7 @@ footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padd
 .print-ident div{border-bottom:1px solid #999;padding:2px 0}
 .print-ident span{color:#555}
 @page{size:A4;margin:9mm 10mm}
+@page paysage{size:A4 landscape;margin:8mm 10mm}
 /* Mode impression : appliqué par le script avant l'impression (bouton ou Ctrl+P), pour mesurer et ajuster chaque fiche à une page A4 */
 html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm body{background:#fff;font-size:11px}
@@ -218,7 +219,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm .checks{display:none!important}
   html.pm .radios label{border:0;padding:0 6px 0 0;background:none!important;color:#000!important}
   html.pm .decbox{border:2px solid #000!important;background:#fff!important;box-shadow:none!important;animation:none!important;padding:5px 8px;gap:4px}
-  html.pm .dech b{font-size:12px} html.pm .req{background:none!important;color:#000;border:1px solid #000;font-size:8px;padding:1px 6px}
+  html.pm .dech b{font-size:12px} html.pm .oblig{background:none!important;color:#000;border:1px solid #000;font-size:8px;padding:1px 6px}
   html.pm .decch{gap:6px} html.pm .dk{min-height:0;padding:3px 6px;font-size:13px;border:1.5px solid #000!important;background:#fff!important;color:#000!important;opacity:1!important}
   html.pm .dk .bx{width:16px;height:16px;font-size:12px;border:1.5px solid #000!important;color:transparent!important}
   html.pm .dk:has(input:checked) .bx{color:#000!important;background:#ddd}
@@ -236,17 +237,81 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm .chips label:not(:has(input:checked)){display:none}
   html.pm .sheet.skip{display:none!important}
   html.pm .pm-hide{display:none!important}
-  html.pm.one .sheet{gap:2px!important;border-top:2px solid #000;padding-top:3px}
-  html.pm.one .sheet:not(.first) .print-ident{display:none!important}
+  /* Tout sur 1 page : A4 paysage, une colonne par UV, identité et légende en bandeau */
+  html.pm.one .wrap{page:paysage;width:277mm;max-width:277mm;display:grid;grid-template-columns:var(--cols,repeat(3,minmax(0,1fr)));gap:0 4mm;align-items:start}
+  html.pm.one .onehead{grid-column:1/-1;display:grid;gap:3px;margin-bottom:3px}
+  html.pm.one .onehead .print-ident{display:grid!important;grid-template-columns:repeat(4,1fr);font-size:12.5px;gap:2px 12px}
+  html.pm.one .onehead .print-ident span{color:#000;font-weight:700}
+  html.pm.one .onehead .print-ident div{border-bottom:1.5px solid #000}
+  html.pm.one .legend{font-size:10.5px;color:#000}
+  html.pm.one .legend b{font-weight:700}
+  html.pm.one .sheet{gap:3px!important;border-top:3px solid #000;padding-top:3px;break-after:auto!important;font-size:12px}
+  html.pm.one .sheet .print-ident{display:none!important}
   html.pm.one .hint,html.pm.one .rule,html.pm.one .fo,html.pm.one .sugg,html.pm.one h3{display:none!important}
-  html.pm.one .shead h2{font-size:15px}
-  html.pm.one h4{font-size:11px;margin:1px 0 0}
-  html.pm.one .dec{grid-template-columns:auto 1fr;gap:4px 10px;align-items:start}
-  html.pm.one .dec textarea{min-height:16px}
-  html.pm.one .sign{grid-template-columns:repeat(3,1fr);gap:6px}
-  html.pm.one .sign .box{min-height:24px;padding:2px 6px;gap:1px}
-  html.pm.one .sign .box span{font-size:9px}
-  html.pm.one .tsplit thead th{font-size:6.5px}
+  html.pm.one .shead h2{font-size:17px}
+  html.pm.one .chip{font-size:9.5px;padding:1px 6px}
+  html.pm.one h4{font-size:12.5px;margin:3px 0 0}
+  html.pm.one table{font-size:11.5px;min-width:0;table-layout:auto}
+  html.pm.one th,html.pm.one td{padding:2px 4px;border-color:#555;color:#000}
+  html.pm.one thead th{font:700 10.5px var(--f-body);letter-spacing:0;text-transform:none;text-align:center}
+  html.pm.one thead th:first-child,html.pm.one thead th:nth-child(2){text-align:left}
+  html.pm.one td.c,html.pm.one th.c{width:22px;padding:2px 1px}
+  html.pm.one td.grp{width:auto;font-size:10px;white-space:nowrap}
+  html.pm.one table.kt td.grp,html.pm.one table.kt th:first-child{display:none}
+  html.pm.one table.tech td.grp,html.pm.one table.tech th:first-child{display:none}
+  html.pm.one table.tech td:nth-child(2){font-size:13.5px;font-weight:700;color:#000;padding:3px 5px}
+  html.pm.one table.tech tbody tr{border-top:1px solid #000}
+  html.pm.one input[type=radio],html.pm.one input[type=checkbox]{width:14px;height:14px}
+  html.pm.one input,html.pm.one select,html.pm.one textarea{font-size:12px}
+  html.pm.one .radios label{font-size:12px}
+  html.pm.one .dec{grid-template-columns:1fr;gap:3px}
+  html.pm.one .decbox{padding:4px 6px;gap:3px;border-width:2px!important}
+  html.pm.one .dech b{font-size:12.5px}
+  html.pm.one .dk{font-size:14px;padding:3px 4px}
+  html.pm.one .dk .bx{width:16px;height:16px;font-size:12px}
+  html.pm.one .dec textarea{min-height:18px}
+  html.pm.one .dec .f label{font-size:10.5px;color:#000}
+  html.pm.one .sign{grid-template-columns:1fr 1fr 1fr;gap:3px}
+  html.pm.one .sign .box{min-height:30px;padding:2px 4px;gap:1px;border:1px solid #000}
+  html.pm.one .sign .box span{font-size:8.5px;color:#000}
+  html.pm.one .sheet,html.pm.one .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Gros caractères : lecture facilitée pour les évaluateurs (texte noir, grandes cases, plusieurs pages si besoin) */
+  html.pm.big body{font-size:15px;color:#000}
+  html.pm.big .sheet{gap:8px!important;border-top:4px solid #000}
+  html.pm.big .shead h2{font-size:26px}
+  html.pm.big .chip{font-size:14px;padding:3px 12px;border-width:2px}
+  html.pm.big h4{font-size:17px;margin:8px 0 2px}
+  html.pm.big .hint{font-size:14px;color:#000}
+  html.pm.big .print-ident{font-size:15px;gap:6px 16px}
+  html.pm.big .print-ident div{border-bottom:2px solid #000;padding:4px 0}
+  html.pm.big .print-ident span{color:#000;font-weight:700}
+  html.pm.big .tw{border:2px solid #000}
+  html.pm.big table{font-size:15px}
+  html.pm.big th,html.pm.big td{padding:3px 7px;border-color:#000;line-height:1.3;color:#000}
+  html.pm.big thead th{font-size:12.5px;font-weight:700;color:#000;background:#e4e4e4!important}
+  html.pm.big td.grp{font-size:14px}
+  html.pm.big tr{break-inside:avoid}
+  html.pm.big input,html.pm.big select,html.pm.big textarea{font-size:16px;color:#000;border-bottom:2px solid #000}
+  html.pm.big input[type=radio]:not(.dk input),html.pm.big input[type=checkbox]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2.5px solid #000;border-radius:50%;background:#fff;vertical-align:middle}
+  html.pm.big input[type=checkbox]{border-radius:4px}
+  html.pm.big input[type=radio]:not(.dk input):checked{background:radial-gradient(circle,#000 0 45%,#fff 50%)}
+  html.pm.big input[type=checkbox]:checked{background:#000}
+  html.pm.big .radios label,html.pm.big .chips label{font-size:16px;color:#000!important}
+  html.pm.big .f label,html.pm.big .lab{font-size:13px;color:#000;font-weight:700}
+  html.pm.big .sheet,html.pm.big .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html.pm.big .dec{grid-template-columns:1fr 1fr;gap:8px}
+  html.pm.big .dec .sign{grid-column:1/-1}
+  html.pm.big .hint,html.pm.big .rule,html.pm.big .fo{display:none!important}
+  html.pm.big .sheet{gap:5px!important}
+  html.pm.big h4{margin:4px 0 0}
+  html.pm.big .decch{grid-template-columns:1fr 1fr}
+  html.pm.big .decbox{border-width:3px!important;padding:6px 10px;gap:5px}
+  html.pm.big .dech b{font-size:19px} html.pm.big .oblig{font-size:11px;border-width:2px}
+  html.pm.big .dk{font-size:20px;padding:5px 8px;border-width:3px!important}
+  html.pm.big .dk .bx{width:28px;height:28px;font-size:20px;border-width:3px!important}
+  html.pm.big .sign .box{min-height:52px;border:2px solid #000}
+  html.pm.big .sign .box span{font-size:13px;color:#000;font-weight:700}
+  html.pm.big .dec textarea{min-height:40px}
   html.pm .tsplit{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-items:start}
   html.pm .tsplit table{font-size:9.5px}
   html.pm .tsplit th.c,html.pm .tsplit td.c{width:30px;padding:0 1px}
@@ -265,7 +330,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     </div>
     <div class="bar">
       <span class="prsel" role="group" aria-label="Fiches à imprimer"><label><input type="checkbox" data-pr="1" checked> UV1</label><label><input type="checkbox" data-pr="2" checked> UV2</label><label><input type="checkbox" data-pr="3" checked> UV3</label></span>
-      <span class="prsel" role="group" aria-label="Mise en page"><label><input type="radio" name="pone" data-one="0" checked> 1 page par UV</label><label><input type="radio" name="pone" data-one="1"> Tout sur 1 page</label></span>
+      <span class="prsel" role="group" aria-label="Mise en page"><label><input type="radio" name="pone" data-one="0" checked> 1 page par UV</label><label><input type="radio" name="pone" data-one="1"> 3 UV sur 1 page</label><label><input type="radio" name="pone" data-one="2"> Gros caractères</label></span>
       <button class="btn light" type="button" id="print">Imprimer</button>
     </div>
   </header>
@@ -468,7 +533,7 @@ function kataTable(kid){
 function decHTML(u, label){
   return `<div class="dec">
   <div class="decbox" id="db${u}" role="radiogroup" aria-labelledby="dh${u}" aria-required="true">
-    <div class="dech"><b id="dh${u}">Décision du jury${label||''}</b><span class="req">Obligatoire</span></div>
+    <div class="dech"><b id="dh${u}">Décision du jury${label||''}</b><span class="oblig">Obligatoire</span></div>
     <div class="decch"><label class="dk ok"><input type="radio" name="d${u}" value="ok"><span class="bx" aria-hidden="true">✓</span>ACQUISE</label><label class="dk ko"><input type="radio" name="d${u}" value="ko"><span class="bx" aria-hidden="true">✗</span>AJOURNÉE</label></div>
     <p class="decmsg" id="dm${u}"></p>
   </div>
@@ -730,7 +795,7 @@ function autoTab(){
   const curU = +($('[role=tab][aria-selected=true]')||{id:'t1'}).id.slice(1);
   if (fu && I.includes(fu)) showTab(fu); else if (!I.includes(curU)) showTab(I[0]);
 }
-function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = (r.dataset.one === '1') === !!DB.g.one); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
+function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = ['sep','one','big'][+r.dataset.one] === (DB.g.lay || (DB.g.one ? 'one' : 'sep'))); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
 $('#csel').addEventListener('change', e => { if (!e.target.value) return; DB.cur = e.target.value; save(); refresh(); });
 
 /* ===== Import Excel ===== */
@@ -824,7 +889,7 @@ document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'xlsx' || t.id === 'csel' || t.id === 'i-table') return;
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
-  if (t.dataset.one){ DB.g.one = t.dataset.one === '1'; save(); return; }
+  if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
   if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
   if (!t.closest('#ident, .sheet')) return;
   if (!cur()){ addManual(); }
@@ -960,13 +1025,17 @@ function enterPrint(){
     t.parentElement.classList.add('pm-hide'); t.parentElement.after(box);
   };
   const vis = $$('.sheet:not(.skip)');
+  if (DB.g.lay === 'big') H.classList.add('big');
   if (DB.g.one){
-    /* Tout sur une page : fiches à la suite, tableaux longs sur deux colonnes, puis réduction commune */
-    H.classList.add('one'); vis.forEach((x,i) => { x.style.breakAfter = 'auto'; x.classList.toggle('first', i === 0); });
-    vis.forEach(x => x.querySelectorAll('table.kt, table.tech').forEach(t => split(t, !t.classList.contains('tech') || t.classList.contains('has-req'))));
-    const span = () => vis[vis.length-1].getBoundingClientRect().bottom - vis[0].getBoundingClientRect().top;
-    let f = 1;
-    for (let k = 0; k < 6 && span() > avail - 10; k++){ f = Math.floor(f * (avail - 10) / span() * 1000) / 1000; vis.forEach(x => x.style.zoom = String(f)); }
+    /* Tout sur 1 page (paysage) : une colonne par UV, en-têtes abrégés, réduction de chaque colonne à la hauteur de la page */
+    H.classList.add('one'); H.style.setProperty('--cols', vis.map(x => 'minmax(0,' + ({s1:0.85, s2:1.25, s3:1.1}[x.id] || 1) + 'fr)').join(' '));
+    const AB = {'Correct':'C','Petite faute':'P','Faute moyenne':'M','Faute grave':'G','Oubli':'O','Demandée':'Dem.','Maîtrisée':'✓','Méconnaissance':'✗','Insuffisante':'✗','Insuffisant':'I','Satisfaisant':'S','Fragile':'F','Réalisé':'Fait','Durée max':'Durée','Technique choisie':'Technique','Technique présentée':'Technique','Attaque / réponse présentée':'Réponse','Direction / situation':'Direction','Dispensé':'Disp.'};
+    vis.forEach(x => x.querySelectorAll('thead th').forEach(th => { const t = th.textContent.trim(); if (AB[t]){ th.dataset.full = t; th.textContent = AB[t]; } }));
+    const head = document.createElement('div'); head.className = 'onehead pm-tmp';
+    head.innerHTML = vis[0].querySelector('.print-ident').outerHTML + '<div class="legend"><b>Kata</b> : C correct · P petite faute · M faute moyenne · G faute grave · O oubli &nbsp;|&nbsp; <b>Technique</b> : Dem. demandée · ✓ maîtrisée · ✗ méconnaissance ou insuffisante &nbsp;|&nbsp; <b>Grilles</b> : S satisfaisant · F fragile · I insuffisant</div>';
+    $('.wrap').insertBefore(head, vis[0]);
+    const room = 194 * 96 / 25.4 - head.getBoundingClientRect().height - 12;
+    vis.forEach(x => { for (let k = 0; k < 5; k++){ const h = x.getBoundingClientRect().height; if (h <= room) break; x.style.zoom = String(Math.floor((+x.style.zoom || 1) * room / h * 1000) / 1000); } });
     return;
   }
   vis.forEach(x => {
@@ -975,7 +1044,8 @@ function enterPrint(){
     const h = x.getBoundingClientRect().height; if (h > avail) x.style.zoom = (Math.floor(avail / h * 1000) / 1000).toString(); });
 }
 function exitPrint(){
-  document.documentElement.classList.remove('pm','one'); $$('.sheet.first').forEach(x => x.classList.remove('first'));
+  document.documentElement.classList.remove('pm','one','big'); document.documentElement.style.removeProperty('--cols');
+  $$('th[data-full]').forEach(th => { th.textContent = th.dataset.full; delete th.dataset.full; }); $$('.sheet.first').forEach(x => x.classList.remove('first'));
   $$('.pm-tmp').forEach(x => x.remove()); $$('.pm-hide').forEach(x => x.classList.remove('pm-hide'));
   $$('.sheet').forEach((x,i) => { x.style.zoom = ''; x.style.breakAfter = ''; x.classList.remove('skip'); if (pmHidden) x.hidden = pmHidden[i]; });
   pmHidden = null;
