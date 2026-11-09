@@ -152,7 +152,31 @@ tr.f-g td,tr.f-o td{background:var(--bad-soft)} tr.f-m td{background:var(--warn-
 .sugg.ok{background:var(--ok-soft);border-left-color:var(--ok)} .sugg.ko{background:var(--bad-soft);border-left-color:var(--bad)} .sugg.q{background:var(--warn-soft);border-left-color:var(--warn)}
 .sugg.mini{padding:8px 12px}
 .sugg.mini b{font-size:14px}
-.dec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px}
+.dec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px;align-items:start}
+/* Décision du jury : bloc obligatoire, très visible tant qu'il n'est pas renseigné */
+.decbox{display:grid;gap:10px;padding:14px;border-radius:14px;border:3px solid var(--bad);background:#fff4f1;box-shadow:0 0 0 4px rgba(163,51,43,.12)}
+.decbox.set-ok{border-color:var(--ok);background:var(--ok-soft);box-shadow:none}
+.decbox.set-ko{border-color:var(--bad);background:var(--bad-soft);box-shadow:none}
+.dech{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.dech b{font:700 16px var(--f-body)}
+.req{font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--bad);padding:3px 9px;border-radius:999px}
+.set-ok .req{background:var(--ok)}
+.decch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dk{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:10px 12px;border-radius:12px;border:2.5px solid var(--line);background:var(--surface);font:800 18px var(--f-body);letter-spacing:.04em;cursor:pointer;color:var(--fg)}
+.dk input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.dk .bx{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;border:2.5px solid currentColor;font-size:18px;color:transparent}
+.dk.ok{border-color:var(--ok);color:var(--ok)} .dk.ko{border-color:var(--bad);color:var(--bad)}
+.dk.ok .bx{border-color:var(--ok)} .dk.ko .bx{border-color:var(--bad)}
+.dk.ok:has(input:checked){background:var(--ok);color:#fff} .dk.ko:has(input:checked){background:var(--bad);color:#fff}
+.dk:has(input:checked) .bx{border-color:#fff;color:#fff}
+.dk:has(input:focus-visible){outline:3px solid var(--ai);outline-offset:2px}
+.decbox:has(input:checked) .dk:not(:has(input:checked)){opacity:.55}
+.decmsg{font-weight:700;color:var(--bad);font-size:14px}
+.decmsg:empty{display:none}
+textarea.need{border:2px solid var(--bad);background:#fff4f1}
+nav.tabs button[data-s=""]:not([data-ni]) .dot{background:var(--bad);box-shadow:0 0 0 3px rgba(163,51,43,.25)}
+@media (prefers-reduced-motion:no-preference){.decbox:not(.set-ok):not(.set-ko){animation:decp 2.4s ease-in-out infinite}}
+@keyframes decp{50%{box-shadow:0 0 0 7px rgba(163,51,43,.22)}}
 .radios{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .radios label{display:flex;gap:6px;align-items:center;font-weight:600;cursor:pointer;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface)}
 .radios label:has(input[value=ok]:checked),.radios label:has(input[value=oui]:checked){background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
@@ -193,6 +217,12 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm .rule{padding:2px 4px;gap:2px;border:0}
   html.pm .checks{display:none!important}
   html.pm .radios label{border:0;padding:0 6px 0 0;background:none!important;color:#000!important}
+  html.pm .decbox{border:2px solid #000!important;background:#fff!important;box-shadow:none!important;animation:none!important;padding:5px 8px;gap:4px}
+  html.pm .dech b{font-size:12px} html.pm .req{background:none!important;color:#000;border:1px solid #000;font-size:8px;padding:1px 6px}
+  html.pm .decch{gap:6px} html.pm .dk{min-height:0;padding:3px 6px;font-size:13px;border:1.5px solid #000!important;background:#fff!important;color:#000!important;opacity:1!important}
+  html.pm .dk .bx{width:16px;height:16px;font-size:12px;border:1.5px solid #000!important;color:transparent!important}
+  html.pm .dk:has(input:checked) .bx{color:#000!important;background:#ddd}
+  html.pm .decmsg{display:none} html.pm textarea.need{border:0;border-bottom:1px solid #999;background:none}
   html.pm ::placeholder{color:transparent}
   html.pm .sign .box{min-height:34px;padding:4px 8px}
   html.pm .sheet{gap:3px!important;margin:0!important}
@@ -206,6 +236,17 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm .chips label:not(:has(input:checked)){display:none}
   html.pm .sheet.skip{display:none!important}
   html.pm .pm-hide{display:none!important}
+  html.pm.one .sheet{gap:2px!important;border-top:2px solid #000;padding-top:3px}
+  html.pm.one .sheet:not(.first) .print-ident{display:none!important}
+  html.pm.one .hint,html.pm.one .rule,html.pm.one .fo,html.pm.one .sugg,html.pm.one h3{display:none!important}
+  html.pm.one .shead h2{font-size:15px}
+  html.pm.one h4{font-size:11px;margin:1px 0 0}
+  html.pm.one .dec{grid-template-columns:auto 1fr;gap:4px 10px;align-items:start}
+  html.pm.one .dec textarea{min-height:16px}
+  html.pm.one .sign{grid-template-columns:repeat(3,1fr);gap:6px}
+  html.pm.one .sign .box{min-height:24px;padding:2px 6px;gap:1px}
+  html.pm.one .sign .box span{font-size:9px}
+  html.pm.one .tsplit thead th{font-size:6.5px}
   html.pm .tsplit{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-items:start}
   html.pm .tsplit table{font-size:9.5px}
   html.pm .tsplit th.c,html.pm .tsplit td.c{width:30px;padding:0 1px}
@@ -224,6 +265,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     </div>
     <div class="bar">
       <span class="prsel" role="group" aria-label="Fiches à imprimer"><label><input type="checkbox" data-pr="1" checked> UV1</label><label><input type="checkbox" data-pr="2" checked> UV2</label><label><input type="checkbox" data-pr="3" checked> UV3</label></span>
+      <span class="prsel" role="group" aria-label="Mise en page"><label><input type="radio" name="pone" data-one="0" checked> 1 page par UV</label><label><input type="radio" name="pone" data-one="1"> Tout sur 1 page</label></span>
       <button class="btn light" type="button" id="print">Imprimer</button>
     </div>
   </header>
@@ -234,6 +276,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="g-sess">Session, lieu</label><input id="g-sess" type="text" data-g="sess"></div>
       <div class="f"><label for="g-date">Date</label><input id="g-date" type="text" data-g="date" placeholder="jj/mm/aaaa"></div>
       <div class="f"><label for="g-ky">Exercices d'application UV3-B</label><select id="g-ky" data-g="ky"><option value="ky">1 kakari-geiko + 1 yaku-soku-geiko</option><option value="kk">2 kakari-geiko</option><option value="yy">2 yaku-soku-geiko</option></select></div>
+      <div class="f"><label for="g-ntab">Nombre de tables de jury</label><input id="g-ntab" type="number" inputmode="numeric" min="1" max="30" data-g="ntab" placeholder="10"></div>
       <div class="f"><label for="g-cumul">Programme UV2</label><select id="g-cumul" data-g="cumul"><option value="">Programme du dan seulement</option><option value="1">Programme cumulé (dan + dans inférieurs)</option></select></div>
     </div>
     <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
@@ -246,6 +289,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
         <span class="btn file"><span>Importer les listes Excel</span><input type="file" id="xlsx" accept=".xlsx,.xls,.csv" multiple aria-label="Importer les listes des inscriptions"></span>
         <button class="btn ghost sm" type="button" id="prev">◀ Précédent</button>
         <button class="btn ghost sm" type="button" id="next">Suivant ▶</button>
+        <button class="btn ghost sm" type="button" id="dispatch">Répartir sur les tables</button>
         <button class="btn ghost sm" type="button" id="mails">✉ Récapitulatif de session</button>
         <button class="btn ghost sm" type="button" id="clearAll">Vider la session</button>
       </div>
@@ -256,6 +300,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <div class="bar" id="lfilter" hidden></div>
     <p class="hint" id="lempty">Importez les exports « Liste des inscriptions » (.xlsx) : UV1, UV2 et UV3, ensemble ou l'un après l'autre. Chaque candidat est regroupé avec les UV auxquelles il est inscrit. Le dan, les katas et la formule (ancien ou nouveau règlement) se règlent d'après la colonne Catégorie. Les inscriptions annulées sont écartées.</p>
     <div class="cands" id="cands" hidden></div>
+    <span class="confirm" id="dconf" hidden>Répartir à nouveau tous les candidats sur les tables ? Les affectations actuelles seront remplacées. <button class="btn ghost sm" type="button" id="dyes">Oui, répartir</button><button class="btn ghost sm" type="button" id="dno">Annuler</button></span>
     <span class="confirm" id="confirm" hidden>Effacer la liste et toutes les fiches de la session ? <button class="btn ghost sm" type="button" id="yes">Oui, tout effacer</button><button class="btn ghost sm" type="button" id="no">Annuler</button></span>
   </section>
 
@@ -271,6 +316,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="i-dan">Dan visé</label><select id="i-dan" data-k="dan"><option value="1">1er dan</option><option value="2">2e dan</option><option value="3">3e dan</option><option value="4">4e dan</option></select></div>
       <div class="f"><label for="i-uke">Partenaire (uke)</label><input id="i-uke" type="text" data-k="uke"></div>
       <div class="f"><label for="i-ep">Épreuve(s)</label><input id="i-ep" type="text" data-k="ep"></div>
+      <div class="f"><label for="i-table">Table de jury</label><select id="i-table"></select></div>
       <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
     </div>
   </section>
@@ -421,8 +467,12 @@ function kataTable(kid){
 }
 function decHTML(u, label){
   return `<div class="dec">
-  <div class="f"><span class="lab">Décision du jury${label||''}</span><div class="radios"><label><input type="radio" name="d${u}" value="ok"> Acquise</label><label><input type="radio" name="d${u}" value="ko"> Non acquise</label></div></div>
-  <div class="f"><label for="m${u}">Motif si non acquise</label><textarea id="m${u}" data-k="m${u}"></textarea></div>
+  <div class="decbox" id="db${u}" role="radiogroup" aria-labelledby="dh${u}" aria-required="true">
+    <div class="dech"><b id="dh${u}">Décision du jury${label||''}</b><span class="req">Obligatoire</span></div>
+    <div class="decch"><label class="dk ok"><input type="radio" name="d${u}" value="ok"><span class="bx" aria-hidden="true">✓</span>ACQUISE</label><label class="dk ko"><input type="radio" name="d${u}" value="ko"><span class="bx" aria-hidden="true">✗</span>AJOURNÉE</label></div>
+    <p class="decmsg" id="dm${u}"></p>
+  </div>
+  <div class="f"><label for="m${u}">Motif de l'ajournement</label><textarea id="m${u}" data-k="m${u}"></textarea></div>
   <div class="sign" style="grid-column:1/-1"><div class="box"><span>Évaluateur 1 · nom et signature</span><input type="text" data-k="e1-${u}" aria-label="Évaluateur 1"></div><div class="box"><span>Évaluateur 2 · nom et signature</span><input type="text" data-k="e2-${u}" aria-label="Évaluateur 2"></div><div class="box"><span>Cadre réservé CORG · signature et cachet</span></div></div></div>`;
 }
 function progFor(d, dom){
@@ -538,8 +588,8 @@ function calc(){
   let s1;
   const uke = S['r:uke'] || '', ukeDisp = fo1() === 'old' ? (+S.annee && +S.annee <= 1976) : over40();
   if (!ks.length) s1 = ['q','Aucun kata coché',''];
-  else if (ks.some(([,r]) => r[0]==='ko')) s1 = ['ko','Non acquise conseillée', ks.length > 1 ? 'Au moins un kata non réussi. Ancien règlement : le kata réussi reste acquis.' : 'Kata non réussi.'];
-  else if (d == 1 && uke === 'ko') s1 = ['ko','Non acquise conseillée','Rôle de uke insuffisant.'];
+  else if (ks.some(([,r]) => r[0]==='ko')) s1 = ['ko','Ajournement conseillé', ks.length > 1 ? 'Au moins un kata non réussi. Ancien règlement : le kata réussi reste acquis.' : 'Kata non réussi.'];
+  else if (d == 1 && uke === 'ko') s1 = ['ko','Ajournement conseillé','Rôle de uke insuffisant.'];
   else if (ks.some(([,r]) => r[0]==='') || (d == 1 && !uke && !ukeDisp)) s1 = ['','Évaluation en cours', d==1 && !uke && !ukeDisp ? 'Uke à évaluer.' : 'Lignes à renseigner.'];
   else if (ks.some(([,r]) => r[0]==='q')) s1 = ['q','À l\'appréciation du jury','Plusieurs fautes moyennes.'];
   else s1 = ['ok','Acquise conseillée', ks.length > 1 ? 'Tous les katas réussis.' : 'Kata réussi.'];
@@ -601,7 +651,7 @@ function calc(){
     if (S.dur2 === 'ko') ko.push('temps dépassé');
     const cap = t => t.charAt(0).toUpperCase() + t.slice(1) + '.';
     if (choice) s2 = ['q', C.q && /Il faut/.test(choice) ? 'Choix du jury incomplet' : 'Choix du jury à revoir', choice];
-    else if (ko.length) s2 = ['ko','Non acquise conseillée', cap(ko.join(' · '))];
+    else if (ko.length) s2 = ['ko','Ajournement conseillé', cap(ko.join(' · '))];
     else if (pend.length) s2 = ['','Évaluation en cours', cap(pend.join(', ') + ' à renseigner')];
     else if (qq.length) s2 = ['q','À l\'appréciation du jury', cap(qq.join(' · '))];
     else s2 = ['ok','Acquise conseillée','Ensemble satisfaisant.'];
@@ -610,18 +660,21 @@ function calc(){
   // UV3
   const e = critEval('cr', CRIT3.length);
   let s3;
-  if (e.c[4] === 'i') s3 = ['ko','Partie B : non acquise conseillée','La sécurité de uke n\'est pas assurée.'];
-  else if (e.ins >= 2) s3 = ['ko','Partie B : non acquise conseillée', `${e.ins} critères insuffisants.`];
+  if (e.c[4] === 'i') s3 = ['ko','Partie B : ajournement conseillé','La sécurité de uke n\'est pas assurée.'];
+  else if (e.ins >= 2) s3 = ['ko','Partie B : ajournement conseillé', `${e.ins} critères insuffisants.`];
   else if (e.nc < CRIT3.length) s3 = ['','Évaluation en cours', `${e.nc}/${CRIT3.length} critères renseignés.`];
   else if (e.ins === 1 || e.fr >= 3) s3 = ['q','Partie B : à l\'appréciation du jury','Un point faible ou plusieurs fragilités.'];
   else s3 = ['ok','Partie B : acquise conseillée','Ensemble satisfaisant.'];
   setSugg($('#sg3'), ...s3);
   if (over40() && !S['r:pa']){ S['r:pa'] = 'disp'; const r = $('input[name=pa][value=disp]'); if (r) r.checked = true; }
-  [1,2,3].forEach(u => { $('#t'+u).dataset.s = S['r:d'+u] || ''; });
+  [1,2,3].forEach(u => { const v = S['r:d'+u] || ''; $('#t'+u).dataset.s = v;
+    const bx = $('#db'+u); if (!bx) return; bx.className = 'decbox' + (v ? ' set-' + v : '');
+    const noMotif = v === 'ko' && !(S['m'+u] || '').trim(); $('#m'+u).classList.toggle('need', noMotif);
+    $('#dm'+u).textContent = !v ? 'À renseigner : cochez ACQUISE ou AJOURNÉE. Sans décision, l\'UV n\'est pas notée.' : noMotif ? 'Précisez le motif de l\'ajournement.' : ''; });
   const c = cur(), I = ins();
   [1,2,3].forEach(u => {
     const x = c && c.uvs && c.uvs[u], ni = !I.includes(u);
-    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Ordre :</span> ${esc(S.ordre)}</div>`;
+    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Table · ordre :</span> ${c && c.table ? 'T' + esc(c.table) : '—'} · ${esc(S.ordre)}</div>`;
     const tb = $('#t'+u); tb.toggleAttribute('data-ni', ni);
     let sp = tb.querySelector('.ni'); if (ni && !sp){ sp = document.createElement('span'); sp.className = 'ni'; sp.textContent = '· non inscrit'; tb.appendChild(sp); } if (!ni && sp) sp.remove();
     /* UV non inscrite dans l'export : ajout sur place possible */
@@ -640,14 +693,17 @@ function renderList(){
   const uOf = c => c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number) : [1,2,3];
   const dans = [...new Set(DB.list.map(dOf))].sort();
   const hasUV = DB.list.some(c => c.uvs && Object.keys(c.uvs).length);
-  $('#lfilter').hidden = !DB.list.length || (dans.length < 2 && !hasUV);
+  const tabs = [...new Set(DB.list.map(c => +c.table).filter(Boolean))].sort((a,b) => a-b), ft = DB.ftab || 'all';
+  $('#lfilter').hidden = !DB.list.length || (dans.length < 2 && !hasUV && !tabs.length);
   const fu = DB.fuv || 'all';
   $('#lfilter').innerHTML = `<span class="lfil"><span class="lab">Dan</span>${['all', ...dans].map(x => `<button type="button" class="btn ${DB.filter==x?'':'ghost'} sm" data-f="${x}">${x==='all'?'Tous':DAN(x)}</button>`).join('')}</span>`
-    + (hasUV ? `<span class="lfil"><span class="lab">Épreuve</span>${['all',1,2,3].map(x => `<button type="button" class="btn ${fu==x?'':'ghost'} sm" data-u="${x}">${x==='all'?'Toutes':'UV'+x+' · '+DB.list.filter(c => uOf(c).includes(x)).length}</button>`).join('')}</span>` : '');
+    + (hasUV ? `<span class="lfil"><span class="lab">Épreuve</span>${['all',1,2,3].map(x => `<button type="button" class="btn ${fu==x?'':'ghost'} sm" data-u="${x}">${x==='all'?'Toutes':'UV'+x+' · '+DB.list.filter(c => uOf(c).includes(x)).length}</button>`).join('')}</span>` : '')
+    + (tabs.length ? `<span class="lfil"><span class="lab">Table</span>${['all', ...tabs].map(x => `<button type="button" class="btn ${ft==x?'':'ghost'} sm" data-t="${x}">${x==='all'?'Toutes':'T'+x+' · '+DB.list.filter(c => +c.table === x).length}</button>`).join('')}</span>` : '');
   $('#cands').innerHTML = DB.list.map((c,i) => {
     const dd = DB.data[c.id] || {}, dn = dOf(c), us = uOf(c);
     if (DB.filter !== 'all' && DB.filter != dn) return '';
     if (fu !== 'all' && !us.includes(+fu)) return '';
+    if (ft !== 'all' && +c.table !== +ft) return '';
     const old = u => (dd['fo'+u] || autoFo(c,u)) !== 'nr';
     const st = us.map(u => { const v = dd['r:d'+u]; const plus = c.uvs && c.uvs[u] && c.uvs[u].added; return `<i class="${v||(plus?'plus':(u<3 && old(u)?'ar':''))}">UV${u}${plus?' +':''}${u<3 && old(u)?' AR':''}${v==='ok'?' ✓':v==='ko'?' ✗':''}</i>`; }).join('');
     return `<button type="button" class="cand dd${dn}" data-id="${esc(c.id)}" aria-current="${c.id===DB.cur}"><b>${i+1}. ${esc(c.nom)} ${esc(c.prenom)}</b><small>${c.annee ? 'Né(e) en '+esc(c.annee)+' · ' : ''}${esc(c.ep || 'Saisie manuelle')}</small><span class="st"><i class="dan dan${dn}">${dn}D</i>${st}</span></button>`;
@@ -664,7 +720,7 @@ function renderSelect(){
   const uOf = c => { const dd = DB.data[c.id] || {}, us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [];
     return us.map(u => { const v = dd['r:d'+u], f = u < 3 ? (dd['fo'+u] || autoFo(c,u)) : 'nr';
       return 'UV' + u + (c.uvs[u].added ? '+' : '') + (f !== 'nr' ? ' AR' : '') + (v === 'ok' ? ' ✓' : v === 'ko' ? ' ✗' : ''); }).join(' · '); };
-  const opt = c => { const dd = DB.data[c.id] || {}, dn = +(dd.dan || c.dan || 1), u = uOf(c); return `<option value="${esc(c.id)}"${c.id===DB.cur?' selected':''}>${(esc(c.nom) + ' ' + esc(c.prenom)).trim() || '(nouveau candidat, saisir le nom)'} · ${dn}D${u ? ' · '+u : ''}</option>`; };
+  const opt = c => { const dd = DB.data[c.id] || {}, dn = +(dd.dan || c.dan || 1), u = uOf(c); return `<option value="${esc(c.id)}"${c.id===DB.cur?' selected':''}>${(esc(c.nom) + ' ' + esc(c.prenom)).trim() || '(nouveau candidat, saisir le nom)'} · ${dn}D${c.table ? ' · T'+c.table : ''}${u ? ' · '+u : ''}</option>`; };
   $('#csel').innerHTML = (list.some(c => c.id === DB.cur) ? '' : '<option value="">— choisir —</option>') + list.map(opt).join('');
 }
 /* Onglet ouvert : l'UV filtrée, sinon une UV à laquelle le candidat est inscrit */
@@ -674,7 +730,7 @@ function autoTab(){
   const curU = +($('[role=tab][aria-selected=true]')||{id:'t1'}).id.slice(1);
   if (fu && I.includes(fu)) showTab(fu); else if (!I.includes(curU)) showTab(I[0]);
 }
-function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); }
+function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = (r.dataset.one === '1') === !!DB.g.one); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
 $('#csel').addEventListener('change', e => { if (!e.target.value) return; DB.cur = e.target.value; save(); refresh(); });
 
 /* ===== Import Excel ===== */
@@ -728,6 +784,7 @@ $('#xlsx').addEventListener('change', async e => {
   }
   if (errs.length){ $('#xerr').textContent = errs.join(' '); $('#xerr').hidden = false; }
   if (DB.list.length){
+    if (DB.list.some(c => c.table)) DB.list.forEach(c => { if (!c.table) c.table = leastTable(); });
     if (!DB.cur) DB.cur = DB.list[0].id;
     const tot = seenUV[1] + seenUV[2] + seenUV[3];
     $('#xinfo').textContent = `${files.length} fichier${files.length>1?'s':''} lu${files.length>1?'s':''} · ${rowsN} inscription${rowsN>1?'s':''}${tot ? ` (UV1 : ${seenUV[1]}, UV2 : ${seenUV[2]}, UV3 : ${seenUV[3]})` : ''} · ${added} nouveau${added>1?'x':''} candidat${added>1?'s':''} · ${DB.list.length} au total.`;
@@ -759,14 +816,16 @@ function avoidDemo(){
 function addManual(){
   const id = 'manuel-' + Date.now();
   DB.list.push({id, nom:'', prenom:'', annee:'', ep:'', uke:''}); DB.cur = id;
+  if (DB.list.some(c => c.table)) DB.list[DB.list.length-1].table = leastTable();
   DB.data[id] = {dan:'1', ordre:String(DB.list.length), katas:['nage'], nseries:'3'};
   loadCurrent();
 }
 document.addEventListener('input', e => {
   const t = e.target;
-  if (t.id === 'xlsx' || t.id === 'csel') return;
+  if (t.id === 'xlsx' || t.id === 'csel' || t.id === 'i-table') return;
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
-  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
+  if (t.dataset.one){ DB.g.one = t.dataset.one === '1'; save(); return; }
+  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
   if (!t.closest('#ident, .sheet')) return;
   if (!cur()){ addManual(); }
   if (t.dataset.kata){ const k = t.dataset.kata; S.katas = (S.katas||[]).filter(x => x !== k); if (t.checked) S.katas.push(k); store(); rendered=''; renderSheets(); restore(); calc(); return; }
@@ -784,7 +843,7 @@ document.addEventListener('input', e => {
 const UVN = {1:'UV1 Kata', 2:'UV2 Technique', 3:'UV3 Efficacité, option combinée'};
 function uvLine(dd, c, u){
   const v = dd['r:d'+u], m = (dd['m'+u] || '').trim();
-  let t = v === 'ok' ? 'acquise' : v === 'ko' ? 'non acquise' + (m ? ' (' + m + ')' : '') : 'non évaluée';
+  let t = v === 'ok' ? 'acquise' : v === 'ko' ? 'ajournée' + (m ? ' (' + m + ')' : '') : 'non évaluée';
   if (u === 3 && v) t = 'partie B ' + t + (dd['r:uvc'] === 'oui' ? ', UV3 complète' : dd['r:uvc'] === 'non' ? ', partie A (points) en attente' : '');
   return '- ' + UVN[u] + ' : ' + t;
 }
@@ -800,10 +859,28 @@ $('#mails').addEventListener('click', () => {
   const ids = $$('#csel option').map(o => o.value).filter(Boolean);
   const lines = DB.list.filter(c => ids.includes(c.id)).sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr')).map(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1);
-    return `${(dd.nom || c.nom || '').toUpperCase()} ${dd.prenom || c.prenom || ''} · ${DAN(d)}\n${usOf(c).map(u => '  ' + uvLine(dd, c, u)).join('\n')}`;
+    return `${(dd.nom || c.nom || '').toUpperCase()} ${dd.prenom || c.prenom || ''} · ${DAN(d)}${c.table ? ' · table ' + c.table : ''}\n${usOf(c).map(u => '  ' + uvLine(dd, c, u)).join('\n')}`;
   });
   openMail('', 'Récapitulatif passage de grades' + (sessTxt() ? ' · ' + sessTxt() : ''), `Bonjour,\n\nRécapitulatif des décisions du jury${sessTxt() ? ', session ' + sessTxt() : ''} (${lines.length} candidat${lines.length>1?'s':''}) :\n\n${lines.join('\n\n')}\n\nCordialement`);
 });
+/* Tables de jury : répartition équilibrée, regroupée par dan puis par épreuves ; modifiable candidat par candidat */
+const ntab = () => Math.max(1, Math.min(30, +DB.g.ntab || 10));
+function leastTable(){ const n = ntab(), load = Array(n).fill(0); DB.list.forEach(c => { if (+c.table >= 1 && +c.table <= n) load[c.table-1]++; }); return String(load.indexOf(Math.min(...load)) + 1); }
+function dispatchAll(){
+  const n = ntab(), key = c => [String(+((DB.data[c.id]||{}).dan || c.dan || 1)), c.uvs ? Object.keys(c.uvs).sort().join('') : '', (c.nom + ' ' + c.prenom).toUpperCase()].join('|');
+  const L = DB.list.slice().sort((a,b) => key(a).localeCompare(key(b), 'fr')), N = L.length;
+  L.forEach((c,i) => c.table = String(Math.floor(i * Math.min(n, N) / N) + 1));
+  DB.ftab = 'all'; save(); refresh();
+}
+function renderTableSel(){
+  const c = cur(), n = ntab();
+  $('#i-table').innerHTML = '<option value="">—</option>' + [...Array(n)].map((_,i) => `<option value="${i+1}">Table ${i+1} · ${DB.list.filter(x => +x.table === i+1).length} cand.</option>`).join('');
+  $('#i-table').value = c && c.table ? c.table : ''; $('#i-table').disabled = !c;
+}
+$('#i-table').addEventListener('change', e => { const c = cur(); if (!c) return; c.table = e.target.value; save(); renderList(); renderTableSel(); calc(); });
+$('#dispatch').addEventListener('click', () => { if (DB.list.some(c => c.table)) $('#dconf').hidden = false; else dispatchAll(); });
+$('#dno').addEventListener('click', () => { $('#dconf').hidden = true; });
+$('#dyes').addEventListener('click', () => { $('#dconf').hidden = true; dispatchAll(); });
 $('#manual').addEventListener('click', () => { DB.filter = 'all'; DB.fuv = 'all'; addManual(); save(); refresh(); $('#i-nom').focus(); });
 /* Suppression d'un candidat : liste et fiches de ce candidat */
 $('#delc').addEventListener('click', () => { const c = cur(); if (!c) return; $('#delname').textContent = `Supprimer ${(c.nom + ' ' + c.prenom).trim() || 'ce candidat'} et ses fiches ?`; $('#delconf').hidden = false; });
@@ -816,6 +893,8 @@ $('#delyes').addEventListener('click', () => {
 });
 $('#cands').addEventListener('click', e => { const b = e.target.closest('.cand'); if (!b) return; DB.cur = b.dataset.id; save(); refresh(); });
 $('#lfilter').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.t){ DB.ftab = b.dataset.t === 'all' ? 'all' : +b.dataset.t; save(); renderList();
+    const ids = $$('.cand').map(x => x.dataset.id); if (ids.length && !ids.includes(DB.cur)){ DB.cur = ids[0]; save(); refresh(); } return; }
   if (b.dataset.u){ DB.fuv = b.dataset.u === 'all' ? 'all' : +b.dataset.u; save(); renderList();
     const ids = $$('.cand').map(x => x.dataset.id); if (ids.length && !ids.includes(DB.cur)){ DB.cur = ids[0]; save(); refresh(); } else autoTab(); return; }
   DB.filter = b.dataset.f === 'all' ? 'all' : +b.dataset.f; save(); renderList(); });
@@ -866,23 +945,37 @@ function enterPrint(){
   $$('.sheet').forEach((x,i) => { x.hidden = false; x.style.zoom = ''; x.classList.toggle('skip', !sel.includes(i+1)); x.style.breakAfter = i+1 === sel[sel.length-1] ? 'auto' : 'page'; });
   H.classList.add('pm');
   const avail = 279 * 96 / 25.4 - 14;
-  $$('.sheet:not(.skip)').forEach(x => {
-    /* Liste vierge trop longue : imprimée sur deux colonnes */
-    if (x.getBoundingClientRect().height > avail) x.querySelectorAll('table.tech:not(.has-req)').forEach(t => {
-      const rows = [...t.tBodies[0].rows], half = Math.ceil(rows.length / 2), box = document.createElement('div');
-      box.className = 'tsplit pm-tmp';
-      [rows.slice(0, half), rows.slice(half)].forEach(part => {
-        const w = document.createElement('div'), tb = t.cloneNode(false), body = document.createElement('tbody');
-        w.className = 'tw'; tb.removeAttribute('id'); tb.appendChild(t.tHead.cloneNode(true));
-        part.forEach(r => { const c = r.cloneNode(true); c.querySelectorAll('input').forEach(i => { i.name = ''; i.checked = false; }); body.appendChild(c); });
-        tb.appendChild(body); w.appendChild(tb); box.appendChild(w);
-      });
-      t.parentElement.classList.add('pm-hide'); t.parentElement.after(box);
+  /* Tableau long imprimé sur deux colonnes (copie temporaire, les saisies cochées sont conservées) */
+  const split = (t, keep) => {
+    const rows = [...t.tBodies[0].rows].filter(r => getComputedStyle(r).display !== 'none'), half = Math.ceil(rows.length / 2), box = document.createElement('div');
+    if (rows.length < 6) return;
+    box.className = 'tsplit pm-tmp';
+    [rows.slice(0, half), rows.slice(half)].forEach(part => {
+      const w = document.createElement('div'), tb = t.cloneNode(false), body = document.createElement('tbody');
+      w.className = 'tw'; tb.removeAttribute('id'); tb.appendChild(t.tHead.cloneNode(true));
+      part.forEach(r => { const c = r.cloneNode(true); const src = r.querySelectorAll('input,select,textarea');
+        c.querySelectorAll('input,select,textarea').forEach((i,k) => { i.name = ''; i.removeAttribute('id'); if (keep){ if ('checked' in i) i.checked = src[k].checked; i.value = src[k].value; } else i.checked = false; }); body.appendChild(c); });
+      tb.appendChild(body); w.appendChild(tb); box.appendChild(w);
     });
+    t.parentElement.classList.add('pm-hide'); t.parentElement.after(box);
+  };
+  const vis = $$('.sheet:not(.skip)');
+  if (DB.g.one){
+    /* Tout sur une page : fiches à la suite, tableaux longs sur deux colonnes, puis réduction commune */
+    H.classList.add('one'); vis.forEach((x,i) => { x.style.breakAfter = 'auto'; x.classList.toggle('first', i === 0); });
+    vis.forEach(x => x.querySelectorAll('table.kt, table.tech').forEach(t => split(t, !t.classList.contains('tech') || t.classList.contains('has-req'))));
+    const span = () => vis[vis.length-1].getBoundingClientRect().bottom - vis[0].getBoundingClientRect().top;
+    let f = 1;
+    for (let k = 0; k < 6 && span() > avail - 10; k++){ f = Math.floor(f * (avail - 10) / span() * 1000) / 1000; vis.forEach(x => x.style.zoom = String(f)); }
+    return;
+  }
+  vis.forEach(x => {
+    /* Liste vierge trop longue : imprimée sur deux colonnes */
+    if (x.getBoundingClientRect().height > avail) x.querySelectorAll('table.tech:not(.has-req)').forEach(t => split(t, false));
     const h = x.getBoundingClientRect().height; if (h > avail) x.style.zoom = (Math.floor(avail / h * 1000) / 1000).toString(); });
 }
 function exitPrint(){
-  document.documentElement.classList.remove('pm');
+  document.documentElement.classList.remove('pm','one'); $$('.sheet.first').forEach(x => x.classList.remove('first'));
   $$('.pm-tmp').forEach(x => x.remove()); $$('.pm-hide').forEach(x => x.classList.remove('pm-hide'));
   $$('.sheet').forEach((x,i) => { x.style.zoom = ''; x.style.breakAfter = ''; x.classList.remove('skip'); if (pmHidden) x.hidden = pmHidden[i]; });
   pmHidden = null;
@@ -893,7 +986,7 @@ $('#print').addEventListener('click', () => { enterPrint(); try{ window.print();
 $('#clearAll').addEventListener('click', () => { $('#confirm').hidden = false; });
 $('#no').addEventListener('click', () => { $('#confirm').hidden = true; });
 $('#yes').addEventListener('click', () => {
-  DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all'}; save(); $('#xinfo').hidden = true;
+  DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all', ftab:'all'}; save(); $('#xinfo').hidden = true;
   $$('#settings input').forEach(i => i.value = '');
   $('#confirm').hidden = true; refresh(); window.scrollTo({top:0});
 });
