@@ -604,6 +604,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="i-uke">Partenaire (uke)</label><input id="i-uke" type="text" data-k="uke"></div>
       <div class="f"><label for="i-ep">Épreuve(s)</label><input id="i-ep" type="text" data-k="ep"></div>
       <div class="f"><label for="i-table">Table de jury</label><select id="i-table"></select></div>
+      <div class="f noprint" id="licw" hidden><label for="i-lic">N° de licence <span class="oblig">pour les résultats</span></label><input id="i-lic" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="ex. M123456789"><span class="hint">Confidentiel : jamais imprimé ni partagé. Sans lui, le candidat ne peut pas figurer dans les fichiers de résultats.</span></div>
       <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
     </div>
   
@@ -1161,18 +1162,35 @@ function buildResultXlsx(u, rows, cls){
 }
 /* Création des 3 fichiers import_resultats (UV1, UV2, UV3B) au format du site fédéral */
 const RES = {1:{suf:'', cls:['Validé','Partiel','Refusé','Absent'], dom:true}, 2:{suf:'_1', cls:['Validé','Refusé','Absent'], dom:true}, 3:{suf:'_2', cls:['Validé','Absent'], dom:false}};
+/* Épreuve au format fédéral pour un candidat ajouté à la main ou une UV ajoutée sur place (sinon : celle de l'inscription) */
+function epFor(c, u, dd){
+  const x = c.uvs && c.uvs[u];
+  if (x && !x.added) return {ep:x.ep, ok:true};
+  const d = Math.min(4, +(dd.dan || c.dan || 1));
+  if (u === 3) return {ep:`${d}D - UV3B`, ok:true};
+  const f1 = dd.fo1 || autoFo(c,1), f2 = dd.fo2 || autoFo(c,2);
+  if (u === 2) return {ep:`${d}D - UV2${f2 === 'tech' ? ' Dom. technique [AR]' : ''}`, ok:true};
+  const ks = (dd.katas || katasFor(c, d, f1)).slice().sort().join(), tag = f1 === 'old' ? '[AR]' : '[NR]';
+  const hit = (REF_UV1[d] || []).find(l => parseCat(l).katas.slice().sort().join() === ks && l.includes(tag));
+  return hit ? {ep:hit, ok:true} : {ep:`${d}D - ${(dd.katas || katasFor(c, d, f1)).map(k => KATAS[k].name).join(' + ')} ${tag}`, ok:false};
+}
 $('#resmk').addEventListener('click', async () => {
   if (typeof XLSX === 'undefined') return;
   const sess = (DB.g.sess || 'SESSION').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'').toUpperCase();
   const out = [];
   for (const u of [1,2,3]){
     const cf = RES[u], rep = {u, n:0, filled:0, empty:[], nolic:[], dom:[], note:[]};
-    const list = DB.list.filter(c => c.uvs && c.uvs[u]).sort((a,b) => (a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
+    /* inscrits à l'UV, plus les candidats ajoutés à la main qui ont une décision pour cette UV */
+    const hasU = c => c.uvs && Object.keys(c.uvs).length;
+    const list = DB.list.filter(c => !String(c.id).startsWith('__') && (hasU(c) ? c.uvs[u] : (DB.data[c.id] || {})['r:d'+u]))
+      .sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr'));
     if (!list.length){ out.push(rep); continue; }
     const rows = [];
     list.forEach(c => {
-      const dd = DB.data[c.id] || {}, v = dd['r:d'+u], ep = c.uvs[u].ep, nom = ((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).toUpperCase().trim();
+      const dd = DB.data[c.id] || {}, v = dd['r:d'+u], nom = (((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).toUpperCase().trim()) || 'CANDIDAT SANS NOM';
       if (!c.lic){ rep.nolic.push(nom); return; }
+      const E = epFor(c, u, dd), ep = E.ep;
+      if (!E.ok) rep.note.push(`${nom} : épreuve « ${ep} » à vérifier dans la liste déroulante du fichier`);
       rep.n++;
       let val = v ? CLASS[v] : '';
       if (val && !cf.cls.includes(val)){ rep.note.push(`${nom} : « ${val} » n'existe pas pour l'UV${u === 3 ? '3B' : u} sur le site, case laissée vide`); val = ''; }
@@ -1193,10 +1211,10 @@ $('#resmk').addEventListener('click', async () => {
   const L = (t, a) => a.length ? `<div class="w">${t} (${a.length}) :<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
   const T = {1:'UV1 · Kata', 2:'UV2 · Technique', 3:'UV3B · Efficacité combinée'};
   const nolic = new Set(out.flatMap(r => r.nolic)).size;
-  const warn = nolic ? `<div class="e">⚠ ${nolic} candidat${nolic>1?'s n\'ont':' n\'a'} pas de n° de licence enregistré sur cet appareil : ${nolic>1?'ils ne peuvent pas':'il ne peut pas'} figurer dans les fichiers (candidat ajouté à la main, ou importé avec une ancienne version de la page). Pour un candidat ajouté à la main, saisissez son résultat directement sur l'extranet. Sinon, réimportez les exports d'inscription ou la liste corrigée avec « Choisir les fichiers Excel » (les décisions déjà saisies sont conservées), puis recliquez sur « Créer les fichiers de résultats ».</div>` : '';
+  const warn = nolic ? `<div class="e">⚠ ${nolic} candidat${nolic>1?'s n\'ont':' n\'a'} pas de n° de licence enregistré sur cet appareil : ${nolic>1?'ils ne peuvent pas':'il ne peut pas'} figurer dans les fichiers (candidat ajouté à la main, ou importé avec une ancienne version de la page). Pour un candidat ajouté à la main : étape 2, choisissez-le, ouvrez « Informations du candidat » et saisissez son n° de licence. Sinon, réimportez les exports d'inscription ou la liste corrigée avec « Choisir les fichiers Excel » (les décisions déjà saisies sont conservées), puis recliquez sur « Créer les fichiers de résultats ».</div>` : '';
   $('#rinfo').innerHTML = warn + out.map(r => `<div><h5>${T[r.u]}${r.file ? ' · ' + esc(r.file) : ''}</h5>${!r.n && !r.nolic.length ? '<div>Aucun candidat inscrit à cette UV : pas de fichier.</div>' :
     `<div>${r.n} candidat${r.n>1?'s':''}, ${r.filled} classement${r.filled>1?'s':''} rempli${r.filled>1?'s':''}.</div>${r.n ? `<div class="bar"><button class="btn sm res" type="button" data-file="${esc(r.file)}">⬇ Télécharger ${esc(r.file)}</button><button class="btn ghost sm" type="button" data-sharefile="${esc(r.file)}">📤 Envoyer</button><span class="dlst" aria-live="polite"></span></div>` : ''}`
-    + L('Sans décision du jury, classement vide', r.empty) + L('Sans n° de licence (saisis à la main ou importés avant cette version) : absents du fichier', r.nolic) + L('Dominante à compléter à la main', r.dom) + L('À vérifier', r.note)}</div>`).join('')
+    + L('Sans décision du jury, classement vide', r.empty) + L('Sans n° de licence : absents du fichier (voir l\'encadré rouge)', r.nolic) + L('Dominante à compléter à la main', r.dom) + L('À vérifier', r.note)}</div>`).join('')
     + (Object.keys(RESFILES).length > 1 ? '<div class="bar"><button class="btn res" type="button" id="shareall">📤 Envoyer les ' + Object.keys(RESFILES).length + ' fichiers par mail…</button><span class="dlst" id="shareallst" aria-live="polite"></span></div>' : '')
     + '<div>Cliquez sur chaque bouton « Télécharger », puis téléversez les fichiers sur le site fédéral.</div>';
   $('#rinfo').hidden = false;
@@ -1303,6 +1321,7 @@ function addManual(){
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'xlsx' || t.id === 'csel' || t.id === 'i-table') return;
+  if (t.id === 'i-lic'){ const c = cur(); if (c){ c.lic = t.value.replace(/\s+/g,'').toUpperCase(); c.licm = true; save(); } return; }
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
   if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
   if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
@@ -1382,6 +1401,9 @@ function renderTableSel(){
   const c = cur(), n = ntab();
   $('#i-table').innerHTML = '<option value="">—</option>' + [...Array(n)].map((_,i) => `<option value="${i+1}">Table ${i+1} · ${DB.list.filter(x => +x.table === i+1).length} cand.</option>`).join('');
   $('#i-table').value = c && c.table ? c.table : ''; $('#i-table').disabled = !c;
+  /* n° de licence : saisi seulement pour un candidat ajouté à la main (celui d'un candidat importé n'est jamais affiché) */
+  const lw = $('#licw'), show = !!c && (!c.lic || !!c.licm);
+  lw.hidden = !show; if (show && document.activeElement !== $('#i-lic')) $('#i-lic').value = c.lic || '';
 }
 $('#i-table').addEventListener('change', e => { const c = cur(); if (!c) return; c.table = e.target.value; save(); renderList(); renderTableSel(); calc(); });
 $('#dispatch').addEventListener('click', () => { if (DB.list.some(c => c.table)) $('#dconf').hidden = false; else dispatchAll(); });
