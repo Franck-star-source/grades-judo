@@ -254,6 +254,8 @@ html.pm .qrnote{display:block;font-size:9px;color:#000}
 .scanres{border-radius:14px;padding:14px 16px;font-size:18px;font-weight:700;background:#1d2a4f;min-height:64px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .scanres.ok{background:var(--ok)} .scanres.ko{background:var(--bad)} .scanres.part{background:var(--warn)} .scanres.err{background:#5d6370}
 .scanres small{display:block;font-size:13px;font-weight:500;opacity:.9}
+.qrl{margin-top:14px;padding:14px;border:2px dashed var(--line,#c9cdd6);border-radius:12px;display:grid;gap:8px}
+.qrl input{font-size:18px;padding:12px;border-radius:10px}
 .scantoast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:60;width:min(92vw,520px);border-radius:14px;padding:16px 18px;color:#fff;font-size:18px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);display:grid;gap:8px}
 .scantoast[hidden]{display:none!important}
 .xinfo{font-size:13.5px;color:var(--ai);background:var(--ai-soft);padding:6px 10px;border-radius:8px}
@@ -642,6 +644,19 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <div class="bar"><button class="btn big" type="button" id="scanbtn">📷 Ouvrir le scanner</button></div>
     <p class="hint">Sur téléphone, ouvrez cette page dans le navigateur (version GitHub) après y avoir importé les listes. Vous pouvez aussi viser le QR avec l'appareil photo du téléphone : la page s'ouvre et enregistre la décision.</p>
     <p class="err" id="scanerr" hidden></p>
+    <div class="qrl">
+      <label for="qrin"><b>💻 Scanner avec le téléphone, enregistrer sur l'ordinateur</b></label>
+      <input id="qrin" type="text" autocomplete="off" spellcheck="false" placeholder="Cliquez ici, puis scannez avec le téléphone">
+      <span class="dlst" id="qrinst" aria-live="polite"></span>
+      <details class="more"><summary>Comment faire (application Barcode to PC, ou douchette USB)</summary>
+        <ol style="margin:8px 0;padding-left:22px;line-height:1.5"><li>Une fois pour toutes : installez <b>Barcode to PC</b> sur l'ordinateur (logiciel « serveur », barcodetopc.com) et l'application <b>Barcode to PC</b> sur le téléphone.</li>
+        <li>Le jour J : ordinateur et téléphone sur le <b>même Wi-Fi</b> (une box sans internet ou le partage de connexion du téléphone suffit). L'application trouve l'ordinateur toute seule.</li>
+        <li>Sur l'ordinateur, ouvrez cette page à l'étape 3 et <b>cliquez dans la case ci-dessus</b>.</li>
+        <li>Scannez les QR codes entourés avec l'application : chaque décision s'enregistre ici, sur l'ordinateur, sans rien d'autre à faire.</li></ol>
+        <p class="hint"><b>Douchette :</b> elle doit lire les QR codes (douchette « 2D »). Branchez-la, cliquez dans la case, scannez : rien à installer, pas de Wi-Fi. Une douchette réglée en clavier américain est corrigée automatiquement.</p>
+        <p class="hint">Une douchette USB ou Bluetooth fonctionne de la même façon. Même si la case n'est pas sélectionnée, un scan reçu pendant que la page est affichée est pris en compte.</p>
+      </details>
+    </div>
   </section>
 
   <section class="card noprint" data-steps="3" aria-label="Fichiers pour le site fédéral">
@@ -1199,7 +1214,7 @@ $('#resmk').addEventListener('click', async () => {
   const sess = (DB.g.sess || 'SESSION').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'').toUpperCase();
   const out = [];
   for (const u of [1,2,3]){
-    const cf = RES[u], rep = {u, n:0, filled:0, empty:[], nolic:[], dom:[], note:[]};
+    const cf = RES[u], rep = {u, n:0, filled:0, empty:[], nolic:[], dom:[], note:[], absdef:[]};
     /* inscrits à l'UV, plus les candidats ajoutés à la main qui ont une décision pour cette UV */
     const hasU = c => c.uvs && Object.keys(c.uvs).length;
     const list = DB.list.filter(c => { if (String(c.id).startsWith('__')) return false; const dec = (DB.data[c.id] || {})['r:d'+u];
@@ -1208,8 +1223,10 @@ $('#resmk').addEventListener('click', async () => {
     if (!list.length){ out.push(rep); continue; }
     const rows = [];
     list.forEach(c => {
-      const dd = DB.data[c.id] || {}, v = dd['r:d'+u], nom = (((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).toUpperCase().trim()) || 'CANDIDAT SANS NOM';
+      const dd = DB.data[c.id] || {}, nom = (((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).toUpperCase().trim()) || 'CANDIDAT SANS NOM';
       if (!c.lic){ rep.nolic.push(nom); return; }
+      let v = dd['r:d'+u];
+      if (!v && !(dd.pr && dd.pr[u])){ v = 'abs'; rep.absdef.push(nom); }   /* aucune fiche imprimée ni décision : absent */
       const E = epFor(c, u, dd), ep = E.ep;
       if (!E.ok) rep.note.push(`${nom} : épreuve « ${ep} » à vérifier dans la liste déroulante du fichier`);
       if (u === 1 && E.ok && v && v !== 'abs'){ const ik = parseCat(ep).katas, fk = dd.katas || []; const key = a => a.slice().sort().join();
@@ -1237,7 +1254,7 @@ $('#resmk').addEventListener('click', async () => {
   const warn = nolic ? `<div class="e">⚠ ${nolic} candidat${nolic>1?'s n\'ont':' n\'a'} pas de n° de licence enregistré sur cet appareil : ${nolic>1?'ils ne peuvent pas':'il ne peut pas'} figurer dans les fichiers (candidat ajouté à la main, ou importé avec une ancienne version de la page). Pour un candidat ajouté à la main : étape 2, choisissez-le, ouvrez « Informations du candidat » et saisissez son n° de licence. Sinon, réimportez les exports d'inscription ou la liste corrigée avec « Choisir les fichiers Excel » (les décisions déjà saisies sont conservées), puis recliquez sur « Créer les fichiers de résultats ».</div>` : '';
   $('#rinfo').innerHTML = warn + out.map(r => `<div><h5>${T[r.u]}${r.file ? ' · ' + esc(r.file) : ''}</h5>${!r.n && !r.nolic.length ? '<div>Aucun candidat inscrit à cette UV : pas de fichier.</div>' :
     `<div>${r.n} candidat${r.n>1?'s':''}, ${r.filled} classement${r.filled>1?'s':''} rempli${r.filled>1?'s':''}.</div>${r.n ? `<div class="bar"><button class="btn sm res" type="button" data-file="${esc(r.file)}">⬇ Télécharger ${esc(r.file)}</button><button class="btn ghost sm" type="button" data-sharefile="${esc(r.file)}">📤 Envoyer</button><span class="dlst" aria-live="polite"></span></div>` : ''}`
-    + L('Sans décision du jury, classement vide', r.empty) + L('Sans n° de licence : absents du fichier (voir l\'encadré rouge)', r.nolic) + L('Dominante à compléter à la main', r.dom) + L('À vérifier', r.note)}</div>`).join('')
+    + L('Absents par défaut (aucune fiche imprimée, aucune décision) : corrigez dans le tableau ci-dessus si besoin', r.absdef) + L('Fiche imprimée mais sans décision du jury, classement vide', r.empty) + L('Sans n° de licence : absents du fichier (voir l\'encadré rouge)', r.nolic) + L('Dominante à compléter à la main', r.dom) + L('À vérifier', r.note)}</div>`).join('')
     + (Object.keys(RESFILES).length > 1 ? '<div class="bar"><button class="btn res" type="button" id="shareall">📤 Envoyer les ' + Object.keys(RESFILES).length + ' fichiers par mail…</button><span class="dlst" id="shareallst" aria-live="polite"></span></div>' : '')
     + '<div>Cliquez sur chaque bouton « Télécharger », puis téléversez les fichiers sur le site fédéral.</div>';
   $('#rinfo').hidden = false;
@@ -1301,6 +1318,7 @@ $('#xlsx').addEventListener('change', async e => {
           /* décision saisie ou scannée sur un autre appareil (téléphone) : reprise ici, une case vide n'efface rien */
           const dc = String(pickCol(r, ['DECISION'])).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); const dv = {valide:'ok',validee:'ok',refuse:'ko',refusee:'ko',partiel:'part',partielle:'part',absent:'abs'}[dc];
           if (uv && dv && D0['r:d'+uv] !== dv){ D0['r:d'+uv] = dv; decIn++; }
+          if (uv && /^oui$/i.test(String(pickCol(r, ['FICHE_IMPRIMEE'])).trim())){ D0.pr = Object.assign({}, D0.pr); D0.pr[uv] = 1; }
         }
       });
       rowsN += n;
@@ -1500,6 +1518,8 @@ function enterPrint(){
   const H = document.documentElement; if (H.classList.contains('pm') || bActive) return;
   let sel = [1,2,3].filter(u => DB.g['p'+u] !== false); if (!sel.length) sel = [1,2,3];
   const I = ins(), si = sel.filter(u => I.includes(u)); if (si.length) sel = si;
+  /* fiche imprimée pour ce candidat : sans fiche imprimée ni décision, il sera « Absent » dans les résultats */
+  { const c = cur(); if (c){ const dd = DB.data[c.id] || (DB.data[c.id] = S); dd.pr = Object.assign({}, dd.pr); sel.forEach(u => dd.pr[u] = 1); save(); } }
   pmHidden = $$('.sheet').map(x => x.hidden);
   $$('.sheet').forEach((x,i) => { x.hidden = false; x.style.zoom = ''; x.classList.toggle('skip', !sel.includes(i+1)); x.style.breakAfter = i+1 === sel[sel.length-1] ? 'auto' : 'page'; });
   H.classList.add('pm');
@@ -1841,7 +1861,8 @@ function addQR(vis){
 /* Taille imprimée minimale des QR codes malgré la réduction de la fiche (lisibilité au téléphone) */
 function qrMin(vis, mm){ vis.forEach(x => { const z = +x.style.zoom || 1; x.querySelectorAll('.qr svg').forEach(sv => { const cur = parseFloat(getComputedStyle(sv).width) / 96 * 25.4 * z; if (cur < mm){ sv.style.width = sv.style.height = (mm / z).toFixed(2) + 'mm'; } }); }); }
 function parseScan(text){
-  const m = String(text).match(/fj=([^&#\s]+)/); if (!m) return null;
+  const m = String(text).match(/fj=([^&#\s]+)/) || String(text).match(/fj\W?([A-Za-z0-9_-]+\W\d\W(?:ok|ko|part|abs)(?:\W[a-z]{1,2})?)\s*$/i); if (!m) return null;
+  m[1] = m[1].replace(/[^A-Za-z0-9_-]/g, '.');
   const parts = decodeURIComponent(m[1]).split('.');
   let reg = null; if (parts.length >= 4 && REGLAB[parts[parts.length-1]]) reg = parts.pop();
   const v = parts.pop(), u = +parts.pop(), id = parts.join('.');
@@ -1864,16 +1885,39 @@ function applyScan(sc){
 function undoScan(r, sc){ if (r.prev) r.dd['r:d'+sc.u] = r.prev; else delete r.dd['r:d'+sc.u]; if (r.c.id === DB.cur){ S = r.dd; restore(); calc(); } save(); syncDec(r.c.id); renderList(); renderQuick(); }
 function toast(html, cls, ms){ const t = $('#scantoast'); t.innerHTML = html; t.style.background = {ok:'var(--ok)', ko:'var(--bad)', part:'var(--warn)', abs:'#5d6370', err:'#5d6370'}[cls] || 'var(--ai)'; t.hidden = false; clearTimeout(t._h); if (ms) t._h = setTimeout(() => t.hidden = true, ms); }
 /* QR scanné avec l'appareil photo du téléphone : la page s'ouvre avec #fj=… */
+function scanFeedback(sc, r, ms){
+  if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', ms ? 6000 : 0); return; }
+  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span><button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms);
+  $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
+  $('#tok').onclick = () => { $('#scantoast').hidden = true; };
+}
 function handleHash(){
   const sc = parseScan(location.hash); if (!sc) return;
   history.replaceState(null, '', location.pathname + location.search);
-  const r = applyScan(sc);
-  if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', 0); return; }
-  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span><button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, 0);
-  $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
-  $('#tok').onclick = () => { $('#scantoast').hidden = true; };
+  scanFeedback(sc, applyScan(sc), 0);
   showStep(3);
 }
+/* Lecteur de QR codes sur l'ordinateur : Barcode to PC ou douchette « tapent » le contenu du QR puis Entrée */
+/* douchette réglée en clavier américain sur un ordinateur AZERTY : les caractères arrivent déformés, on les remet d'aplomb */
+const AZ = {a:'q',q:'a',z:'w',w:'z',A:'Q',Q:'A',Z:'W',W:'Z',',':'m',m:';',M:':',';':',',':':'.','!':'/',')':'-','&':'1','é':'2','"':'3',"'":'4','(':'5','-':'6','è':'7','_':'8','ç':'9','à':'0','1':'!','2':'@','3':'#','4':'$','5':'%','6':'^','7':'&','8':'*','9':'(','0':')','°':'_','+':'='};
+const fromAzerty = t => [...t].map(ch => AZ[ch] !== undefined ? AZ[ch] : ch).join('');
+function readerScan(text){
+  let sc = parseScan(text);
+  if (!sc || !DB.list.some(c => c.id === sc.id)){ const sc2 = parseScan(fromAzerty(text)); if (sc2 && DB.list.some(c => c.id === sc2.id)) sc = sc2; }
+  if (!sc){ toast('⚠ Ce code n\'est pas un QR code de fiche.', 'err', 4000); return false; }
+  const r = applyScan(sc); scanFeedback(sc, r, 6000);
+  if (!r.err){ scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; }
+  return !r.err;
+}
+$('#qrin').addEventListener('keydown', e => { if (e.key !== 'Enter') return; e.preventDefault(); const v = e.target.value.trim(); e.target.value = ''; if (v) readerScan(v); });
+/* scan reçu alors que la case n'est pas sélectionnée : frappe très rapide terminée par Entrée et contenant « fj » */
+let kbBuf = '', kbAt = 0;
+document.addEventListener('keydown', e => {
+  const t = e.target; if (t && (t.id === 'qrin' || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+  const now = Date.now(); if (now - kbAt > 120) kbBuf = ''; kbAt = now;
+  if (e.key === 'Enter'){ if (/fj/i.test(kbBuf) && kbBuf.length > 8){ e.preventDefault(); readerScan(kbBuf); } kbBuf = ''; return; }
+  if (e.key.length === 1) kbBuf += e.key;
+});
 window.addEventListener('hashchange', handleHash);
 /* Scanner intégré : caméra du téléphone ou de l'ordinateur */
 let scanStream = null, scanLoop = null, lastScan = {t:'', at:0}, scanN = 0, detector = null;
@@ -1914,7 +1958,7 @@ $('#scanclose').addEventListener('click', closeScanner);
 function buildList(){
   const L = DB.list.filter(c => !String(c.id).startsWith('__'));
   if (!L.length) return null;
-  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','KATAS_UV1','DECISION','ID_FICHE'];
+  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','KATAS_UV1','DECISION','FICHE_IMPRIMEE','ID_FICHE'];
   const rows = [head], ACT = {1:'UV1 - Kata', 2:'UV2 - Technique', 3:'UV3 - Volet B'};
   L.slice().sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr')).forEach(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
@@ -1922,7 +1966,7 @@ function buildList(){
       let ep = c.uvs && c.uvs[u] && !c.uvs[u].added ? c.uvs[u].ep : epFor(c, u, dd).ep;
       ep = ep.replace(/^\d\s*D\b/i, d + 'D');   /* dan corrigé à l'accueil */
       const uke = (c.uvs && c.uvs[u] && c.uvs[u].uke) || dd.uke || c.uke || '';
-      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), (dd.katas || katasFor(c, d, dd.fo1 || autoFo(c,1))).join('+'), CLASS[dd['r:d'+u]] || '', c.id]);
+      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), (dd.katas || katasFor(c, d, dd.fo1 || autoFo(c,1))).join('+'), CLASS[dd['r:d'+u]] || '', dd.pr && dd.pr[u] ? 'oui' : '', c.id]);
     });
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(rows);
