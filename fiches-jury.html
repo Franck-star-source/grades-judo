@@ -125,7 +125,7 @@ tr.demo td:nth-child(2)::after{content:' · démontrée par le candidat';font:60
 nav.tabs button[data-s="abs"] .dot{background:#5d6370}
 .st i.abs{background:#e3e5e9;color:#3b3f47}
 .quick{border-top:5px solid var(--ok)}
-.qt{min-width:620px}
+.qt{min-width:720px}
 .qt td{vertical-align:middle}
 .qt td.c{width:auto;text-align:center}
 .qt .qn b{font-size:14.5px} .qt .qn small{display:block;color:var(--muted);font-size:12px}
@@ -136,12 +136,91 @@ nav.tabs button[data-s="abs"] .dot{background:#5d6370}
 .qd button[data-v=part]{border-color:var(--warn);color:var(--warn)} .qd button[data-v=abs]{border-color:#5d6370;color:#5d6370}
 .qd button[aria-pressed=true][data-v=ok]{background:var(--ok);color:#fff} .qd button[aria-pressed=true][data-v=ko]{background:var(--bad);color:#fff}
 .qd button[aria-pressed=true][data-v=part]{background:var(--warn);color:#fff} .qd button[aria-pressed=true][data-v=abs]{background:#5d6370;color:#fff}
+.qm{appearance:none;border:2px solid var(--ai);background:var(--surface);color:var(--ai);font:700 13px var(--f-body);padding:6px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.qm.sent{background:var(--ai-soft);border-style:dashed}
 .qd.none{color:var(--muted);font-size:13px}
 .qt tr.miss td.qn b::after{content:' · à saisir';font:600 11px var(--f-mono);color:var(--bad)}
 .share{display:grid;gap:6px;padding:10px 12px;border-radius:10px;border:1px solid var(--ai);background:var(--ai-soft)}
 .shead2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
 .sdot{width:10px;height:10px;border-radius:50%;background:var(--warn)}
 .sdot.on{background:var(--ok)} .sdot.off{background:var(--bad)}
+.stephide{display:none!important}
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.steps button{appearance:none;display:flex;gap:10px;align-items:center;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;padding:7px 16px 7px 7px;border-radius:14px;cursor:pointer;text-align:left;font:inherit}
+.steps .n{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.25);font:800 18px var(--f-body);flex:none}
+.steps .tx b{display:block;font-size:16px;line-height:1.2} .steps small{font-size:12px;opacity:.9}
+.steps button[aria-current="step"]{background:#fff;color:var(--hero);border-color:#fff}
+.steps button[aria-current="step"] .n{background:var(--hero);color:#fff}
+.steps .bstep{margin-left:auto;border-style:dashed}
+.steps .bstep .n{font-size:16px}
+@media (max-width:700px){.steps .bstep{margin-left:0}}
+.sth{display:flex;align-items:center;gap:10px;font:700 20px/1.25 var(--f-body);color:var(--fg);margin:0;flex-wrap:wrap}
+.sth .sn{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ai);color:#fff;font-size:15px;flex:none}
+.sth .sub{font-weight:500;font-size:14px;color:var(--muted)}
+.guide{font-size:15px;color:var(--fg);margin:0}
+.btn.big{font-size:16px;padding:13px 20px;border-radius:12px}
+.stepnav{justify-content:flex-end}
+.danger{border-style:dashed;background:transparent}
+.cselrow{display:flex;gap:8px;align-items:stretch}
+.cselrow select{flex:1;min-width:0}
+.cselrow .btn{font-size:18px;padding:8px 14px}
+.who{font:700 18px var(--f-body);color:var(--ai);margin:2px 0}
+.who:empty{display:none}
+details.more>summary{cursor:pointer;font-weight:600;color:var(--ai);padding:6px 0}
+details.more[open]>summary{margin-bottom:8px}
+.howto{margin:0;padding:10px 14px 10px 34px;background:var(--surface);border:1.5px solid var(--ai);border-radius:10px;font-size:14.5px;display:grid;gap:3px}
+.howto::before{content:'Comment remplir';font:700 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ai);margin-left:-20px}
+.filt{padding:12px 16px;gap:8px}
+.pbar{gap:10px}
+.pbar .prsel{background:var(--ai-soft);border-color:var(--line)}
+.pbar .prsel label{color:var(--fg)}
+.pbar .prsel label:has(input:checked){background:var(--ai);color:#fff}
+nav.tabs button{padding:12px 18px;font-size:16px}
+.regle{display:grid;gap:8px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.rgh{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.rgh b{font-size:15px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px}
+.rg{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:var(--surface);border:2px solid var(--ok);cursor:pointer}
+.rg .rgl{font:700 13px var(--f-body)}
+.rg select{font-weight:600}
+.rg .rgv{font-size:14px;font-weight:600;color:var(--ok);padding:8px 0}
+.rg.old{border-color:var(--warn);background:var(--warn-soft)}
+.rg.old select{color:var(--warn);border-color:var(--warn)}
+.rg.ni{opacity:.45;border-style:dashed;border-color:var(--line)}
+nav.tabs .tl{display:grid;line-height:1.15}
+.trg{font:600 11px var(--f-body);opacity:.8}
+.trg.old{color:var(--warn);opacity:1}
+nav.tabs button[aria-selected="true"] .trg.old{color:#fff;background:var(--warn);padding:0 6px;border-radius:5px;justify-self:start}
+.bgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:start}
+.bgrid .f{align-content:start}
+.pills{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;align-content:flex-start}
+.pills button{appearance:none;border:2px solid var(--line);background:var(--surface);color:var(--fg);font:600 14px var(--f-body);padding:8px 12px;border-radius:999px;cursor:pointer}
+.pills button[aria-pressed="true"]{background:var(--ai);border-color:var(--ai);color:#fff}
+.pills button:disabled{opacity:.4;cursor:not-allowed}
+html.pm .bpwrap{display:block!important}
+html.pm .bpage{break-after:page}
+html.pm .bpage:last-child{break-after:auto}
+html.pm.one .bpwrap{grid-column:1/-1}
+html.pm.one .bpage{display:grid;grid-template-columns:var(--cols);gap:0 4mm;align-items:start}
+html.pm.one .bpage .onehead{grid-column:1/-1}
+html.pm.bmode .wrap>.sheet{display:none!important}
+html.pm.bmode .wrap>.onehead{display:none!important}
+.bpwrap{display:none}
+.drawbox{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:2px solid var(--uv2);background:var(--uv2-soft)}
+.drawbox .dbt{font-size:16px;color:var(--uv2)}
+.drawbox .btn.big{background:var(--uv2)}
+.u2:not(.showall) table.tech.has-req tr.off{display:none}
+.u2:not(.showall):not(.anyreq) .tw:has(table.tech),.u2:not(.showall):not(.anyreq) h3{display:none}
+.u2.showall #manualsel{background:var(--uv2);color:#fff;border-color:var(--uv2)}
+html.pm .u2 .tw:not(.pm-hide):has(table.tech){display:block!important}
+html.pm .u2 h3{display:block!important}
+html.pm.one .u2 h3{display:none!important}
+html.pm .u2 table.tech tr.off{display:table-row}
+html.pm .u2 table.tech.has-req tr.off{display:none}
+.katabar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sheet td.c{cursor:pointer}
+.sheet td.c:hover{background:rgba(36,64,122,.08)}
+.sheet table input[type=radio],.sheet table input[type=checkbox]{width:22px;height:22px}
 .xinfo{font-size:13.5px;color:var(--ai);background:var(--ai-soft);padding:6px 10px;border-radius:8px}
 .lfil{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .lfil .lab{margin-right:2px}
@@ -277,6 +356,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm select:has(option[value=""]:checked){color:transparent}
   html.pm .chips label{border:0;padding:0 6px 0 0;background:none!important}
   html.pm .chips label:not(:has(input:checked)){display:none}
+  html.pm .sheet.stephide{display:grid!important}
   html.pm .sheet.skip{display:none!important}
   html.pm .pm-hide{display:none!important}
   /* Tout sur 1 page : A4 paysage, une colonne par UV, identité et légende en bandeau */
@@ -365,71 +445,109 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
 </head>
 <body>
 <div class="wrap">
-  <header class="hero">
+  <header class="hero noprint">
     <div>
       <span class="eyebrow">FFJDA · Règlement 2026-2027 · CORG Île-de-France</span>
       <h1>Fiches jury · grades judo 1er au 4e dan</h1>
     </div>
-    <div class="bar">
-      <span class="prsel" role="group" aria-label="Fiches à imprimer"><label><input type="checkbox" data-pr="1" checked> UV1</label><label><input type="checkbox" data-pr="2" checked> UV2</label><label><input type="checkbox" data-pr="3" checked> UV3</label></span>
-      <span class="prsel" role="group" aria-label="Mise en page"><label><input type="radio" name="pone" data-one="0" checked> 1 page par UV</label><label><input type="radio" name="pone" data-one="1"> 3 UV sur 1 page</label><label><input type="radio" name="pone" data-one="2"> Gros caractères</label></span>
-      <button class="btn light" type="button" id="print">Imprimer</button>
-    </div>
+    <nav class="steps" aria-label="Étapes">
+      <button type="button" data-step="1"><span class="n">1</span><span class="tx"><b>Préparer</b><small id="st1">importer, régler, répartir</small></span></button>
+      <button type="button" data-step="2"><span class="n">2</span><span class="tx"><b>Évaluer</b><small id="st2">remplir les fiches</small></span></button>
+      <button type="button" data-step="3"><span class="n">3</span><span class="tx"><b>Résultats</b><small id="st3">fichiers et mails</small></span></button>
+      <button type="button" data-step="4" class="bstep"><span class="n">🖨</span><span class="tx"><b>Fiches vierges</b><small>à imprimer sans candidat</small></span></button>
+    </nav>
   </header>
 
-  <details class="card" id="settings">
-    <summary>Réglages de la session (coordonnateur)</summary>
-    <div class="ident">
-      <div class="f"><label for="g-sess">Session, lieu</label><input id="g-sess" type="text" data-g="sess"></div>
-      <div class="f"><label for="g-date">Date</label><input id="g-date" type="text" data-g="date" placeholder="jj/mm/aaaa"></div>
-      <div class="f"><label for="g-ky">Exercices d'application UV3-B</label><select id="g-ky" data-g="ky"><option value="ky">1 kakari-geiko + 1 yaku-soku-geiko</option><option value="kk">2 kakari-geiko</option><option value="yy">2 yaku-soku-geiko</option></select></div>
-      <div class="f"><label for="g-ntab">Nombre de tables de jury</label><input id="g-ntab" type="number" inputmode="numeric" min="1" max="30" data-g="ntab" placeholder="10"></div>
-      <div class="f"><label for="g-cumul">Programme UV2</label><select id="g-cumul" data-g="cumul"><option value="">Programme du dan seulement</option><option value="1">Programme cumulé (dan + dans inférieurs)</option></select></div>
-    </div>
-    <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
-  </details>
-
-  <section class="card list" aria-label="Liste des candidats">
-    <div class="lhead">
-      <h3>Candidats de la session</h3>
-      <div class="bar">
-        <span class="btn file"><span>Importer les listes Excel</span><input type="file" id="xlsx" accept=".xlsx,.xls,.csv" multiple aria-label="Importer les listes des inscriptions"></span>
-        <button class="btn ghost sm" type="button" id="prev">◀ Précédent</button>
-        <button class="btn ghost sm" type="button" id="next">Suivant ▶</button>
-        <button class="btn sm" type="button" id="qbtn" aria-expanded="false">☰ Saisie rapide des décisions</button>
-        <button class="btn sm res" type="button" id="resmk">⇪ Créer les fichiers de résultats</button>
-        <button class="btn ghost sm" type="button" id="dispatch">Répartir sur les tables</button>
-        <button class="btn ghost sm" type="button" id="mails">✉ Récapitulatif de session</button>
-        <button class="btn ghost sm" type="button" id="clearAll">Vider la session</button>
-      </div>
-    </div>
+  <!-- ÉTAPE 1 · PRÉPARER -->
+  <section class="card list noprint" data-steps="1" aria-label="Importer les candidats">
+    <h2 class="sth"><span class="sn">1</span>Importer les candidats</h2>
+    <p class="guide">Téléchargez sur l'extranet les exports « Liste des inscriptions » (UV1, UV2, UV3), puis sélectionnez-les ici, tous en même temps.</p>
+    <div class="bar"><span class="btn big file"><span>📂 Choisir les fichiers Excel</span><input type="file" id="xlsx" accept=".xlsx,.xls,.csv" multiple aria-label="Importer les listes des inscriptions"></span></div>
     <p class="privacy">Le fichier est lu uniquement dans ce navigateur, il n'est envoyé nulle part. Le n° de licence, le club et les coordonnées ne sont ni affichés ni imprimés. L'adresse mail sert seulement au bouton « Résultat au candidat », le n° de licence seulement aux fichiers de résultats pour le site fédéral.</p>
     <p class="err" id="xerr" hidden></p>
     <p class="xinfo" id="xinfo" hidden></p>
-    <div class="rinfo" id="rinfo" hidden></div>
+    <p class="hint" id="lempty">Le dan, les katas et le règlement (ancien ou nouveau) se règlent tout seuls d'après la colonne Catégorie. Les inscriptions annulées sont écartées.</p>
     <div class="share" id="share" hidden>
       <div class="shead2"><b>Session partagée entre les tables</b><span class="sdot" id="sdot"></span><span id="sstat">Connexion…</span></div>
       <p class="hint" id="shint"></p>
       <div class="bar"><button class="btn sm" type="button" id="spub" hidden>Publier la liste pour les tables</button></div>
     </div>
-    <div class="bar" id="lfilter" hidden></div>
-    <p class="hint" id="lempty">Importez les exports « Liste des inscriptions » (.xlsx) : UV1, UV2 et UV3, ensemble ou l'un après l'autre. Chaque candidat est regroupé avec les UV auxquelles il est inscrit. Le dan, les katas et la formule (ancien ou nouveau règlement) se règlent d'après la colonne Catégorie. Les inscriptions annulées sont écartées.</p>
-    <div class="cands" id="cands" hidden></div>
+  </section>
+
+  <section class="card noprint" id="settings" data-steps="1" aria-label="Renseigner la session">
+    <h2 class="sth"><span class="sn">2</span>Renseigner la session</h2>
+    <p class="guide">La date, le lieu et la signature apparaissent sur les fiches et dans les mails aux candidats.</p>
+    <div class="ident">
+      <div class="f"><label for="g-sess">Session, lieu</label><input id="g-sess" type="text" data-g="sess"></div>
+      <div class="f"><label for="g-date">Date</label><input id="g-date" type="text" data-g="date" placeholder="jj/mm/aaaa"></div>
+      <div class="f"><label for="g-lieu">Lieu (dojo, ville)</label><input id="g-lieu" type="text" data-g="lieu" placeholder="ex. Dojo régional, Paris"></div>
+      <div class="f"><label for="g-sig">Signature des mails</label><input id="g-sig" type="text" data-g="sig" placeholder="Le jury"></div>
+      <div class="f"><label for="g-ky">Exercices d'application UV3-B</label><select id="g-ky" data-g="ky"><option value="ky">1 kakari-geiko + 1 yaku-soku-geiko</option><option value="kk">2 kakari-geiko</option><option value="yy">2 yaku-soku-geiko</option></select></div>
+      <div class="f"><label for="g-ntab">Nombre de tables de jury</label><input id="g-ntab" type="number" inputmode="numeric" min="1" max="30" data-g="ntab" placeholder="10"></div>
+      <div class="f"><label for="g-cumul">Programme UV2</label><select id="g-cumul" data-g="cumul"><option value="">Programme du dan seulement</option><option value="1">Programme cumulé (dan + dans inférieurs)</option></select></div>
+    </div>
+    <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
+  
+  </section>
+
+  <section class="card noprint" data-steps="1" aria-label="Répartir sur les tables">
+    <h2 class="sth"><span class="sn">3</span>Répartir les candidats sur les tables</h2>
+    <p class="guide">Un clic répartit tous les candidats de façon équilibrée (nombre de tables dans les réglages ci-dessus). Vous pourrez changer la table d'un candidat à l'étape 2.</p>
+    <div class="bar"><button class="btn big" type="button" id="dispatch">🗂 Répartir sur les tables</button></div>
+    <p class="hint" id="tabsum"></p>
     <span class="confirm" id="dconf" hidden>Répartir à nouveau tous les candidats sur les tables ? Les affectations actuelles seront remplacées. <button class="btn ghost sm" type="button" id="dyes">Oui, répartir</button><button class="btn ghost sm" type="button" id="dno">Annuler</button></span>
+  </section>
+
+  <section class="card noprint blankc" data-steps="4" aria-label="Fiches vierges">
+    <h2 class="sth"><span class="sn">🖨</span>Imprimer des fiches vierges <span class="sub">(sans candidat)</span></h2>
+    <p class="guide">Pour préparer les tables à l'avance : choisissez le dan, le règlement et les UV, avec ou sans tirage au sort des techniques. Chaque exemplaire avec tirage a son propre tirage.</p>
+    <div class="bgrid">
+      <div class="f"><span class="lab">Dan</span><div class="pills" data-bk="dan"><button type="button" data-v="1">1er</button><button type="button" data-v="2">2e</button><button type="button" data-v="3">3e</button><button type="button" data-v="4">4e</button></div></div>
+      <div class="f"><span class="lab">UV à imprimer</span><div class="pills multi" data-bk="uvs"><button type="button" data-v="1">UV1 Kata</button><button type="button" data-v="2">UV2 Technique</button><button type="button" data-v="3">UV3 Combinée</button></div></div>
+      <div class="f"><span class="lab">Règlement UV1</span><div class="pills" data-bk="fo1"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="old">Ancien</button></div></div>
+      <div class="f"><span class="lab">Règlement UV2</span><div class="pills" data-bk="fo2"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="comp">Ancien · compétition</button><button type="button" data-v="tech">Ancien · technique</button></div></div>
+      <div class="f" id="bkatasw"><span class="lab">Kata(s) UV1</span><div class="pills multi" data-bk="katas" id="bkatas"></div></div>
+      <div class="f"><span class="lab">Techniques</span><div class="pills" data-bk="draw"><button type="button" data-v="0">Vierges (le jury choisit)</button><button type="button" data-v="1">🎲 Avec tirage au sort</button></div></div>
+      <div class="f"><span class="lab">Mise en page</span><div class="pills" data-bk="lay"><button type="button" data-v="sep">1 page par UV</button><button type="button" data-v="one">3 UV sur 1 page</button><button type="button" data-v="big">Gros caractères</button></div></div>
+      <div class="f"><label class="lab" for="bcopies">Nombre d'exemplaires</label><input id="bcopies" type="number" min="1" max="40" inputmode="numeric" value="1" style="max-width:120px"></div>
+    </div>
+    <p class="hint" id="bsum"></p>
+    <div class="bar"><button class="btn big" type="button" id="bprint">🖨 Imprimer les fiches vierges</button></div>
+  </section>
+
+  <div class="bar noprint stepnav" data-steps="1"><button class="btn big" type="button" data-go="2">Étape suivante : évaluer les candidats →</button></div>
+
+  <section class="card noprint danger" data-steps="1" aria-label="Nouvelle session">
+    <h3>Nouvelle session</h3>
+    <p class="hint">Efface tous les candidats, les fiches et les réglages de cet appareil (et la session partagée si vous l'avez publiée).</p>
+    <div class="bar"><button class="btn ghost sm" type="button" id="clearAll">Vider la session</button></div>
     <span class="confirm" id="confirm" hidden>Effacer la liste et toutes les fiches de la session ? <button class="btn ghost sm" type="button" id="yes">Oui, tout effacer</button><button class="btn ghost sm" type="button" id="no">Annuler</button></span>
   </section>
 
-  <section class="card quick" id="quick" hidden aria-label="Saisie rapide des décisions">
-    <div class="lhead"><h3>Saisie rapide des décisions</h3><span class="hint" id="qcount"></span></div>
-    <p class="hint">Recopiez ici les décisions des fiches papier. La liste suit les filtres Dan, Épreuve et Table. V validée · R refusée · P partielle (UV1 ancien règlement) · A absent. Un nouveau clic sur le bouton choisi l'annule.</p>
-    <div class="tw"><table class="qt"><thead><tr><th>Candidat</th><th class="c">UV1 · Kata</th><th class="c">UV2 · Technique</th><th class="c">UV3 · Combinée</th></tr></thead><tbody id="qbody"></tbody></table></div>
+  <!-- ÉTAPES 2 ET 3 · FILTRES -->
+  <section class="card noprint filt" data-steps="2 3" aria-label="Filtres">
+    <p class="guide" id="fguide">Pour ne voir que vos candidats, choisissez votre table (ou une épreuve, un dan).</p>
+    <div class="bar" id="lfilter" hidden></div>
+    <div class="cands" id="cands" hidden></div>
   </section>
 
-  <section class="card" id="ident" aria-label="Candidat">
-    <h3>Candidat évalué</h3>
-    <div class="f csel" id="cselw"><label for="csel">Choisir le candidat</label><span class="hint" id="cselc"></span><select id="csel"></select>
+  <!-- ÉTAPE 2 · ÉVALUER -->
+  <section class="card noprint" id="ident" data-steps="2" aria-label="Candidat">
+    <h2 class="sth"><span class="sn">A</span>Choisir le candidat</h2>
+    <div class="f csel" id="cselw"><label for="csel">Candidat</label><span class="hint" id="cselc"></span>
+      <div class="cselrow"><button class="btn ghost" type="button" id="prev" aria-label="Candidat précédent">◀</button><select id="csel"></select><button class="btn ghost" type="button" id="next" aria-label="Candidat suivant">▶</button></div>
+      <p class="who" id="who"></p>
+      <div class="regle" id="regle">
+        <div class="rgh"><b>Règlement appliqué</b><span class="hint">Réglé tout seul d'après l'inscription. À changer seulement si le candidat termine une UV à l'ancien règlement.</span></div>
+        <div class="rgrid">
+          <label class="rg" id="rg1"><span class="rgl">UV1 · Kata</span><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement</option><option value="old">Ancien règlement (pour terminer)</option></select></label>
+          <label class="rg" id="rg2"><span class="rgl">UV2 · Technique</span><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement</option><option value="comp">Ancien · dom. compétition</option><option value="tech">Ancien · dom. technique</option></select></label>
+          <div class="rg" id="rg3"><span class="rgl">UV3 · Combinée</span><span class="rgv">Nouveau règlement (UV3-B)</span></div>
+        </div>
+      </div>
       <div class="bar"><button class="btn sm" type="button" id="manual">+ Ajouter un candidat</button><button class="btn ghost sm" type="button" id="mailc">✉ Résultat au candidat</button><button class="btn ghost sm" type="button" id="delc">Supprimer ce candidat</button>
       <span class="confirm" id="delconf" hidden><span id="delname"></span> <button class="btn ghost sm del" type="button" id="delyes">Oui, supprimer</button><button class="btn ghost sm" type="button" id="delno">Annuler</button></span></div></div>
+    <details class="more" id="identd"><summary>Informations du candidat (nom, dan, uke, table…)</summary>
     <div class="ident">
       <div class="f"><label for="i-nom">Nom</label><input id="i-nom" type="text" data-k="nom"></div>
       <div class="f"><label for="i-prenom">Prénom</label><input id="i-prenom" type="text" data-k="prenom"></div>
@@ -440,17 +558,46 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="i-table">Table de jury</label><select id="i-table"></select></div>
       <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
     </div>
+  
+    </details>
   </section>
 
-  <nav class="tabs noprint" role="tablist">
-    <button role="tab" id="t1" aria-controls="s1" aria-selected="true"><span class="dot"></span>UV1 · Kata</button>
-    <button role="tab" id="t2" aria-controls="s2" aria-selected="false"><span class="dot"></span>UV2 · Technique</button>
-    <button role="tab" id="t3" aria-controls="s3" aria-selected="false"><span class="dot"></span>UV3 · Combinée</button>
+  <section class="card noprint" id="printc" data-steps="2" aria-label="Imprimer">
+    <h2 class="sth"><span class="sn">B</span>Remplir les fiches <span class="sub">(ou les imprimer pour le jury)</span></h2>
+    <div class="bar pbar"><span class="prsel" role="group" aria-label="Fiches à imprimer"><label><input type="checkbox" data-pr="1" checked> UV1</label><label><input type="checkbox" data-pr="2" checked> UV2</label><label><input type="checkbox" data-pr="3" checked> UV3</label></span><span class="prsel" role="group" aria-label="Mise en page"><label><input type="radio" name="pone" data-one="0" checked> 1 page par UV</label><label><input type="radio" name="pone" data-one="1"> 3 UV sur 1 page</label><label><input type="radio" name="pone" data-one="2"> Gros caractères</label></span><button class="btn" type="button" id="print">🖨 Imprimer</button></div>
+  </section>
+
+<nav class="tabs noprint" role="tablist" data-steps="2">
+    <button role="tab" id="t1" aria-controls="s1" aria-selected="true"><span class="dot"></span><span class="tl">UV1 · Kata<small class="trg" id="trg1"></small></span></button>
+    <button role="tab" id="t2" aria-controls="s2" aria-selected="false"><span class="dot"></span><span class="tl">UV2 · Technique<small class="trg" id="trg2"></small></span></button>
+    <button role="tab" id="t3" aria-controls="s3" aria-selected="false"><span class="dot"></span><span class="tl">UV3 · Combinée<small class="trg" id="trg3"></small></span></button>
   </nav>
 
-  <section class="card sheet u1" id="s1" role="tabpanel" aria-labelledby="t1"></section>
-  <section class="card sheet u2" id="s2" role="tabpanel" aria-labelledby="t2" hidden></section>
-  <section class="card sheet u3" id="s3" role="tabpanel" aria-labelledby="t3" hidden></section>
+  <section class="card sheet u1" id="s1" data-steps="2" role="tabpanel" aria-labelledby="t1"></section>
+  <section class="card sheet u2" id="s2" data-steps="2" role="tabpanel" aria-labelledby="t2" hidden></section>
+  <section class="card sheet u3" id="s3" data-steps="2" role="tabpanel" aria-labelledby="t3" hidden></section>
+
+  <div class="bar noprint stepnav" data-steps="2"><button class="btn big" type="button" data-go="3">Étape suivante : résultats et envoi →</button></div>
+
+  <!-- ÉTAPE 3 · RÉSULTATS -->
+  <section class="card quick noprint" id="quick" data-steps="3" aria-label="Vérifier les décisions">
+    <div class="lhead"><h2 class="sth"><span class="sn">1</span>Vérifier ou saisir les décisions</h2><span class="hint" id="qcount"></span></div>
+    <p class="hint">Recopiez ici les décisions des fiches papier. La liste suit les filtres Dan, Épreuve et Table. V validée · R refusée · P partielle (UV1 ancien règlement) · A absent. Un nouveau clic sur le bouton choisi l'annule. « ✉ Mail » ouvre le mail de résultat du candidat (lieu, date, décisions, félicitations ou encouragements) ; renseignez le lieu, la date et la signature dans les réglages de la session.</p>
+    <div class="tw"><table class="qt"><thead><tr><th>Candidat</th><th class="c">UV1 · Kata</th><th class="c">UV2 · Technique</th><th class="c">UV3 · Combinée</th><th class="c">Résultat par mail</th></tr></thead><tbody id="qbody"></tbody></table></div>
+  </section>
+
+  <section class="card noprint" data-steps="3" aria-label="Fichiers pour le site fédéral">
+    <h2 class="sth"><span class="sn">2</span>Créer les fichiers pour le site fédéral</h2>
+    <p class="guide">Un clic prépare les 3 fichiers « import_resultats » (UV1, UV2, UV3B). Cliquez ensuite sur chaque bouton « Télécharger », puis téléversez-les sur l'extranet.</p>
+    <div class="bar"><button class="btn big res" type="button" id="resmk">⇪ Créer les fichiers de résultats</button></div>
+    <div class="rinfo" id="rinfo" hidden></div>
+  </section>
+
+  <section class="card noprint" data-steps="3" aria-label="Prévenir les candidats">
+    <h2 class="sth"><span class="sn">3</span>Prévenir les candidats</h2>
+    <p class="guide">Dans le tableau ci-dessus, le bouton « ✉ Mail » de chaque ligne ouvre le mail de résultat du candidat (félicitations ou encouragements). Vous n'avez plus qu'à cliquer sur Envoyer.</p>
+    <div class="bar"><button class="btn ghost" type="button" id="mails">✉ Récapitulatif de session (pour le CORG)</button><button class="btn ghost" type="button" id="qbtn" hidden>☰</button></div>
+  </section>
 
   <footer>Outil créé par Franck Bourasseau · Règlement des grades FFJDA 2026-2027 · Programmes UV2 d'après les synthèses de l'annexe 1 · Ancien règlement : contenus du règlement 2025-2026, pour les candidats en transition. Repères de décision et durées UV3-B : positions CORG Île-de-France, modifiables. La décision appartient au jury. Les saisies restent sur cet appareil ; « Vider la session » les efface.</footer>
 </div>
@@ -581,7 +728,7 @@ function kataTable(kid){
   if (K.free) for (let i = 1; i <= K.free; i++) rows.push(['Contre-prise '+i, null]);
   else { const ser = kid === 'nage' ? K.series.slice(0, +S.nseries || 5) : K.series; ser.forEach(([g, list]) => list.forEach(t => rows.push([g, t]))); }
   rows.push(['—','Fermeture et salut']);
-  return `<h4>${K.name}${kid==='nage' && dan()==1 ? ' · 3 premières séries' : ''}</h4>
+  return `<div class="katabar"><h4>${K.name}${kid==='nage' && dan()==1 ? ' · 3 premières séries' : ''}</h4><button class="btn ghost sm noprint" type="button" data-allc="${kid}" title="Coche « Correct » sur toutes les lignes encore vides ; il ne reste qu'à cocher les fautes">✓ Tout « Correct », puis cocher les fautes</button></div>
   <div class="tw"><table class="kt" data-kata="${kid}"><thead><tr><th>Série</th><th>Technique</th>${FAUTES.map(([v,l]) => `<th class="c f-${v}">${l}</th>`).join('')}</tr></thead><tbody>
   ${rows.map(([g,t],i) => `<tr data-row="${i}"><td class="grp">${g}</td><td>${t === null ? `<input type="text" data-k="gn${i}" aria-label="${g}" placeholder="attaque / contre">` : t}</td>${FAUTES.map(([v,l]) => `<td class="c"><input type="radio" name="k-${kid}-${i}" value="${v}" aria-label="${t||g} : ${l}"></td>`).join('')}</tr>`).join('')}
   </tbody></table></div><div class="sugg mini" id="sk-${kid}"></div>`;
@@ -627,7 +774,7 @@ function renderSheets(){
   const K1N = {1:'3 premières séries du nage-no-kata en tori, puis 1 série en uke tirée par le jury. 40 ans et plus : tori seulement.',2:'Les 5 séries du nage-no-kata en tori.',3:'Katame-no-kata en tori.',4:'Ju-no-kata en tori. Au 5e dan : kime-no-kata, ou ju-no-kata pour qui a présenté le kime au 4e dan.'};
   const K1O = {1:'Compétition : 3 premières séries du nage-no-kata en tori, tout ou partie en uke. Technique : nage-no-kata ou goshin-jitsu en entier en tori. Nés en 1976 et avant : tori seulement.',2:'Compétition : nage-no-kata entier en tori. Technique : nage-no-kata ou goshin-jitsu, différent de celui du 1er dan.',3:'Compétition : katame-no-kata et goshin-jitsu. Technique : katame-no-kata et nage-no-kata ou goshin-jitsu. Le kata réussi reste acquis ; seul le kata manquant se représente.',4:'Kime-no-kata et un kata parmi nage-no-kata, katame-no-kata, goshin-jitsu, go-no-sen. Le kata réussi reste acquis ; seul le kata manquant se représente.'};
   $('#s1').innerHTML = `<div class="shead"><h2>UV1 · Kata</h2><span class="chip${f1==='old'?' old':''}">${DAN(d)} · ${f1==='old'?'ancien règlement':'nouveau règlement'}</span></div>${pid}
-    <div class="fo noprint${f1==='old'?' old':''}"><label class="lab" for="fo1">Formule</label><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement 2026-2027</option><option value="old">Ancien règlement, pour terminer (transition)</option></select></div>
+    <ol class="howto noprint"><li>Vérifiez le kata présenté (cases « Kata(s) présenté(s) »).</li><li>Pour chaque technique, cochez <b>une</b> colonne : Correct, ou le type de faute.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
     <p class="hint">${f1==='old' ? 'Ancien règlement. ' + K1O[d] + ' Cochez le ou les katas présentés aujourd\'hui.' : 'Nouveau règlement. ' + K1N[d]}</p>
     <div class="f noprint"><span class="lab">Kata(s) présenté(s)</span><div class="chips" id="kchips">${allK}</div>
     ${(S.katas||[]).includes('nage') ? `<div class="radios" style="margin-top:6px"><span class="lab">Nage-no-kata :</span><label><input type="radio" name="nseries-ui" value="3"${S.nseries==='3'?' checked':''}> 3 séries</label><label><input type="radio" name="nseries-ui" value="5"${S.nseries!=='3'?' checked':''}> 5 séries</label></div>` : ''}</div>
@@ -639,16 +786,19 @@ function renderSheets(){
   // UV2
   const f2 = fo2(), C = uv2Cfg(d, f2), DL = {N:'Nage-waza', W:'Ne-waza', D:'Défense'};
   let h2 = `<div class="shead"><h2>UV2 · Technique</h2><span class="chip${f2!=='nr'?' old':''}">${DAN(d)} · ${f2==='nr'?'nouveau règlement':'ancien règlement, '+(f2==='tech'?'dom. technique':'dom. compétition')}</span></div>${pid}
-    <div class="fo noprint${f2!=='nr'?' old':''}"><label class="lab" for="fo2">Formule</label><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement 2026-2027</option><option value="comp">Ancien règlement, dominante compétition</option><option value="tech">Ancien règlement, dominante technique</option></select></div>
+    ${C.q ? '<ol class="howto noprint"><li>Partie 1 éventuelle : choisissez dans la liste la technique présentée par le candidat.</li><li>Cliquez sur <b>🎲 Tirer au sort les techniques</b> (ou cochez vous-même la colonne « Demandée »).</li><li>Pour chaque technique demandée, cochez <b>Maîtrisée</b> ou <b>Méconnaissance</b>.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>' : '<ol class="howto noprint"><li>Go-no-sen : indiquez s\'il est déjà acquis ou évalué aujourd\'hui.</li><li>Notez les tokui-waza présentés et remplissez les grilles.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>'}
     <p class="hint">${C.txt}</p>`;
   if (C.cand.length) h2 += `<h4>Partie 1 · au choix du candidat</h4><p class="hint">${C.candTxt}</p><div class="tw"><table><thead><tr><th>Domaine</th><th>Technique présentée</th>${d==3?'<th>Direction / situation</th>':''}<th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
       ${C.cand.map((dm,i) => `<tr><td class="grp">${DL[dm]}</td><td>${dm === 'D' ? `<input type="text" data-k="ct${i}" aria-label="${DL[dm]} ${i+1}">` : techSelect('ct'+i, [dm], DL[dm]+' '+(i+1))}</td>${d==3?`<td><input type="text" data-k="cd${i}" aria-label="Direction ${i+1}"></td>`:''}<td class="c"><input type="radio" name="cc${i}" value="ok" aria-label="maîtrisée"></td><td class="c"><input type="radio" name="cc${i}" value="ko" aria-label="insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
   if (C.q){
     if (C.cand.length) h2 += `<h4>Partie 2 · techniques imposées par le jury</h4>`;
-    h2 += `<div class="rule"><b>Règle CORG Île-de-France : ${C.q.N >= 4 ? 'chaque famille abordée' : 'familles toutes différentes'}, jamais 3 techniques de la même famille.</b>
+    h2 += `<div class="rule"><b>Règle CORG Île-de-France : ${C.q.N >= 4 ? 'chaque famille abordée' : 'familles toutes différentes'}, jamais 3 techniques de la même famille, un seul étranglement.</b>
       <span class="hint">${C.q.N} nage-waza et ${C.q.W} ne-waza. ${DB.g.cumul ? 'Programme cumulé.' : 'Programme du ' + DAN(d) + '.'}</span>
       <div class="checks" id="fam"></div>${C.cand.length ? '<span class="hint">Les techniques démontrées en partie 1 sont exclues du choix du jury.</span><span class="swap" id="swap"></span>' : ''}
-      <div class="bar noprint"><button class="btn ghost sm" type="button" id="draw">Proposer un tirage équilibré</button><button class="btn ghost sm" type="button" id="undraw">Effacer le choix</button></div></div>
+</div>
+      <div class="drawbox noprint"><b class="dbt">Techniques demandées par le jury</b>
+        <div class="bar"><button class="btn big" type="button" id="draw">🎲 Tirer au sort les techniques</button><button class="btn ghost" type="button" id="manualsel">✋ Choisir moi-même dans la liste</button><button class="btn ghost sm" type="button" id="undraw">Effacer</button></div>
+        <span class="hint" id="drawhint"></span></div>
       <h3>Nage-waza</h3>${techTable(progFor(d,'N'),'N',d)}<h3>Ne-waza</h3>${techTable(progFor(d,'W'),'W',d)}`;
   }
   if (C.gos) h2 += `<h4>Épreuve 1 · Go-no-sen en tori</h4><div class="radios"><label><input type="radio" name="gos" value="ok"> Go-no-sen réussi avant la réforme : épreuve 1 acquise</label><label><input type="radio" name="gos" value="exam"> Évalué aujourd'hui</label></div>
@@ -657,18 +807,20 @@ function renderSheets(){
       <h4>${C.gos?'Épreuve 3 · ':''}Tokui-waza ne-waza (2 min${f2==='nr'?'':' minimum'})</h4><div class="f"><label>Techniques présentées</label><input type="text" data-k="tw" aria-label="Tokui-waza ne-waza"></div>${critTable(CRIT4W,'cw')}`;
   if (C.def.length) h2 += `<h4>Défenses${C.q ? ' imposées par le jury' : ''}</h4><div class="tw"><table><thead><tr><th>Défense</th><th>Attaque / réponse présentée</th><th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
       ${C.def.map((l,i) => `<tr><td class="grp">${l}</td><td><input type="text" data-k="dft${i}" aria-label="${l} ${i+1}"></td><td class="c"><input type="radio" name="df${i}" value="ok" aria-label="${l} : maîtrisée"></td><td class="c"><input type="radio" name="df${i}" value="ko" aria-label="${l} : insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
-  if (C.ex.length) h2 += `<h4>${C.exTitle}</h4><div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
+  if (C.ex.length) h2 += `<h4>${C.exTitle}</h4><div class="bar noprint"><button class="btn" type="button" data-drawsel="ot" data-n="${C.ex.length}">🎲 Tirer au sort les techniques</button><button class="btn ghost sm" type="button" data-undrawsel="ot" data-n="${C.ex.length}">Effacer</button></div><div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
       ${C.ex.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td>${du}</td><td>${techSelect('ot'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="od${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>${critTable(CRIT3,'ox')}`;
   h2 += `<div class="f" style="max-width:260px"><label>Durée</label><select data-k="dur2"><option value="">—</option><option value="ok">Dans le temps</option><option value="ko">Temps dépassé</option></select></div><div class="sugg" id="sg2"></div>${decHTML(2)}`;
   $('#s2').innerHTML = h2;
   // UV3
   const rb = rowsB(d, DB.g.ky);
   $('#s3').innerHTML = `<div class="shead"><h2>UV3 · Efficacité, option combinée</h2><span class="chip">${DAN(d)}</span></div>${pid}
+    <ol class="howto noprint"><li>Partie A : cochez la situation des points.</li><li>Partie B : cliquez sur <b>🎲 Tirer au sort les techniques</b> ou choisissez-les dans les listes, puis cochez « Réalisé » à chaque exercice.</li><li>Remplissez la grille, puis cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
     ${fo1()!=='nr'||fo2()!=='nr' ? '<p class="hint"><b>Le candidat termine l\'UV1 ou l\'UV2 à l\'ancien règlement ; l\'UV3-B est une épreuve du nouveau règlement.</b></p>' : ''}
     <p class="hint">Partie A : 20 points en shiai judo, dispense à 40 ans et plus. Partie B : exercices évalués par le jury, passables avant les 20 points. L'UV est enregistrée quand A et B sont acquises.</p>
     <h4>Partie A · Points</h4><div class="radios"><label><input type="radio" name="pa" value="ok"> 20 points atteints</label><label><input type="radio" name="pa" value="disp"> Dispensé (40 ans et +)</label><label><input type="radio" name="pa" value="wait"> Pas encore atteints</label></div>
     <div class="f" style="max-width:320px"><label>Points (dont avant la réforme)</label><input type="text" data-k="pts" placeholder="ex. 24 dont 14"></div>
     <h4>Partie B · Déroulé</h4>
+    <div class="bar noprint"><button class="btn" type="button" data-drawsel="bt" data-n="${rb.length}">🎲 Tirer au sort les techniques</button><button class="btn ghost sm" type="button" data-undrawsel="bt" data-n="${rb.length}">Effacer</button></div>
     <div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
     ${rb.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td><input type="text" class="dur" data-g="dur${d}-${i}" aria-label="Durée ${i+1}" value="${esc(DB.g['dur'+d+'-'+i] ?? du)}"></td><td>${techSelect('bt'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="bd${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>
     <h4>Partie B · Grille</h4>${critTable(CRIT3,'cr')}
@@ -682,7 +834,7 @@ function restore(){
     if (el.tagName === 'SELECT' && v && ![...el.options].some(o => o.value === v)) el.add(new Option(v, v));
     if (el.type === 'checkbox') el.checked = !!v; else if (v !== undefined) el.value = v; else if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
   $$('[data-g]').forEach(el => { if (el.classList.contains('dur')) return; const v = DB.g[el.dataset.g]; if (v !== undefined) el.value = v; });
-  $$('.sheet input[type=radio]').forEach(r => { r.checked = S['r:'+r.name] === r.value; });
+  $$('.sheet input[type=radio]').forEach(r => { r.checked = r.name === 'nseries-ui' ? (S.nseries || '5') === r.value : S['r:'+r.name] === r.value; });
   $$('tr[data-t]').forEach(tr => { tr.querySelector('[data-req]').checked = !!S['q:'+tr.dataset.t]; });
 }
 
@@ -735,13 +887,14 @@ function calc(){
       const cnt = rows => { const m = {}; rows.forEach(tr => m[tr.dataset.fam] = (m[tr.dataset.fam]||0)+1); return m; };
       const cN = cnt(rN), cW = cnt(rW);
       const fN = Object.keys(progFor(d,'N')), fW = Object.keys(progFor(d,'W'));
-      const famOk = (fams, c, quota) => quota >= fams.length ? fams.every(f => (c[f]||0) >= 1 && (c[f]||0) <= 2) : Object.values(c).every(v => v === 1);
+      const famOk = (fams, c, quota) => (quota >= fams.length ? fams.every(f => (c[f]||0) >= 1 && (c[f]||0) <= 2) : Object.values(c).every(v => v === 1)) && NO_EXTRA.every(f => (c[f]||0) <= 1);
       const chips = [...fN.map(f => [f, cN[f]||0, q.N >= fN.length]), ...fW.map(f => [f, cW[f]||0, q.W >= fW.length])];
-      $('#fam').innerHTML = chips.map(([f,k,all]) => { const ok = all ? (k>=1 && k<=2) : k <= 1; return `<span class="ck ${ok?'ok':'ko'}">${ok?'✓':'✗'} ${f} ${k}</span>`; }).join('') + `<span class="ck ${rN.length===q.N?'ok':'ko'}">Nage ${rN.length}/${q.N}</span><span class="ck ${rW.length===q.W?'ok':'ko'}">Ne ${rW.length}/${q.W}</span>`;
+      $('#fam').innerHTML = chips.map(([f,k,all]) => { const ok = (all ? (k>=1 && k<=2) : k <= 1) && !(NO_EXTRA.includes(f) && k > 1); return `<span class="ck ${ok?'ok':'ko'}">${ok?'✓':'✗'} ${f} ${k}</span>`; }).join('') + `<span class="ck ${rN.length===q.N?'ok':'ko'}">Nage ${rN.length}/${q.N}</span><span class="ck ${rW.length===q.W?'ok':'ko'}">Ne ${rW.length}/${q.W}</span>`;
       const mk = l => l.filter(tr => S['r:r'+tr.dataset.t] === 'ko').length, ev = l => l.filter(tr => S['r:r'+tr.dataset.t]).length;
       const mN = mk(rN), mW = mk(rW);
       const dup = [...rN, ...rW].some(tr => cs.has(norm(tr.dataset.t.split('|')[1])));
       if (Object.values(cN).some(v => v>=3) || Object.values(cW).some(v => v>=3)) choice = '3 techniques ou plus dans la même famille.';
+      else if ((cW.Shime || 0) > 1) choice = 'Deux étranglements demandés : un seul Shime-waza par candidat, choisissez plutôt une immobilisation ou une clé.';
       else if (rN.length !== q.N || rW.length !== q.W || !famOk(fN,cN,q.N) || !famOk(fW,cW,q.W)) choice = `Il faut ${q.N} nage-waza et ${q.W} ne-waza, réparties selon la règle des familles.`;
       else if (dup) choice = 'Une technique du jury est déjà présentée par le candidat en partie 1.';
       if (mN >= 2 || mW >= 2) ko.push(`méconnaissances jury : ${mN} nage, ${mW} ne`);
@@ -1087,6 +1240,7 @@ document.addEventListener('input', e => {
   if (t.dataset.k === 'dan'){ S.katas = katasFor(cur(), +t.value, fo1()); S.nseries = t.value === '1' ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
   if (t.dataset.k === 'fo1'){ S.katas = katasFor(cur(), dan(), t.value); S.nseries = dan() == 1 ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
   if (t.dataset.k === 'fo2'){ store(); rendered=''; renderSheets(); restore(); }
+  if (t.dataset.k === 'fo1' || t.dataset.k === 'fo2') setTimeout(stepStatus);
   if (t.id === 'i-nom' || t.id === 'i-prenom'){ const c = cur(); if (c){ c.nom = S.nom || ''; c.prenom = S.prenom || ''; } }
   store(); calc(); renderList();
 });
@@ -1101,11 +1255,36 @@ function uvLine(dd, c, u){
 const usOf = c => c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
 const sessTxt = () => [DB.g.sess, DB.g.date].filter(Boolean).join(' du ');
 function openMail(to, subj, body){ const a = document.createElement('a'); a.href = 'mailto:' + encodeURIComponent(to || '').replace(/%40/g,'@') + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body); a.click(); }
-$('#mailc').addEventListener('click', () => {
-  const c = cur(); if (!c) return; const dd = DB.data[c.id] || {}, d = +(dd.dan || 1);
-  const body = `Bonjour ${dd.prenom || c.prenom || ''},\n\nVoici vos résultats pour le passage du ${DAN(d)}${sessTxt() ? ', session ' + sessTxt() : ''} :\n\n${usOf(c).map(u => uvLine(dd, c, u)).join('\n')}\n\nCes résultats seront enregistrés par la commission des grades.\n\nSportivement,\nLe jury`;
-  openMail(c.mail || '', `Passage de grade ${DAN(d)} : vos résultats`, body);
-});
+/* Mail de résultat au candidat : lieu, date, décisions, félicitations ou encouragements selon le résultat */
+function resultMail(c){
+  const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = usOf(c), prenom = (dd.prenom || c.prenom || '').trim();
+  const g = {ok:[], ko:[], part:[], abs:[], none:[]};
+  const lines = us.map(u => { const v = dd['r:d'+u] || 'none', m = (dd['m'+u] || '').trim(); g[v].push(u);
+    const t = v === 'ok' ? 'validée ✓' : v === 'ko' ? 'refusée' + (m ? ' (' + m + ')' : '') : v === 'part' ? 'partielle' + (m ? ' (' + m + ')' : '') + ' : le kata réussi vous reste acquis' : v === 'abs' ? 'absent(e)' : 'décision en attente';
+    return '- ' + UVN[u] + ' : ' + t + (u === 3 && v === 'ok' ? (dd['r:uvc'] === 'oui' ? ', UV3 complète' : dd['r:uvc'] === 'non' ? ', il vous reste la partie A (points)' : '') : ''); });
+  const L = a => a.map(u => 'UV' + u).join(', ').replace(/, ([^,]*)$/, ' et $1');
+  const quand = [DB.g.date ? 'le ' + DB.g.date : '', DB.g.lieu ? 'à ' + DB.g.lieu : ''].filter(Boolean).join(' ');
+  const parts = [];
+  if (g.none.length === us.length) parts.push('Les décisions du jury ne sont pas encore toutes connues. Vous recevrez vos résultats complets prochainement.');
+  else if (g.ok.length === us.length) parts.push(`Félicitations ! Vous avez validé ${us.length > 1 ? 'toutes les UV présentées' : 'l\'UV présentée'} lors de cette session. Bravo pour votre travail et votre préparation : c'est une belle étape sur le chemin du ${DAN(d)}.`);
+  else {
+    if (g.ok.length) parts.push(`Félicitations pour ${g.ok.length > 1 ? 'les UV validées (' + L(g.ok) + '), qui vous restent acquises' : 'l\'' + L(g.ok) + ' validée, qui vous reste acquise'}.`);
+    if (g.part.length) parts.push('Pour l\'UV1, un de vos deux katas est réussi et vous reste acquis : il ne vous reste qu\'un kata à présenter.');
+    if (g.ko.length) parts.push(`${g.ok.length || g.part.length ? 'Pour' : 'Ce résultat n\'est qu\'une étape. Pour'} ${g.ko.length > 1 ? 'les ' + L(g.ko) : 'l\'' + L(g.ko)}, ne vous découragez pas : appuyez-vous sur les remarques du jury pour préparer votre prochain passage. Votre professeur pourra vous accompagner.`);
+    if (g.abs.length) parts.push(`Vous étiez absent(e) pour ${g.abs.length > 1 ? 'les ' + L(g.abs) : 'l\'' + L(g.abs)} : vous pourrez vous réinscrire lors d'une prochaine session.`);
+    if (g.none.length) parts.push(`La décision pour ${g.none.length > 1 ? 'les ' + L(g.none) : 'l\'' + L(g.none)} vous sera communiquée prochainement.`);
+  }
+  const body = `Bonjour${prenom ? ' ' + prenom : ''},\n\nLe jury du passage de grade du ${DAN(d)}${quand ? ', ' + quand : ''}${DB.g.sess ? ' (' + DB.g.sess + ')' : ''}, a rendu ses décisions :\n\n${lines.join('\n')}\n\n${parts.join('\n\n')}\n\nCes résultats seront enregistrés par la commission d'organisation des grades.\n\nSportivement,\n${DB.g.sig || 'Le jury'}`;
+  const subj = `Passage de grade ${DAN(d)}${DB.g.date ? ' du ' + DB.g.date : ''} : ${g.ok.length === us.length ? 'félicitations !' : 'vos résultats'}`;
+  return {to: c.mail || '', subj, body};
+}
+function mailTo(id){
+  const c = DB.list.find(x => x.id === id); if (!c) return;
+  const m = resultMail(c); openMail(m.to, m.subj, m.body);
+  if (!DB.data[id]) DB.data[id] = initData(c);
+  DB.data[id].mailed = Date.now(); save(); renderQuick();
+}
+$('#mailc').addEventListener('click', () => { const c = cur(); if (c) mailTo(c.id); });
 $('#mails').addEventListener('click', () => {
   const ids = $$('#csel option').map(o => o.value).filter(Boolean);
   const lines = DB.list.filter(c => ids.includes(c.id)).sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr')).map(c => {
@@ -1132,7 +1311,7 @@ $('#i-table').addEventListener('change', e => { const c = cur(); if (!c) return;
 $('#dispatch').addEventListener('click', () => { if (DB.list.some(c => c.table)) $('#dconf').hidden = false; else dispatchAll(); });
 $('#dno').addEventListener('click', () => { $('#dconf').hidden = true; });
 $('#dyes').addEventListener('click', () => { $('#dconf').hidden = true; dispatchAll(); });
-$('#manual').addEventListener('click', () => { DB.filter = 'all'; DB.fuv = 'all'; addManual(); save(); refresh(); $('#i-nom').focus(); });
+$('#manual').addEventListener('click', () => { DB.filter = 'all'; DB.fuv = 'all'; DB.ftab = 'all'; addManual(); save(); refresh(); $('#identd').open = true; $('#i-nom').focus(); });
 /* Suppression d'un candidat : liste et fiches de ce candidat */
 $('#delc').addEventListener('click', () => { const c = cur(); if (!c) return; $('#delname').textContent = `Supprimer ${(c.nom + ' ' + c.prenom).trim() || 'ce candidat'} et ses fiches ?`; $('#delconf').hidden = false; });
 $('#delno').addEventListener('click', () => { $('#delconf').hidden = true; });
@@ -1157,11 +1336,15 @@ $$('[role=tab]').forEach(b => b.addEventListener('click', () => showTab(+b.id.sl
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { a = a.slice(); for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
 /* Tirage : une technique par famille, compléments dans des familles différentes ; si moins de techniques que de familles, familles toutes différentes */
+/* Tirage : une technique par famille ; les techniques en plus vont dans des familles différentes,
+   jamais dans les étranglements (Shime-waza) : un seul étranglement par candidat */
+const NO_EXTRA = ['Shime'];
 function drawDomain(data, total){
   const fams = Object.keys(data).filter(f => data[f].length), out = [];
   if (total < fams.length){ shuffle(fams).slice(0, total).forEach(f => out.push(pick(data[f]))); return out; }
   fams.forEach(f => out.push(pick(data[f])));
-  shuffle(fams.filter(f => data[f].length >= 2)).slice(0, total - fams.length).forEach(f => out.push(pick(data[f].filter(t => !out.includes(t)))));
+  const extra = fams.filter(f => data[f].length >= 2), pref = shuffle(extra.filter(f => !NO_EXTRA.includes(f))), rest = shuffle(extra.filter(f => NO_EXTRA.includes(f)));
+  [...pref, ...rest].slice(0, total - fams.length).forEach(f => out.push(pick(data[f].filter(t => !out.includes(t)))));
   return out;
 }
 document.addEventListener('click', e => {
@@ -1189,7 +1372,7 @@ document.addEventListener('click', e => {
 /* Impression : fiches cochées seulement, chaque fiche réduite si besoin pour tenir sur une page A4 */
 let pmHidden = null;
 function enterPrint(){
-  const H = document.documentElement; if (H.classList.contains('pm')) return;
+  const H = document.documentElement; if (H.classList.contains('pm') || bActive) return;
   let sel = [1,2,3].filter(u => DB.g['p'+u] !== false); if (!sel.length) sel = [1,2,3];
   const I = ins(), si = sel.filter(u => I.includes(u)); if (si.length) sel = si;
   pmHidden = $$('.sheet').map(x => x.hidden);
@@ -1230,6 +1413,7 @@ function enterPrint(){
     const h = x.getBoundingClientRect().height; if (h > avail) x.style.zoom = (Math.floor(avail / h * 1000) / 1000).toString(); });
 }
 function exitPrint(){
+  if (bActive) return;
   document.documentElement.classList.remove('pm','one','big'); document.documentElement.style.removeProperty('--cols');
   $$('th[data-full]').forEach(th => { th.textContent = th.dataset.full; delete th.dataset.full; }); $$('.sheet.first').forEach(x => x.classList.remove('first'));
   $$('.pm-tmp').forEach(x => x.remove()); $$('.pm-hide').forEach(x => x.classList.remove('pm-hide'));
@@ -1241,10 +1425,28 @@ window.addEventListener('afterprint', exitPrint);
 $('#print').addEventListener('click', () => { enterPrint(); try{ window.print(); }catch(err){} });
 $('#clearAll').addEventListener('click', () => { $('#confirm').hidden = false; });
 $('#no').addEventListener('click', () => { $('#confirm').hidden = true; });
-$('#yes').addEventListener('click', () => {
-  DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all', ftab:'all'}; save(); $('#xinfo').hidden = true;
-  $$('#settings input').forEach(i => i.value = '');
-  $('#confirm').hidden = true; refresh(); window.scrollTo({top:0});
+/* Vider la session : liste, fiches, comptes rendus, fichiers préparés ; et, pour le coordonnateur, la session partagée */
+function purgeLocal(keepClearedSeen){
+  const seen = DB.clearedSeen;
+  DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all', ftab:'all'};
+  if (keepClearedSeen) DB.clearedSeen = seen;
+  save();
+  ['#xinfo','#xerr','#rinfo','#dconf','#delconf','#confirm'].forEach(x => { const el = $(x); if (el){ el.hidden = true; if (x === '#rinfo' || x === '#xinfo') el.innerHTML = ''; } });
+  Object.keys(RESFILES).forEach(k => delete RESFILES[k]);
+  $$('#settings input').forEach(i => i.value = ''); $$('#settings select').forEach(sl => sl.selectedIndex = 0);
+  $('#qbody').innerHTML = '';
+  if (typeof sLast !== 'undefined'){ Object.keys(sLast).forEach(k => delete sLast[k]); Object.values(sTimers).forEach(clearTimeout); }
+  refresh(); window.scrollTo({top:0});
+}
+$('#yes').addEventListener('click', async () => {
+  if (SDB && sCoord){
+    try{
+      const snap = await SDB.collection('dec').get();
+      for (const d of snap.docs) await SDB.doc('dec/' + d.id).delete();
+      await SDB.doc('jury/session').set({list:[], cleared:Date.now(), at:Date.now()});
+    }catch(err){}
+  }
+  purgeLocal(false); showStep(1);
 });
 /* ===== Saisie rapide des décisions ===== */
 const DECS = d => d.split(',');
@@ -1268,19 +1470,19 @@ function renderQuick(){
     const cell = u => { if (!us.includes(u)) return '<td class="c"><span class="qd none">non inscrit</span></td>';
       const opts = [['ok','V','Validée'], ...(u === 1 && f1 === 'old' && katas.length >= 2 ? [['part','P','Partielle']] : []), ['ko','R','Refusée'], ['abs','A','Absent']];
       return `<td class="c"><span class="qd" role="group" aria-label="UV${u}">${opts.map(([v,l,t]) => `<button type="button" data-id="${esc(c.id)}" data-u="${u}" data-v="${v}" aria-pressed="${dd['r:d'+u] === v}" title="${t}">${l}</button>`).join('')}</span></td>`; };
-    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · table ' + esc(c.table) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}</tr>`;
-  }).join('') || '<tr><td colspan="4" class="hint">Aucun candidat avec ces filtres.</td></tr>';
+    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · table ' + esc(c.table) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="hint">Aucun candidat avec ces filtres.</td></tr>';
   $('#qcount').textContent = list.length ? `${list.length} candidat${list.length>1?'s':''} · ${miss ? miss + ' avec au moins une décision à saisir' : 'toutes les décisions saisies'}` : '';
 }
 $('#qbtn').addEventListener('click', () => { const q = $('#quick'); q.hidden = !q.hidden; $('#qbtn').setAttribute('aria-expanded', !q.hidden); renderQuick(); if (!q.hidden) q.scrollIntoView({behavior:'smooth', block:'start'}); });
-$('#qbody').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) setDecision(b.dataset.id, +b.dataset.u, b.dataset.v); });
+$('#qbody').addEventListener('click', e => { const m = e.target.closest('button[data-mail]'); if (m){ mailTo(m.dataset.mail); return; } const b = e.target.closest('button[data-v]'); if (b) setDecision(b.dataset.id, +b.dataset.u, b.dataset.v); });
 { const rl = renderList; renderList = function(){ rl(); renderQuick(); }; }
 
 /* ===== Session partagée (page publiée sur claude.ai) : liste et décisions communes à toutes les tables ===== */
-let SDB = null, sLast = {}, sTimers = {}, sCount = 0, sDocs = null;
+let SDB = null, sLast = {}, sTimers = {}, sCount = 0, sDocs = null, sCoord = false;
 const decOf = dd => ({d1:dd['r:d1']||'', d2:dd['r:d2']||'', d3:dd['r:d3']||'', m1:dd.m1||'', m2:dd.m2||'', m3:dd.m3||''});
 function syncDec(id){
-  if (!SDB || !id) return;
+  if (!SDB || !id || String(id).startsWith('__')) return;
   const dd = DB.data[id]; if (!dd) return;
   const body = decOf(dd), js = JSON.stringify(body);
   if (sLast[id] === js) return;
@@ -1316,6 +1518,11 @@ function applyRemote(snap){
 }
 function applySession(snap){
   const r = snap.exists ? snap.data() : null;
+  /* session vidée par le coordonnateur : les tables vident aussi leur liste */
+  if (r && r.cleared && !sCoord && (DB.clearedSeen || 0) < r.cleared && DB.list.length){ DB.clearedSeen = r.cleared; purgeLocal(true); }
+  if (r && r.cleared) DB.clearedSeen = Math.max(DB.clearedSeen || 0, r.cleared);
+  if (r && Array.isArray(r.list) && !r.list.length){ $('#shint').textContent = sCoord ? 'Importez les listes Excel puis publiez la liste : chaque table la recevra automatiquement.' : 'Le coordonnateur n\'a pas encore publié la liste des candidats.'; return; }
+  if (r && Array.isArray(r.list) && !sCoord){ const keep = new Set(r.list.map(x => x.id)); const before = DB.list.length; DB.list = DB.list.filter(c => keep.has(c.id) || String(c.id).startsWith('manuel-')); if (DB.list.length !== before && !DB.list.some(c => c.id === DB.cur)) DB.cur = null; }
   if (!r || !Array.isArray(r.list)){ $('#shint').textContent = $('#spub').hidden ? 'Le coordonnateur n\'a pas encore publié la liste des candidats.' : 'Importez les listes Excel puis publiez la liste : chaque table la recevra automatiquement.'; return; }
   let added = 0;
   r.list.forEach(x => {
@@ -1343,14 +1550,147 @@ $('#spub').addEventListener('click', async () => {
     SDB = db; $('#share').hidden = false;
     const user = await window.claude.use('user');
     const coord = user ? await user.canEdit() : false;
-    $('#spub').hidden = !coord;
+    sCoord = !!coord; $('#spub').hidden = !coord;
+    if (coord) $('#confirm').firstChild.textContent = 'Effacer la liste, toutes les fiches de la session et la session partagée avec les tables ? ';
     const t = setTimeout(() => sStat('off', 'Session partagée injoignable pour l\'instant. Les saisies restent sur cet appareil.'), 10000);
     db.doc('jury/session').onSnapshot(snap => { clearTimeout(t); applySession(snap); }, () => sStat('off', 'Session partagée interrompue. Rechargez la page.'));
     db.collection('dec').onSnapshot(snap => { clearTimeout(t); applyRemote(snap); }, () => sStat('off', 'Session partagée interrompue. Rechargez la page.'));
   }catch(err){}
 })();
 
+/* ===== Parcours en 3 étapes : Préparer · Évaluer · Résultats ===== */
+function stepStatus(){
+  const n = DB.list.length, tabs = DB.list.filter(c => c.table).length;
+  let tot = 0, done = 0;
+  DB.list.forEach(c => { const dd = DB.data[c.id] || {}; usOf(c).forEach(u => { tot++; if (dd['r:d'+u]) done++; }); });
+  $('#st1').textContent = n ? `${n} candidat${n>1?'s':''}${tabs ? ' · tables réparties' : ''}` : 'commencer ici';
+  $('#st2').textContent = n ? `${done}/${tot} décision${tot>1?'s':''}` : 'remplir les fiches';
+  $('#st3').textContent = tot && done === tot ? 'tout est prêt' : 'fichiers et mails';
+  /* résumé des tables */
+  const per = {}; DB.list.forEach(c => { if (c.table) per[c.table] = (per[c.table]||0) + 1; });
+  $('#tabsum').textContent = Object.keys(per).length ? 'Répartition : ' + Object.keys(per).sort((a,b) => a-b).map(t => `table ${t} · ${per[t]}`).join(' | ') : (n ? 'Pas encore réparti.' : '');
+  /* bandeau du candidat en cours */
+  const c = cur(), dd = c ? (DB.data[c.id] || {}) : {};
+  const I = c ? usOf(c) : [1,2,3], F = {1: fo1(), 2: fo2(), 3: 'nr'};
+  [1,2,3].forEach(u => { const old = F[u] !== 'nr', rg = $('#rg'+u), tg = $('#trg'+u);
+    if (rg){ rg.classList.toggle('old', old); rg.classList.toggle('ni', !I.includes(u)); }
+    if (tg){ tg.textContent = old ? 'ancien règlement' : 'nouveau règlement'; tg.classList.toggle('old', old); } });
+  $('#who').textContent = c ? `${(((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Nouveau candidat'} · ${DAN(+(dd.dan || c.dan || 1))}${c.table ? ' · table ' + c.table : ''} · ${usOf(c).map(u => 'UV' + u).join(', ')}` : '';
+}
+function showStep(n){
+  DB.step = n; save();
+  $$('[data-steps]').forEach(el => el.classList.toggle('stephide', !el.dataset.steps.split(' ').includes(String(n))));
+  $$('.steps button').forEach(b => { if (+b.dataset.step === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  if (n === 3){ $('#quick').hidden = false; renderQuick(); }
+  stepStatus(); window.scrollTo({top:0});
+}
+$$('.steps button').forEach(b => b.addEventListener('click', () => showStep(+b.dataset.step)));
+$$('[data-go]').forEach(b => b.addEventListener('click', () => showStep(+b.dataset.go)));
+{ const rl2 = renderList; renderList = function(){ rl2(); stepStatus(); }; }
+$('#quick').hidden = false;
+
+/* Tirage au sort des techniques des exercices (UV3-B, et partie exercices de l'ancienne UV2) : familles variées */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-drawsel],[data-undrawsel]'); if (!b) return;
+  if (!cur()) addManual();
+  const k = b.dataset.drawsel || b.dataset.undrawsel, n = +b.dataset.n, d = Math.min(3, dan());
+  if (b.dataset.drawsel){
+    const data = {}; [1,2,3].filter(x => x <= d).forEach(x => Object.entries(PROG[x].N).forEach(([f,l]) => data[f] = [...new Set([...(data[f]||[]), ...l])]));
+    let picks = drawDomain(data, Math.min(n, Object.keys(data).length * 2));
+    while (picks.length < n){ const all = Object.values(data).flat().filter(t => !picks.includes(t)); if (!all.length) break; picks.push(all[Math.floor(Math.random()*all.length)]); }
+    picks = shuffle(picks);
+    for (let i = 0; i < n; i++) S[k+i] = picks[i] || '';
+  } else for (let i = 0; i < n; i++) delete S[k+i];
+  store(); restore(); calc();
+});
+
+/* ===== Fiches vierges : par dan, règlement, UV, avec ou sans tirage, en plusieurs exemplaires ===== */
+const BK = () => Object.assign({dan:'1', uvs:['1','2','3'], fo1:'nr', fo2:'nr', katas:null, draw:'0', lay:'sep'}, DB.g.blank || {});
+function renderBlank(){
+  const b = BK(), d = +b.dan, katas = b.katas || (b.fo1 === 'old' ? OLDK[d] : defKatas(d));
+  $$('.pills[data-bk]').forEach(g => { const k = g.dataset.bk; if (k === 'katas') return;
+    g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', k === 'uvs' ? b.uvs.includes(x.dataset.v) : String(b[k]) === x.dataset.v)); });
+  $('#bkatas').innerHTML = Object.entries(KATAS).map(([k,v]) => `<button type="button" data-v="${k}" aria-pressed="${katas.includes(k)}">${v.name}</button>`).join('');
+  $('#bkatasw').hidden = !b.uvs.includes('1');
+  const nT = +$('#bcopies').value || 1;
+  $('#bsum').textContent = `${nT} exemplaire${nT>1?'s':''} · ${DAN(d)} · ${b.uvs.sort().map(u => 'UV' + u).join(', ') || 'aucune UV'} · ${b.draw === '1' ? 'avec tirage au sort' : 'techniques vierges'} · ${({sep:'1 page par UV', one:'3 UV sur 1 page (paysage)', big:'gros caractères'})[b.lay]}`;
+}
+$('.blankc').addEventListener('click', e => {
+  const btn = e.target.closest('.pills[data-bk] button'); if (!btn) return;
+  const g = btn.closest('.pills'), k = g.dataset.bk, b = BK(), v = btn.dataset.v;
+  if (k === 'uvs'){ b.uvs = b.uvs.includes(v) ? b.uvs.filter(x => x !== v) : [...b.uvs, v]; }
+  else if (k === 'katas'){ const cur = b.katas || (b.fo1 === 'old' ? OLDK[+b.dan] : defKatas(+b.dan)); b.katas = cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]; }
+  else { b[k] = v; if (k === 'dan' || k === 'fo1') b.katas = null; }
+  DB.g.blank = b; save(); renderBlank();
+});
+$('#bcopies').addEventListener('input', renderBlank);
+let bActive = false;
+function blankCleanup(){
+  if (!bActive) return; bActive = false;
+  $$('.bpwrap').forEach(x => x.remove());
+  document.documentElement.classList.remove('pm','one','big','bmode'); document.documentElement.style.removeProperty('--cols');
+  try{ DB = JSON.parse(bActive.backup || window.__bBackup); }catch(err){}
+  save(); refresh(); showStep(4);
+}
+$('#bprint').addEventListener('click', () => {
+  const b = BK(); if (!b.uvs.length) return;
+  const n = Math.max(1, Math.min(40, +$('#bcopies').value || 1)), d = +b.dan;
+  window.__bBackup = JSON.stringify(DB);
+  /* candidat fictif, jamais enregistré ni partagé */
+  const c = {id:'__blank', nom:'', prenom:'', annee:'', ep:'', uke:'', dan:d, uvs:Object.fromEntries(b.uvs.map(u => [u, {ep:'', uke:''}]))};
+  DB.list.push(c); DB.cur = c.id;
+  DB.data[c.id] = {dan:String(d), ordre:'', fo1:b.fo1, fo2:b.fo2, katas: b.katas || (b.fo1 === 'old' ? OLDK[d] : defKatas(d)), nseries: d == 1 ? '3' : '5'};
+  [1,2,3].forEach(u => DB.g['p'+u] = b.uvs.includes(String(u)));
+  DB.g.lay = b.lay; DB.g.one = b.lay === 'one';
+  refresh();
+  const pages = [];
+  for (let k = 0; k < n; k++){
+    if (b.draw === '1'){ const dr = $('#draw'); if (dr) dr.click(); $$('[data-drawsel]').forEach(x => x.click()); }
+    else { const ud = $('#undraw'); if (ud) ud.click(); }
+    enterPrint();
+    const page = document.createElement('div'); page.className = 'bpage';
+    const nodes = [...document.querySelectorAll('.wrap > .onehead'), ...$$('.wrap > .sheet:not(.skip)')];
+    nodes.forEach(nd => { const cl = nd.cloneNode(true); const src = nd.querySelectorAll('input,select,textarea');
+      cl.removeAttribute('id'); cl.hidden = false; cl.classList.remove('stephide');
+      cl.querySelectorAll('input,select,textarea').forEach((el,i) => { const o = src[i]; el.removeAttribute('id'); el.name = ''; if ('checked' in el) el.checked = o.checked; if (el.tagName === 'SELECT') el.value = o.value; });
+      cl.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+      page.appendChild(cl); });
+    pages.push(page);
+    exitPrint();
+  }
+  const wrapB = document.createElement('div'); wrapB.className = 'bpwrap'; pages.forEach(pg => wrapB.appendChild(pg));
+  $('.wrap').appendChild(wrapB);
+  const H = document.documentElement; H.classList.add('pm','bmode'); if (b.lay === 'one'){ H.classList.add('one'); } if (b.lay === 'big') H.classList.add('big');
+  if (b.lay === 'one') H.style.setProperty('--cols', b.uvs.slice().sort().map(u => 'minmax(0,' + ({1:0.85, 2:1.25, 3:1.1}[u]) + 'fr)').join(' '));
+  bActive = true;
+  try{ window.print(); }catch(err){}
+  if (!window.__bAfter){ window.__bAfter = true; window.addEventListener('afterprint', () => setTimeout(blankCleanup, 0)); }
+});
+renderBlank();
+
+/* Fiches plus simples à remplir : clic sur toute la case, « tout correct » pour le kata, liste UV2 réduite aux techniques demandées */
+document.addEventListener('click', e => {
+  const td = e.target.closest('.sheet td.c');
+  if (td && e.target === td){ const inp = td.querySelector('input:not([disabled])'); if (inp){ inp.click(); } return; }
+  const allc = e.target.closest('[data-allc]');
+  if (allc){ const k = allc.dataset.allc;
+    $$(`table.kt[data-kata="${k}"] tbody tr`).forEach(tr => { const nm = 'k-' + k + '-' + tr.dataset.row; if (!S['r:'+nm]) S['r:'+nm] = 'c'; });
+    store(); restore(); calc(); return; }
+  if (e.target.id === 'manualsel'){ DB.g.showall = !DB.g.showall; save(); updDraw(); }
+});
+function updDraw(){
+  const s2 = $('#s2'); if (!s2 || !$('#draw')) return;
+  const any = !!s2.querySelector('table.tech [data-req]:checked');
+  s2.classList.toggle('anyreq', any); s2.classList.toggle('showall', !!DB.g.showall);
+  $('#manualsel').textContent = DB.g.showall ? '✔ Terminé : n\'afficher que les techniques demandées' : '✋ Choisir moi-même dans la liste';
+  $('#drawhint').textContent = any ? (DB.g.showall ? 'Cochez ou décochez la colonne « Demandée » pour changer les techniques.' : 'Seules les techniques demandées sont affichées. Pour chacune, cochez Maîtrisée ou Méconnaissance.') : (DB.g.showall ? 'Cochez la colonne « Demandée » des techniques choisies.' : 'Cliquez sur « Tirer au sort », ou choisissez vous-même les techniques.');
+}
+{ const c0 = calc; calc = function(){ c0(); updDraw(); }; }
+
+if (!DB.step) DB.step = DB.list.length ? 2 : 1;
+
 refresh();
+showStep(DB.step);
 })();
 </script>
 </body>
