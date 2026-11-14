@@ -240,11 +240,15 @@ html.pm .u2 table.tech.has-req tr.off{display:none}
 .sheet table input[type=radio],.sheet table input[type=checkbox]{width:22px;height:22px}
 .qr{display:none}
 .qrnote{display:none}
-html.pm .dk{flex-wrap:wrap}
-html.pm .qr{display:block;flex-basis:100%;text-align:center;line-height:0}
-html.pm .qr svg{width:21mm;height:21mm}
-html.pm.one .qr svg{width:15mm;height:15mm}
-html.pm.big .qr svg{width:25mm;height:25mm}
+html.pm .dk{flex-wrap:nowrap;justify-content:space-between;gap:3mm}
+html.pm .qr{display:block;flex:0 0 auto;line-height:0;order:2}
+html.pm .qr svg{width:30mm;height:30mm}
+html.pm.one .qr svg{width:22mm;height:22mm}
+html.pm.big .qr svg{width:32mm;height:32mm}
+html.pm.one .decch:has(.dk.part) .dk{flex-direction:column;justify-content:center;gap:2mm}
+html.pm:not(.one) .dec{grid-template-columns:1fr!important}
+html.pm.big .decch{grid-template-columns:none!important}
+html.pm .dk .qr svg{margin:1mm 0}
 html.pm .qrnote{display:block;font-size:9px;color:#000}
 .scanov{position:fixed;inset:0;z-index:50;background:#0b1020;color:#fff;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding:12px max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
 .scanov[hidden]{display:none!important}
@@ -664,6 +668,9 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <p class="guide">Un clic prépare les 3 fichiers « import_resultats » (UV1, UV2, UV3B). Cliquez ensuite sur chaque bouton « Télécharger », puis téléversez-les sur l'extranet.</p>
     <div class="bar"><button class="btn big res" type="button" id="resmk">⇪ Créer les fichiers de résultats</button></div>
     <div class="rinfo" id="rinfo" hidden></div>
+    <div class="bar"><button class="btn ghost sm" type="button" id="decclr">🗑 Effacer tous les résultats</button>
+      <span class="confirm" id="decclrc" hidden><span id="decclrt"></span> <button class="btn ghost sm del" type="button" id="decclry">Oui, tout effacer</button><button class="btn ghost sm" type="button" id="decclrn">Annuler</button></span></div>
+    <p class="hint">Efface les décisions (VALIDÉE, REFUSÉE, PARTIELLE, absent) et les motifs de refus de tous les candidats. La liste des candidats et les fiches restent.</p>
   </section>
 
   <section class="card noprint" data-steps="3" aria-label="Prévenir les candidats">
@@ -1551,14 +1558,14 @@ function enterPrint(){
     $('.wrap').insertBefore(head, vis[0]);
     const room = 194 * 96 / 25.4 - head.getBoundingClientRect().height - 12;
     const fitOne = () => vis.forEach(x => { for (let k = 0; k < 5; k++){ const h = x.getBoundingClientRect().height; if (h <= room) break; x.style.zoom = String(Math.floor((+x.style.zoom || 1) * room / h * 1000) / 1000); } });
-    fitOne(); qrMin(vis, 15); fitOne(); qrMin(vis, 15);
+    fitOne(); qrMin(vis, 20); fitOne(); qrMin(vis, 20);
     return;
   }
   vis.forEach(x => {
     /* Liste vierge trop longue : imprimée sur deux colonnes */
     if (x.getBoundingClientRect().height > avail) x.querySelectorAll('table.tech:not(.has-req)').forEach(t => split(t, false));
     const h = x.getBoundingClientRect().height; if (h > avail) x.style.zoom = (Math.floor(avail / h * 1000) / 1000).toString(); });
-  qrMin(vis, 18);
+  qrMin(vis, 26);
 }
 function exitPrint(){
   if (bActive) return;
@@ -1572,6 +1579,17 @@ window.addEventListener('beforeprint', enterPrint);
 window.addEventListener('afterprint', exitPrint);
 $('#print').addEventListener('click', () => { enterPrint(); try{ window.print(); }catch(err){} });
 $('#clearAll').addEventListener('click', () => { $('#confirm').hidden = false; });
+/* Effacer tous les résultats : décisions et motifs, candidats et fiches conservés */
+const decCount = () => DB.list.reduce((n, c) => { const dd = DB.data[c.id] || {}; return n + [1,2,3].filter(u => dd['r:d'+u]).length; }, 0);
+$('#decclr').addEventListener('click', () => { const n = decCount(); $('#decclrt').textContent = n ? `Effacer les ${n} décision${n>1?'s':''} enregistrée${n>1?'s':''} ?` : 'Aucune décision enregistrée.'; $('#decclry').hidden = !n; $('#decclrc').hidden = false; });
+$('#decclrn').addEventListener('click', () => { $('#decclrc').hidden = true; });
+$('#decclry').addEventListener('click', () => {
+  DB.list.forEach(c => { const dd = DB.data[c.id]; if (!dd) return; [1,2,3].forEach(u => { delete dd['r:d'+u]; delete dd['m'+u]; }); });
+  Object.keys(RESFILES).forEach(k => delete RESFILES[k]); $('#rinfo').hidden = true; $('#rinfo').innerHTML = '';
+  save(); DB.list.forEach(c => syncDec(c.id));
+  loadCurrent(); restore(); calc(); renderList(); renderQuick(); stepStatus();
+  $('#decclrc').hidden = true; toast('Tous les résultats ont été effacés.', 'err', 3000);
+});
 $('#no').addEventListener('click', () => { $('#confirm').hidden = true; });
 /* Vider la session : liste, fiches, comptes rendus, fichiers préparés ; et, pour le coordonnateur, la session partagée */
 function purgeLocal(keepClearedSeen){
