@@ -189,6 +189,9 @@ nav.tabs button{padding:12px 18px;font-size:16px}
 .rg .rgv{font-size:14px;font-weight:600;color:var(--ok);padding:8px 0}
 .rg.old{border-color:var(--warn);background:var(--warn-soft)}
 .rg.old select{color:var(--warn);border-color:var(--warn)}
+.rg #dom1{display:none}
+.rg.old #dom1{display:block}
+.rg.old #dom1:invalid,.rg.old #dom1.need{border:2px solid var(--bad)}
 .rg.ni{opacity:.45;border-style:dashed;border-color:var(--line)}
 nav.tabs .tl{display:grid;line-height:1.15}
 .trg{font:600 11px var(--f-body);opacity:.8}
@@ -556,7 +559,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   <section class="card noprint" data-steps="1" aria-label="Liste corrigée">
     <h2 class="sth"><span class="sn">4</span>Accueil des candidats : liste corrigée <span class="sub">(facultatif)</span></h2>
     <p class="guide">Corrigez à l'accueil les erreurs d'inscription (nom, prénom, année, uke, dan, UV, règlement) dans la fiche du candidat, à l'étape 2. Téléchargez ensuite la liste corrigée : importez-la sur votre téléphone avec « Choisir les fichiers Excel » pour y scanner les QR codes et créer les résultats.</p>
-    <div class="bar"><button class="btn big" type="button" id="lstx">⬇ Télécharger la liste corrigée (Excel)</button><span class="dlst" id="lstst" aria-live="polite"></span></div>
+    <div class="bar"><button class="btn big" type="button" id="lstx">⬇ Télécharger la liste corrigée (Excel)</button><button class="btn big res" type="button" id="lstsh">📤 Envoyer par mail…</button><span class="dlst" id="lstst" aria-live="polite"></span></div>
     <p class="hint">Ce fichier contient les n° de licence et les adresses mail, nécessaires aux résultats et aux mails : gardez-le pour vous.</p>
   </section>
 
@@ -585,7 +588,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="regle" id="regle">
         <div class="rgh"><b>Règlement appliqué</b><span class="hint">Réglé tout seul d'après l'inscription. À changer seulement si le candidat termine une UV à l'ancien règlement.</span></div>
         <div class="rgrid">
-          <label class="rg" id="rg1"><span class="rgl">UV1 · Kata</span><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement</option><option value="old">Ancien règlement (pour terminer)</option></select></label>
+          <label class="rg" id="rg1"><span class="rgl">UV1 · Kata</span><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement</option><option value="old">Ancien règlement (pour terminer)</option></select><select id="dom1" data-k="dom1" aria-label="Dominante de l'ancien règlement pour l'UV1"><option value="">Dominante ? (à choisir)</option><option value="comp">Dominante compétition</option><option value="tech">Dominante technique</option></select></label>
           <label class="rg" id="rg2"><span class="rgl">UV2 · Technique</span><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement</option><option value="comp">Ancien · dom. compétition</option><option value="tech">Ancien · dom. technique</option></select></label>
           <div class="rg" id="rg3"><span class="rgl">UV3 · Combinée</span><span class="rgv">Nouveau règlement (UV3-B)</span></div>
         </div>
@@ -1178,7 +1181,7 @@ $('#resmk').addEventListener('click', async () => {
       if (cf.dom && v && v !== 'abs'){
         const f2 = dd.fo2 || autoFo(c,2), f1 = dd.fo1 || autoFo(c,1);
         const old = u === 2 ? f2 !== 'nr' : f1 === 'old';
-        if (old){ const f = u === 2 ? f2 : (f2 !== 'nr' ? f2 : (/dom\.?\s*tech/i.test(ep) ? 'tech' : '')); dv = f === 'tech' ? 'Technique' : f === 'comp' ? 'Compétition' : ''; if (!dv) rep.dom.push(nom); }
+        if (old){ const f = u === 2 ? f2 : (dd.dom1 || (f2 !== 'nr' ? f2 : (/dom\.?\s*tech/i.test(ep) ? 'tech' : ''))); dv = f === 'tech' ? 'Technique' : f === 'comp' ? 'Compétition' : ''; if (!dv) rep.dom.push(nom); }
       }
       rows.push({lic:c.lic, ep, cl:val, dom:dv, nom});
     });
@@ -1192,15 +1195,19 @@ $('#resmk').addEventListener('click', async () => {
   const nolic = new Set(out.flatMap(r => r.nolic)).size;
   const warn = nolic ? `<div class="e">⚠ ${nolic} candidat${nolic>1?'s n\'ont':' n\'a'} pas de n° de licence enregistré sur cet appareil : ${nolic>1?'ils ne peuvent pas':'il ne peut pas'} figurer dans les fichiers (candidat ajouté à la main, ou importé avec une ancienne version de la page). Pour un candidat ajouté à la main, saisissez son résultat directement sur l'extranet. Sinon, réimportez les exports d'inscription ou la liste corrigée avec « Choisir les fichiers Excel » (les décisions déjà saisies sont conservées), puis recliquez sur « Créer les fichiers de résultats ».</div>` : '';
   $('#rinfo').innerHTML = warn + out.map(r => `<div><h5>${T[r.u]}${r.file ? ' · ' + esc(r.file) : ''}</h5>${!r.n && !r.nolic.length ? '<div>Aucun candidat inscrit à cette UV : pas de fichier.</div>' :
-    `<div>${r.n} candidat${r.n>1?'s':''}, ${r.filled} classement${r.filled>1?'s':''} rempli${r.filled>1?'s':''}.</div>${r.n ? `<div class="bar"><button class="btn sm res" type="button" data-file="${esc(r.file)}">⬇ Télécharger ${esc(r.file)}</button><span class="dlst" aria-live="polite"></span></div>` : ''}`
+    `<div>${r.n} candidat${r.n>1?'s':''}, ${r.filled} classement${r.filled>1?'s':''} rempli${r.filled>1?'s':''}.</div>${r.n ? `<div class="bar"><button class="btn sm res" type="button" data-file="${esc(r.file)}">⬇ Télécharger ${esc(r.file)}</button><button class="btn ghost sm" type="button" data-sharefile="${esc(r.file)}">📤 Envoyer</button><span class="dlst" aria-live="polite"></span></div>` : ''}`
     + L('Sans décision du jury, classement vide', r.empty) + L('Sans n° de licence (saisis à la main ou importés avant cette version) : absents du fichier', r.nolic) + L('Dominante à compléter à la main', r.dom) + L('À vérifier', r.note)}</div>`).join('')
+    + (Object.keys(RESFILES).length > 1 ? '<div class="bar"><button class="btn res" type="button" id="shareall">📤 Envoyer les ' + Object.keys(RESFILES).length + ' fichiers par mail…</button><span class="dlst" id="shareallst" aria-live="polite"></span></div>' : '')
     + '<div>Cliquez sur chaque bouton « Télécharger », puis téléversez les fichiers sur le site fédéral.</div>';
   $('#rinfo').hidden = false;
   $('#rinfo').scrollIntoView({behavior:'smooth', block:'nearest'});
 });
 $('#rinfo').addEventListener('click', async e => {
+  if (e.target.id === 'shareall'){ const st = $('#shareallst'); st.textContent = 'ouverture…'; st.textContent = shareMsg(await shareFiles(Object.entries(RESFILES).map(([n,buf]) => [n, buf.slice(0)]), 'Fichiers de résultats ' + (DB.g.sess || ''))); return; }
+  const sb = e.target.closest('button[data-sharefile]');
+  if (sb){ const st = sb.parentElement.querySelector('.dlst'); st.textContent = 'ouverture…'; st.textContent = shareMsg(await shareFiles([[sb.dataset.sharefile, RESFILES[sb.dataset.sharefile].slice(0)]], 'Résultats ' + sb.dataset.sharefile)); return; }
   const b = e.target.closest('button[data-file]'); if (!b) return;
-  const buf = RESFILES[b.dataset.file], st = b.nextElementSibling; if (!buf) return;
+  const buf = RESFILES[b.dataset.file], st = b.parentElement.querySelector('.dlst'); if (!buf) return;
   b.disabled = true; st.textContent = 'enregistrement…';
   const r = await saveFile(b.dataset.file, buf.slice(0));
   st.textContent = SAVEMSG[r] || ('erreur : ' + r); b.disabled = false;
@@ -1247,6 +1254,7 @@ $('#xlsx').addEventListener('change', async e => {
           Object.assign(c, {nom, prenom}); if (an) c.annee = an; if (uke) c.uke = uke; if (dn) c.dan = dn; if (tb) c.table = tb;
           if (!DB.data[id]) DB.data[id] = initData(c);
           const D0 = DB.data[id]; Object.assign(D0, {nom, prenom}); if (an) D0.annee = an; if (uke) D0.uke = uke; if (dn) D0.dan = String(dn);
+          const dm1 = String(pickCol(r, ['DOMINANTE_UV1'])).trim(); if (['comp','tech'].includes(dm1)) D0.dom1 = dm1;
           if (['nr','old'].includes(f1)) D0.fo1 = f1; if (['nr','comp','tech'].includes(f2)) D0.fo2 = f2;
         }
       });
@@ -1308,7 +1316,7 @@ document.addEventListener('input', e => {
   if (t.dataset.k === 'dan'){ S.katas = katasFor(cur(), +t.value, fo1()); S.nseries = t.value === '1' ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
   if (t.dataset.k === 'fo1'){ S.katas = katasFor(cur(), dan(), t.value); S.nseries = dan() == 1 ? '3' : '5'; store(); rendered=''; renderSheets(); restore(); }
   if (t.dataset.k === 'fo2'){ store(); rendered=''; renderSheets(); restore(); }
-  if (t.dataset.k === 'fo1' || t.dataset.k === 'fo2') setTimeout(stepStatus);
+  if (t.dataset.k === 'fo1' || t.dataset.k === 'fo2' || t.dataset.k === 'dom1') setTimeout(stepStatus);
   if (t.id === 'i-nom' || t.id === 'i-prenom'){ const c = cur(); if (c){ c.nom = S.nom || ''; c.prenom = S.prenom || ''; } }
   store(); calc(); renderList();
 });
@@ -1645,6 +1653,7 @@ function stepStatus(){
   const I = c ? usOf(c) : [1,2,3], F = {1: fo1(), 2: fo2(), 3: 'nr'};
   [1,2,3].forEach(u => { const old = F[u] !== 'nr', rg = $('#rg'+u), tg = $('#trg'+u);
     if (rg){ rg.classList.toggle('old', old); rg.classList.toggle('ni', !I.includes(u)); }
+    if (u === 1){ const ds = $('#dom1'); if (ds){ if (old && !S.dom1 && F[2] !== 'nr') ds.value = ''; ds.classList.toggle('need', old && !S.dom1 && F[2] === 'nr'); } }
     if (tg){ tg.textContent = old ? 'ancien règlement' : 'nouveau règlement'; tg.classList.toggle('old', old); } });
   $('#who').textContent = c ? `${(((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Nouveau candidat'} · ${DAN(+(dd.dan || c.dan || 1))}${c.table ? ' · table ' + c.table : ''} · ${usOf(c).map(u => 'UV' + u).join(', ')}` : '';
 }
@@ -1767,18 +1776,27 @@ function updDraw(){
 const QR_BASE = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : 'https://franck-star-source.github.io/grades-judo/fiches-jury.html';
 const DECLAB = {ok:'VALIDÉE', ko:'REFUSÉE', part:'PARTIELLE', abs:'ABSENT'};
 function qrSvg(text){ try{ const q = qrcode(0, 'L'); q.addData(text); q.make(); return q.createSvgTag({cellSize:2, margin:0, scalable:true}); }catch(err){ return ''; } }
+/* Règlement inscrit dans le QR : n nouveau ; UV1 o / oc / ot (ancien, dominante inconnue / compétition / technique) ; UV2 c / t (ancien, compétition / technique) */
+function qrReg(u){
+  if (u === 1){ const f = fo1(); if (f !== 'old') return 'n'; const d = S.dom1 || (fo2() !== 'nr' ? fo2() : ''); return d === 'comp' ? 'oc' : d === 'tech' ? 'ot' : 'o'; }
+  if (u === 2){ const f = fo2(); return f === 'comp' ? 'c' : f === 'tech' ? 't' : 'n'; }
+  return 'n';
+}
+const REGLAB = {n:'nouveau règlement', o:'ancien règlement', oc:'ancien règlement, dom. compétition', ot:'ancien règlement, dom. technique', c:'ancien règlement, dom. compétition', t:'ancien règlement, dom. technique'};
 function addQR(vis){
   const c = cur(); if (!c || String(c.id).startsWith('__') || typeof qrcode === 'undefined') return;
   vis.forEach(sh => { const u = +sh.id.slice(1); if (!u) return;
     sh.querySelectorAll('.decch .dk').forEach(lab => { const v = lab.querySelector('input').value;
-      const sp = document.createElement('span'); sp.className = 'qr pm-tmp'; sp.innerHTML = qrSvg(`${QR_BASE}#fj=${encodeURIComponent(c.id)}.${u}.${v}`); lab.appendChild(sp); }); });
+      const sp = document.createElement('span'); sp.className = 'qr pm-tmp'; sp.innerHTML = qrSvg(`${QR_BASE}#fj=${encodeURIComponent(c.id)}.${u}.${v}.${qrReg(u)}`); lab.appendChild(sp); }); });
 }
 /* Taille imprimée minimale des QR codes malgré la réduction de la fiche (lisibilité au téléphone) */
 function qrMin(vis, mm){ vis.forEach(x => { const z = +x.style.zoom || 1; x.querySelectorAll('.qr svg').forEach(sv => { const cur = parseFloat(getComputedStyle(sv).width) / 96 * 25.4 * z; if (cur < mm){ sv.style.width = sv.style.height = (mm / z).toFixed(2) + 'mm'; } }); }); }
 function parseScan(text){
   const m = String(text).match(/fj=([^&#\s]+)/); if (!m) return null;
-  const parts = decodeURIComponent(m[1]).split('.'), v = parts.pop(), u = +parts.pop(), id = parts.join('.');
-  return DECLAB[v] && u >= 1 && u <= 3 ? {id, u, v} : null;
+  const parts = decodeURIComponent(m[1]).split('.');
+  let reg = null; if (parts.length >= 4 && REGLAB[parts[parts.length-1]]) reg = parts.pop();
+  const v = parts.pop(), u = +parts.pop(), id = parts.join('.');
+  return DECLAB[v] && u >= 1 && u <= 3 ? {id, u, v, reg} : null;
 }
 function applyScan(sc){
   const c = DB.list.find(x => x.id === sc.id);
@@ -1786,9 +1804,13 @@ function applyScan(sc){
   if (!DB.data[c.id]) DB.data[c.id] = initData(c);
   const dd = DB.data[c.id], prev = dd['r:d'+sc.u];
   dd['r:d'+sc.u] = sc.v;
-  if (c.id === DB.cur){ S = dd; restore(); calc(); }
+  /* le règlement imprimé sur la fiche fait foi : classement et dominante des fichiers de résultats */
+  if (sc.reg && sc.u === 1){ dd.fo1 = sc.reg === 'n' ? 'nr' : 'old'; if (sc.reg === 'oc') dd.dom1 = 'comp'; if (sc.reg === 'ot') dd.dom1 = 'tech'; }
+  if (sc.reg && sc.u === 2){ dd.fo2 = sc.reg === 'c' ? 'comp' : sc.reg === 't' ? 'tech' : 'nr'; }
+  if (c.id === DB.cur) rendered = '';
+  if (c.id === DB.cur){ S = dd; renderSheets(); restore(); calc(); }
   save(); syncDec(c.id); renderList(); renderQuick();
-  return {c, dd, prev, name: (((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Candidat', label: `${UVN[sc.u]} · ${DECLAB[sc.v]}`};
+  return {c, dd, prev, name: (((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Candidat', label: `${UVN[sc.u]} · ${DECLAB[sc.v]}${sc.reg && sc.u < 3 ? ' · ' + REGLAB[sc.reg] : ''}`};
 }
 function undoScan(r, sc){ if (r.prev) r.dd['r:d'+sc.u] = r.prev; else delete r.dd['r:d'+sc.u]; if (r.c.id === DB.cur){ S = r.dd; restore(); calc(); } save(); syncDec(r.c.id); renderList(); renderQuick(); }
 function toast(html, cls, ms){ const t = $('#scantoast'); t.innerHTML = html; t.style.background = {ok:'var(--ok)', ko:'var(--bad)', part:'var(--warn)', abs:'#5d6370', err:'#5d6370'}[cls] || 'var(--ai)'; t.hidden = false; clearTimeout(t._h); if (ms) t._h = setTimeout(() => t.hidden = true, ms); }
@@ -1840,11 +1862,10 @@ $('#scanbtn').addEventListener('click', openScanner);
 $('#scanclose').addEventListener('click', closeScanner);
 
 /* ===== Liste corrigée : export Excel réimportable (même format que l'export d'inscription, + table, dan, règlement, identifiant des QR codes) ===== */
-$('#lstx').addEventListener('click', async () => {
-  const st = $('#lstst');
+function buildList(){
   const L = DB.list.filter(c => !String(c.id).startsWith('__'));
-  if (!L.length){ st.textContent = 'Aucun candidat à exporter.'; return; }
-  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','REGLEMENT_UV2','ID_FICHE'];
+  if (!L.length) return null;
+  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','ID_FICHE'];
   const rows = [head], ACT = {1:'UV1 - Kata', 2:'UV2 - Technique', 3:'UV3 - Volet B'};
   L.slice().sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr')).forEach(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
@@ -1853,18 +1874,40 @@ $('#lstx').addEventListener('click', async () => {
       if (!ep) ep = `${d}D - ${u === 1 ? (dd.katas||[]).map(k => KATAS[k].name).join(' + ') : u === 2 ? 'UV2' : 'UV3B'}`;
       ep = ep.replace(/^\d\s*D\b/i, d + 'D');   /* dan corrigé à l'accueil */
       const uke = (c.uvs && c.uvs[u] && c.uvs[u].uke) || dd.uke || c.uke || '';
-      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.fo2 || autoFo(c,2), c.id]);
+      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), c.id]);
     });
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = head.map(h => ({wch: ({NOM:18, PRENOM:16, CATEGORIE:40, ACTIVITE:40, MAIL_PERSO:26, ID_FICHE:18, NUMERO_LICENCE:18})[h] || 12}));
   XLSX.utils.book_append_sheet(wb, ws, 'Export');
   const d = new Date(), stamp = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
-  const name = `liste_candidats_corrigee_${stamp}.xlsx`;
+  return {name: `liste_candidats_corrigee_${stamp}.xlsx`, buf: XLSX.write(wb, {bookType:'xlsx', type:'array'}), n: L.length};
+}
+$('#lstx').addEventListener('click', async () => {
+  const st = $('#lstst'), f = buildList(); if (!f){ st.textContent = 'Aucun candidat à exporter.'; return; }
   st.textContent = 'enregistrement…';
-  const r = await saveFile(name, XLSX.write(wb, {bookType:'xlsx', type:'array'}));
-  st.textContent = r === 'ok' ? `✓ ${name} · ${L.length} candidats` : (SAVEMSG[r] || ('erreur : ' + r));
+  const r = await saveFile(f.name, f.buf);
+  st.textContent = r === 'ok' ? `✓ ${f.name} · ${f.n} candidats` : (SAVEMSG[r] || ('erreur : ' + r));
 });
+$('#lstsh').addEventListener('click', async () => {
+  const st = $('#lstst'), f = buildList(); if (!f){ st.textContent = 'Aucun candidat à exporter.'; return; }
+  st.textContent = 'ouverture…';
+  st.textContent = shareMsg(await shareFiles([[f.name, f.buf]], 'Liste des candidats corrigée'));
+});
+/* Envoi par mail : partage du fichier avec la messagerie de l'appareil (pièce jointe) ; sinon téléchargement et marche à suivre */
+async function shareFiles(list, title){
+  const type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const files = list.map(([n, buf]) => new File([buf], n, {type}));
+  try{
+    if (navigator.canShare && navigator.canShare({files})){ await navigator.share({files, title, text: title}); return 'shared'; }
+  }catch(err){ if (err && err.name === 'AbortError') return 'cancel'; }
+  for (const [n, buf] of list) await saveFile(n, buf);
+  return 'noshare';
+}
+function shareMsg(r){
+  return r === 'shared' ? '✓ fichier transmis à l\'application choisie (Mail, Gmail, Outlook…)' : r === 'cancel' ? 'envoi annulé'
+    : 'Ce navigateur ne sait pas joindre le fichier à un mail : il a été téléchargé. Dans votre messagerie, créez le mail et joignez-le avec le trombone (dossier Téléchargements).';
+}
 
 if (!DB.step) DB.step = DB.list.length ? 2 : 1;
 
