@@ -1191,6 +1191,8 @@ $('#resmk').addEventListener('click', async () => {
       if (!c.lic){ rep.nolic.push(nom); return; }
       const E = epFor(c, u, dd), ep = E.ep;
       if (!E.ok) rep.note.push(`${nom} : épreuve « ${ep} » à vérifier dans la liste déroulante du fichier`);
+      if (u === 1 && E.ok && v && v !== 'abs'){ const ik = parseCat(ep).katas, fk = dd.katas || []; const key = a => a.slice().sort().join();
+        if (ik.length && fk.length && key(ik) !== key(fk)) rep.note.push(`${nom} : kata évalué (${fk.map(k => KATAS[k].name).join(' + ')}) différent de l'inscription (« ${ep} »). Le fichier garde l'épreuve d'inscription : corrigez-la dans la liste déroulante si le site l'exige`); }
       rep.n++;
       let val = v ? CLASS[v] : '';
       if (val && !cf.cls.includes(val)){ rep.note.push(`${nom} : « ${val} » n'existe pas pour l'UV${u === 3 ? '3B' : u} sur le site, case laissée vide`); val = ''; }
@@ -1274,6 +1276,7 @@ $('#xlsx').addEventListener('change', async e => {
           const D0 = DB.data[id]; Object.assign(D0, {nom, prenom}); if (an) D0.annee = an; if (uke) D0.uke = uke; if (dn) D0.dan = String(dn);
           const dm1 = String(pickCol(r, ['DOMINANTE_UV1'])).trim(); if (['comp','tech'].includes(dm1)) D0.dom1 = dm1;
           if (['nr','old'].includes(f1)) D0.fo1 = f1; if (['nr','comp','tech'].includes(f2)) D0.fo2 = f2;
+          const kt = String(pickCol(r, ['KATAS_UV1'])).split('+').map(x => x.trim()).filter(k => KATAS[k]); if (kt.length) D0.katas = kt;   /* kata changé à l'accueil */
         }
       });
       rowsN += n;
@@ -1887,7 +1890,7 @@ $('#scanclose').addEventListener('click', closeScanner);
 function buildList(){
   const L = DB.list.filter(c => !String(c.id).startsWith('__'));
   if (!L.length) return null;
-  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','ID_FICHE'];
+  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','KATAS_UV1','ID_FICHE'];
   const rows = [head], ACT = {1:'UV1 - Kata', 2:'UV2 - Technique', 3:'UV3 - Volet B'};
   L.slice().sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr')).forEach(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
@@ -1896,7 +1899,7 @@ function buildList(){
       if (!ep) ep = `${d}D - ${u === 1 ? (dd.katas||[]).map(k => KATAS[k].name).join(' + ') : u === 2 ? 'UV2' : 'UV3B'}`;
       ep = ep.replace(/^\d\s*D\b/i, d + 'D');   /* dan corrigé à l'accueil */
       const uke = (c.uvs && c.uvs[u] && c.uvs[u].uke) || dd.uke || c.uke || '';
-      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), c.id]);
+      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), (dd.katas || katasFor(c, d, dd.fo1 || autoFo(c,1))).join('+'), c.id]);
     });
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(rows);
