@@ -648,10 +648,12 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   <section class="card noprint" data-steps="3" aria-label="Scanner les fiches">
     <h2 class="sth"><span class="sn">📷</span>Scanner les fiches imprimées <span class="sub">(facultatif)</span></h2>
     <p class="guide">Chaque fiche imprimée porte un QR code sous VALIDÉE et sous REFUSÉE. L'évaluateur entoure le bon ; vous le scannez et la décision s'enregistre ici.</p>
+    <p class="relaylink" id="relaylink" hidden>📱 Ce téléphone envoie les QR codes scannés à l'ordinateur relais <b id="relaylinkt"></b>. <button class="btn ghost sm" type="button" id="relayoff">Ne plus envoyer</button></p>
     <div class="relay" id="relay" hidden>
       <div class="rtx"><b>📱 Relais téléphone actif</b>
         <p>Scannez les QR codes des fiches avec <b>l'appareil photo du téléphone</b>, connecté au <b>même Wi-Fi</b> que cet ordinateur (internet inutile). La décision s'enregistre ici et le téléphone affiche la confirmation.</p>
-        <p>Pour tester : scannez ce QR code avec le téléphone. Il doit afficher « ✓ Téléphone relié ».</p>
+        <p>Pour tester : scannez ce QR code avec le téléphone, touchez « Ouvrir ». Il doit afficher « ✓ Téléphone relié ».</p>
+        <p>Fiches déjà imprimées depuis GitHub : sur cet écran vert du téléphone, touchez une fois « Relier aussi les fiches GitHub » (le téléphone doit avoir internet).</p>
         <p class="hint">Imprimez les fiches depuis cette page (adresse localhost) : leurs QR codes visent ce relais. <span id="relayaddr"></span></p>
         <label id="relayipw" hidden>Réseau utilisé : <select id="relayip"></select></label></div>
       <div class="rqr" id="relayqr"></div>
@@ -1922,7 +1924,25 @@ function scanFeedback(sc, r, ms){
   $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
   $('#tok').onclick = () => { $('#scantoast').hidden = true; };
 }
+/* Téléphone relié à un ordinateur « Relais jury » : les QR des fiches imprimées depuis GitHub sont renvoyés vers l'ordinateur */
+const RKEY = 'fiches-jury-relais';
+const relayTarget = () => { try{ return localStorage.getItem(RKEY) || ''; }catch(e){ return ''; } };
+function renderRelayLink(){
+  const t = relayTarget(), el = $('#relaylink'); if (!el) return;
+  el.hidden = !t || !!RELAY;
+  if (t) $('#relaylinkt').textContent = t;
+}
 function handleHash(){
+  const mr = location.hash.match(/relay=([A-Za-z0-9.\-]+(?::\d+)?|off)/);
+  if (mr){
+    history.replaceState(null, '', location.pathname + location.search);
+    try{ if (mr[1] === 'off') localStorage.removeItem(RKEY); else localStorage.setItem(RKEY, mr[1]); }catch(e){}
+    renderRelayLink(); showStep(3);
+    toast(mr[1] === 'off' ? 'Ce téléphone n\'envoie plus les QR codes à l\'ordinateur.' : `✓ Fiches GitHub reliées : les QR codes scannés seront envoyés à l'ordinateur (${esc(mr[1])}).`, mr[1] === 'off' ? 'err' : 'ok', 0);
+    return;
+  }
+  const mf = location.hash.match(/fj=([^&#\s]+)/), rt = relayTarget();
+  if (mf && rt && !RELAY && location.hostname !== rt.split(':')[0]){ location.replace(`http://${rt}/s?fj=${mf[1]}`); return; }
   const sc = parseScan(location.hash); if (!sc) return;
   history.replaceState(null, '', location.pathname + location.search);
   scanFeedback(sc, applyScan(sc), 0);
@@ -2071,6 +2091,8 @@ async function relayLoop(){
     relayLoop();
   }catch(e){}
 })();
+$('#relayoff').addEventListener('click', () => { try{ localStorage.removeItem(RKEY); }catch(e){} renderRelayLink(); });
+renderRelayLink();
 $('#relayip').addEventListener('change', e => { DB.g.relayIp = e.target.value; save(); RELAY.ip = e.target.value; renderRelay(); });
 })();
 </script>
