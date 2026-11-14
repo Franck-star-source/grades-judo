@@ -558,7 +558,8 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
 
   <section class="card noprint" data-steps="1" aria-label="Liste corrigée">
     <h2 class="sth"><span class="sn">4</span>Accueil des candidats : liste corrigée <span class="sub">(facultatif)</span></h2>
-    <p class="guide">Corrigez à l'accueil les erreurs d'inscription (nom, prénom, année, uke, dan, UV, règlement) dans la fiche du candidat, à l'étape 2. Téléchargez ensuite la liste corrigée : importez-la sur votre téléphone avec « Choisir les fichiers Excel » pour y scanner les QR codes et créer les résultats.</p>
+    <p class="guide">Corrigez à l'accueil les erreurs d'inscription (nom, prénom, année, uke, dan, UV, règlement) dans la fiche du candidat, à l'étape 2. Téléchargez ensuite la liste corrigée : importez-la sur votre téléphone avec « Choisir les fichiers Excel » pour y scanner les QR codes.</p>
+    <p class="guide"><b>Après les scans :</b> sur le téléphone, « 📤 Envoyer par mail » la liste corrigée (elle contient maintenant les décisions). Sur l'ordinateur, importez ce fichier avec « Choisir les fichiers Excel » : les décisions scannées sont reprises, puis créez les fichiers de résultats à l'étape 3.</p>
     <div class="bar"><button class="btn big" type="button" id="lstx">⬇ Télécharger la liste corrigée (Excel)</button><button class="btn big res" type="button" id="lstsh">📤 Envoyer par mail…</button><span class="dlst" id="lstst" aria-live="polite"></span></div>
     <p class="hint">Ce fichier contient les n° de licence et les adresses mail, nécessaires aux résultats et aux mails : gardez-le pour vous.</p>
   </section>
@@ -734,8 +735,27 @@ const techSelect = (k, doms, label) => `<select data-k="${k}" aria-label="${labe
 /* ===== État ===== */
 const KEY = 'fiches-jury-v2';
 let DB = {list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all'};
-try{ const d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d && Array.isArray(d.list)) DB = Object.assign(DB, d); }catch(e){}
-const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} };
+let lastJSON0 = null;
+try{ const raw = localStorage.getItem(KEY); const d = JSON.parse(raw || 'null'); if (d && Array.isArray(d.list)){ DB = Object.assign(DB, d); lastJSON0 = raw; } }catch(e){}
+let lastJSON = lastJSON0;
+const save = () => { try{ lastJSON = JSON.stringify(DB); localStorage.setItem(KEY, lastJSON); }catch(e){} };
+/* Plusieurs onglets ouverts (chaque scan avec l'appareil photo ouvre un nouvel onglet) : chaque onglet relit les décisions
+   enregistrées par les autres, sinon un ancien onglet ne les verrait pas et les effacerait à sa prochaine sauvegarde. */
+function reloadFromStorage(){
+  let raw = null; try{ raw = localStorage.getItem(KEY); }catch(e){ return; }
+  if (!raw || raw === lastJSON) return;
+  let d = null; try{ d = JSON.parse(raw); }catch(e){ return; }
+  if (!d || !Array.isArray(d.list)) return;
+  lastJSON = raw;
+  DB = Object.assign({list:[], cur:null, data:{}, g:{ky:'ky', cumul:''}, filter:'all', fuv:'all'}, d);
+  Object.keys(RESFILES).forEach(k => delete RESFILES[k]);
+  const ri = document.getElementById('rinfo'); if (ri) ri.hidden = true;   /* fichiers de résultats à recréer avec les nouvelles décisions */
+  refresh(); renderQuick(); stepStatus();
+}
+window.addEventListener('storage', e => { if (e.key === KEY) reloadFromStorage(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) reloadFromStorage(); });
+window.addEventListener('focus', reloadFromStorage);
+window.addEventListener('pageshow', reloadFromStorage);
 const cur = () => DB.list.find(c => c.id === DB.cur) || null;
 let S = {};
 const season = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); })();
@@ -1182,7 +1202,8 @@ $('#resmk').addEventListener('click', async () => {
     const cf = RES[u], rep = {u, n:0, filled:0, empty:[], nolic:[], dom:[], note:[]};
     /* inscrits à l'UV, plus les candidats ajoutés à la main qui ont une décision pour cette UV */
     const hasU = c => c.uvs && Object.keys(c.uvs).length;
-    const list = DB.list.filter(c => !String(c.id).startsWith('__') && (hasU(c) ? c.uvs[u] : (DB.data[c.id] || {})['r:d'+u]))
+    const list = DB.list.filter(c => { if (String(c.id).startsWith('__')) return false; const dec = (DB.data[c.id] || {})['r:d'+u];
+      return hasU(c) ? !!c.uvs[u] && (!c.uvs[u].added || !!dec) : !!dec; })
       .sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr'));
     if (!list.length){ out.push(rep); continue; }
     const rows = [];
@@ -1237,7 +1258,7 @@ $('#xlsx').addEventListener('change', async e => {
   const files = [...e.target.files]; e.target.value = ''; if (!files.length) return;
   $('#xerr').hidden = true; $('#xinfo').hidden = true;
   if (typeof XLSX === 'undefined'){ $('#xerr').textContent = 'La lecture des fichiers Excel n\'a pas pu démarrer. Rechargez la page.'; $('#xerr').hidden = false; return; }
-  const errs = [], seenUV = {1:0,2:0,3:0}; let added = 0, rowsN = 0;
+  const errs = [], seenUV = {1:0,2:0,3:0}; let added = 0, rowsN = 0, decIn = 0;
   for (const file of files){
     try{
       const wb = XLSX.read(await file.arrayBuffer(), {cellDates:true});
@@ -1258,7 +1279,7 @@ $('#xlsx').addEventListener('change', async e => {
         if (!c.uvs) c.uvs = {};
         const mail = String(pickCol(r, ['MAIL_PERSO','MAIL_INSCRIPTION'])).trim(); if (mail && !c.mail) c.mail = mail;
         if (lic && !c.lic) c.lic = lic; /* conservé sur cet appareil pour les fichiers de résultats, jamais affiché ni imprimé */
-        if (uv){ c.uvs[uv] = {ep, uke}; seenUV[uv]++; }
+        if (uv){ c.uvs[uv] = {ep, uke}; if (String(id).startsWith('manuel-')) c.uvs[uv].added = true; seenUV[uv]++; }
         else c.ep = ep;
         const p = parseCat(ep); if (p.dan) c.dan = p.dan;
         c.ep = Object.keys(c.uvs).length ? Object.entries(c.uvs).sort().map(([u,x]) => x.ep).join(' · ') : c.ep;
@@ -1277,6 +1298,9 @@ $('#xlsx').addEventListener('change', async e => {
           const dm1 = String(pickCol(r, ['DOMINANTE_UV1'])).trim(); if (['comp','tech'].includes(dm1)) D0.dom1 = dm1;
           if (['nr','old'].includes(f1)) D0.fo1 = f1; if (['nr','comp','tech'].includes(f2)) D0.fo2 = f2;
           const kt = String(pickCol(r, ['KATAS_UV1'])).split('+').map(x => x.trim()).filter(k => KATAS[k]); if (kt.length) D0.katas = kt;   /* kata changé à l'accueil */
+          /* décision saisie ou scannée sur un autre appareil (téléphone) : reprise ici, une case vide n'efface rien */
+          const dc = String(pickCol(r, ['DECISION'])).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); const dv = {valide:'ok',validee:'ok',refuse:'ko',refusee:'ko',partiel:'part',partielle:'part',absent:'abs'}[dc];
+          if (uv && dv && D0['r:d'+uv] !== dv){ D0['r:d'+uv] = dv; decIn++; }
         }
       });
       rowsN += n;
@@ -1288,7 +1312,7 @@ $('#xlsx').addEventListener('change', async e => {
     if (DB.list.some(c => c.table)) DB.list.forEach(c => { if (!c.table) c.table = leastTable(); });
     if (!DB.cur) DB.cur = DB.list[0].id;
     const tot = seenUV[1] + seenUV[2] + seenUV[3];
-    $('#xinfo').textContent = `${files.length} fichier${files.length>1?'s':''} lu${files.length>1?'s':''} · ${rowsN} inscription${rowsN>1?'s':''}${tot ? ` (UV1 : ${seenUV[1]}, UV2 : ${seenUV[2]}, UV3 : ${seenUV[3]})` : ''} · ${added} nouveau${added>1?'x':''} candidat${added>1?'s':''} · ${DB.list.length} au total.`;
+    $('#xinfo').textContent = `${files.length} fichier${files.length>1?'s':''} lu${files.length>1?'s':''} · ${rowsN} inscription${rowsN>1?'s':''}${tot ? ` (UV1 : ${seenUV[1]}, UV2 : ${seenUV[2]}, UV3 : ${seenUV[3]})` : ''} · ${added} nouveau${added>1?'x':''} candidat${added>1?'s':''} · ${DB.list.length} au total.${decIn ? ` · ${decIn} décision${decIn>1?'s':''} reprise${decIn>1?'s':''} de la liste corrigée.` : ''}`;
     $('#xinfo').hidden = false;
     save(); refresh();
   }
@@ -1890,16 +1914,15 @@ $('#scanclose').addEventListener('click', closeScanner);
 function buildList(){
   const L = DB.list.filter(c => !String(c.id).startsWith('__'));
   if (!L.length) return null;
-  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','KATAS_UV1','ID_FICHE'];
+  const head = ['NOM','PRENOM','NAISSANCE','NUMERO_LICENCE','CATEGORIE','ACTIVITE','STATUT','NOM_PARTENAIRE','PRENOM_PARTENAIRE','MAIL_PERSO','DAN','TABLE','REGLEMENT_UV1','DOMINANTE_UV1','REGLEMENT_UV2','KATAS_UV1','DECISION','ID_FICHE'];
   const rows = [head], ACT = {1:'UV1 - Kata', 2:'UV2 - Technique', 3:'UV3 - Volet B'};
   L.slice().sort((a,b) => ((a.nom||'')+' '+(a.prenom||'')).localeCompare((b.nom||'')+' '+(b.prenom||''),'fr')).forEach(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number).sort() : [1,2,3];
     us.forEach(u => {
-      let ep = c.uvs && c.uvs[u] ? c.uvs[u].ep : '';
-      if (!ep) ep = `${d}D - ${u === 1 ? (dd.katas||[]).map(k => KATAS[k].name).join(' + ') : u === 2 ? 'UV2' : 'UV3B'}`;
+      let ep = c.uvs && c.uvs[u] && !c.uvs[u].added ? c.uvs[u].ep : epFor(c, u, dd).ep;
       ep = ep.replace(/^\d\s*D\b/i, d + 'D');   /* dan corrigé à l'accueil */
       const uke = (c.uvs && c.uvs[u] && c.uvs[u].uke) || dd.uke || c.uke || '';
-      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), (dd.katas || katasFor(c, d, dd.fo1 || autoFo(c,1))).join('+'), c.id]);
+      rows.push([dd.nom || c.nom || '', dd.prenom || c.prenom || '', dd.annee || c.annee || '', c.lic || '', ep, `${DB.g.sess || 'SESSION'} ${ACT[u]}`, 'Validé', uke, '', c.mail || '', d, c.table || '', dd.fo1 || autoFo(c,1), dd.dom1 || '', dd.fo2 || autoFo(c,2), (dd.katas || katasFor(c, d, dd.fo1 || autoFo(c,1))).join('+'), CLASS[dd['r:d'+u]] || '', c.id]);
     });
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(rows);
