@@ -260,6 +260,9 @@ html.pm .qrnote{display:block;font-size:9px;color:#000}
 .scanres small{display:block;font-size:13px;font-weight:500;opacity:.9}
 .qrl{margin-top:14px;padding:14px;border:2px dashed var(--line,#c9cdd6);border-radius:12px;display:grid;gap:8px}
 .qrl input{font-size:18px;padding:12px;border-radius:10px}
+.relay{margin:12px 0;padding:14px;border:2px solid var(--ok);border-radius:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+.relay p{margin:6px 0}.rqr svg{width:150px;height:150px;display:block;background:#fff;padding:8px;border-radius:8px}
+@media (max-width:640px){.relay{grid-template-columns:1fr}}
 .scantoast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:60;width:min(92vw,520px);border-radius:14px;padding:16px 18px;color:#fff;font-size:18px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);display:grid;gap:8px}
 .scantoast[hidden]{display:none!important}
 .xinfo{font-size:13.5px;color:var(--ai);background:var(--ai-soft);padding:6px 10px;border-radius:8px}
@@ -645,6 +648,14 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   <section class="card noprint" data-steps="3" aria-label="Scanner les fiches">
     <h2 class="sth"><span class="sn">📷</span>Scanner les fiches imprimées <span class="sub">(facultatif)</span></h2>
     <p class="guide">Chaque fiche imprimée porte un QR code sous VALIDÉE et sous REFUSÉE. L'évaluateur entoure le bon ; vous le scannez et la décision s'enregistre ici.</p>
+    <div class="relay" id="relay" hidden>
+      <div class="rtx"><b>📱 Relais téléphone actif</b>
+        <p>Scannez les QR codes des fiches avec <b>l'appareil photo du téléphone</b>, connecté au <b>même Wi-Fi</b> que cet ordinateur (internet inutile). La décision s'enregistre ici et le téléphone affiche la confirmation.</p>
+        <p>Pour tester : scannez ce QR code avec le téléphone. Il doit afficher « ✓ Téléphone relié ».</p>
+        <p class="hint">Imprimez les fiches depuis cette page (adresse localhost) : leurs QR codes visent ce relais. <span id="relayaddr"></span></p>
+        <label id="relayipw" hidden>Réseau utilisé : <select id="relayip"></select></label></div>
+      <div class="rqr" id="relayqr"></div>
+    </div>
     <div class="bar"><button class="btn big" type="button" id="scanbtn">📷 Ouvrir le scanner</button></div>
     <p class="hint">Sur téléphone, ouvrez cette page dans le navigateur (version GitHub) après y avoir importé les listes. Vous pouvez aussi viser le QR avec l'appareil photo du téléphone : la page s'ouvre et enregistre la décision.</p>
     <p class="err" id="scanerr" hidden></p>
@@ -1488,7 +1499,7 @@ const shuffle = a => { a = a.slice(); for (let i = a.length-1; i > 0; i--){ cons
 /* Tirage : une technique par famille, compléments dans des familles différentes ; si moins de techniques que de familles, familles toutes différentes */
 /* Tirage : une technique par famille ; les techniques en plus vont dans des familles différentes,
    jamais dans les étranglements (Shime-waza) : un seul étranglement par candidat */
-const NO_EXTRA = ['Shime'];
+const NO_EXTRA = ['Shime', 'Sutemi'];   /* jamais deux étranglements ni deux sutemi-waza dans un tirage */
 function drawDomain(data, total){
   const fams = Object.keys(data).filter(f => data[f].length), out = [];
   if (total < fams.length){ shuffle(fams).slice(0, total).forEach(f => out.push(pick(data[f]))); return out; }
@@ -1860,6 +1871,8 @@ function updDraw(){
 { const c0 = calc; calc = function(){ c0(); updDraw(); }; }
 
 /* ===== QR codes de décision : un QR par décision sur la fiche imprimée, scanné ensuite pour enregistrer le résultat ===== */
+let RELAY = null;
+const qrUrl = payload => RELAY ? `http://${RELAY.ip}:${RELAY.port}/s?fj=${payload}` : `${QR_BASE}#fj=${payload}`;
 const QR_BASE = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : 'https://franck-star-source.github.io/grades-judo/fiches-jury.html';
 const DECLAB = {ok:'VALIDÉE', ko:'REFUSÉE', part:'PARTIELLE', abs:'ABSENT'};
 function qrSvg(text){ try{ const q = qrcode(0, 'L'); q.addData(text); q.make(); return q.createSvgTag({cellSize:2, margin:0, scalable:true}); }catch(err){ return ''; } }
@@ -1874,7 +1887,7 @@ function addQR(vis){
   const c = cur(); if (!c || String(c.id).startsWith('__') || typeof qrcode === 'undefined') return;
   vis.forEach(sh => { const u = +sh.id.slice(1); if (!u) return;
     sh.querySelectorAll('.decch .dk').forEach(lab => { const v = lab.querySelector('input').value;
-      const sp = document.createElement('span'); sp.className = 'qr pm-tmp'; sp.innerHTML = qrSvg(`${QR_BASE}#fj=${encodeURIComponent(c.id)}.${u}.${v}.${qrReg(u)}`); lab.appendChild(sp); }); });
+      const sp = document.createElement('span'); sp.className = 'qr pm-tmp'; sp.innerHTML = qrSvg(qrUrl(`${encodeURIComponent(c.id)}.${u}.${v}.${qrReg(u)}`)); lab.appendChild(sp); }); });
 }
 /* Taille imprimée minimale des QR codes malgré la réduction de la fiche (lisibilité au téléphone) */
 function qrMin(vis, mm){ vis.forEach(x => { const z = +x.style.zoom || 1; x.querySelectorAll('.qr svg').forEach(sv => { const cur = parseFloat(getComputedStyle(sv).width) / 96 * 25.4 * z; if (cur < mm){ sv.style.width = sv.style.height = (mm / z).toFixed(2) + 'mm'; } }); }); }
@@ -2024,6 +2037,41 @@ if (!DB.step) DB.step = DB.list.length ? 2 : 1;
 refresh();
 showStep(DB.step);
 handleHash();
+/* Relais téléphone : page ouverte par le programme « Relais jury » (http://localhost:8765) sur l'ordinateur */
+function renderRelay(){
+  if (!RELAY) return;
+  $('#relay').hidden = false;
+  $('#relayqr').innerHTML = qrSvg(`http://${RELAY.ip}:${RELAY.port}/s?test=1`);
+  $('#relayaddr').textContent = `Adresse du relais : http://${RELAY.ip}:${RELAY.port}`;
+  $('#relayipw').hidden = RELAY.ips.length < 2;
+  $('#relayip').innerHTML = RELAY.ips.map(ip => `<option${ip === RELAY.ip ? ' selected' : ''}>${esc(ip)}</option>`).join('');
+}
+async function relayLoop(){
+  for (;;){
+    let list = [];
+    try{ const r = await fetch('/relay/poll', {cache:'no-store'}); list = r.ok ? await r.json() : []; if (!r.ok) throw 0; }
+    catch(e){ await new Promise(ok => setTimeout(ok, 2000)); continue; }
+    for (const it of list){
+      const sc = parseScan(it.text); let a;
+      if (!sc) a = {id:it.id, ok:false, err:'QR code non reconnu.'};
+      else { reloadFromStorage(); const res = applyScan(sc); scanFeedback(sc, res, 6000);
+        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = {id:it.id, ok:true, name:res.name, label:res.label}; } }
+      fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}).catch(() => {});
+    }
+  }
+}
+(async () => {
+  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+  try{
+    const r = await fetch('/relay/info', {cache:'no-store'}); if (!r.ok) return;
+    const j = await r.json(); const ips = j.ips || [];
+    if (!ips.length){ $('#relay').hidden = false; $('#relay').innerHTML = '<div class="rtx"><b>📱 Relais téléphone</b><p>⚠ Cet ordinateur n\'est connecté à aucun Wi-Fi. Connectez-le au même Wi-Fi que le téléphone (box ou partage de connexion), puis rechargez la page.</p></div>'; return; }
+    RELAY = {ips, port:j.port, ip: ips.includes(DB.g.relayIp) ? DB.g.relayIp : ips[0]};
+    renderRelay(); rendered = ''; renderSheets(); restore(); calc();
+    relayLoop();
+  }catch(e){}
+})();
+$('#relayip').addEventListener('change', e => { DB.g.relayIp = e.target.value; save(); RELAY.ip = e.target.value; renderRelay(); });
 })();
 </script>
 </body>
