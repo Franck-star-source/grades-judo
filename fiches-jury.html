@@ -191,6 +191,17 @@ nav.tabs .tl{display:grid;line-height:1.15}
 .trg{font:600 11px var(--f-body);opacity:.8}
 .trg.old{color:var(--warn);opacity:1}
 nav.tabs button[aria-selected="true"] .trg.old{color:#fff;background:var(--warn);padding:0 6px;border-radius:5px;justify-self:start}
+.bq{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.bqn{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ai);color:#fff;font:800 17px var(--f-body);flex:none}
+.bqb{display:grid;gap:8px;min-width:0;flex:1}
+.bqb>b{font-size:17px}
+.pills.xl button{font-size:16px;padding:12px 18px;border-radius:14px}
+.qty{display:flex;gap:8px;align-items:center}
+.qty .btn{font-size:22px;padding:6px 18px}
+.qty input{width:90px!important;text-align:center;font-size:20px;font-weight:700}
+.bopt{border-top:1px solid var(--line);padding-top:6px}
+.bgo{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-top:10px;border-top:1px solid var(--line)}
+.bgo #bsum{font-size:15px;font-weight:600;color:var(--ai)}
 .bgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:start}
 .bgrid .f{align-content:start}
 .pills{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;align-content:flex-start}
@@ -303,7 +314,7 @@ html.pm .dabs{border:0;padding:0;color:#000!important;background:none!important;
 .radios label:has(input[value=ok]:checked),.radios label:has(input[value=oui]:checked){background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 .radios label:has(input[value=ko]:checked),.radios label:has(input[value=non]:checked){background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
 .radios label:has(input[value=disp]:checked),.radios label:has(input[value=wait]:checked){background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
-.sign{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.sign{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px}
 .sign .box{border:1px dashed var(--line);border-radius:8px;padding:8px 10px;min-height:76px;display:grid;gap:6px;align-content:start;background:var(--surface)}
 .sign .box span{font:600 11.5px var(--f-mono);color:var(--muted)}
 .dur{width:90px!important;font-weight:600}
@@ -346,6 +357,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm .dk:has(input:checked) .bx{color:#000!important;background:#ddd}
   html.pm .decmsg{display:none} html.pm textarea.need{border:0;border-bottom:1px solid #999;background:none}
   html.pm ::placeholder{color:transparent}
+  html.pm .sign{grid-template-columns:repeat(4,1fr)!important}
   html.pm .sign .box{min-height:34px;padding:4px 8px}
   html.pm .sheet{gap:3px!important;margin:0!important}
   html.pm h4{font-size:12px;margin:2px 0 0}
@@ -393,7 +405,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   html.pm.one .dk .bx{width:16px;height:16px;font-size:12px}
   html.pm.one .dec textarea{min-height:18px}
   html.pm.one .dec .f label{font-size:10.5px;color:#000}
-  html.pm.one .sign{grid-template-columns:1fr 1fr 1fr;gap:3px}
+  html.pm.one .sign{grid-template-columns:1fr 1fr!important;gap:3px}
   html.pm.one .sign .box{min-height:30px;padding:2px 4px;gap:1px;border:1px solid #000}
   html.pm.one .sign .box span{font-size:8.5px;color:#000}
   html.pm.one .sheet,html.pm.one .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -499,20 +511,25 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
   </section>
 
   <section class="card noprint blankc" data-steps="4" aria-label="Fiches vierges">
-    <h2 class="sth"><span class="sn">🖨</span>Imprimer des fiches vierges <span class="sub">(sans candidat)</span></h2>
-    <p class="guide">Pour préparer les tables à l'avance : choisissez le dan, le règlement et les UV, avec ou sans tirage au sort des techniques. Chaque exemplaire avec tirage a son propre tirage.</p>
-    <div class="bgrid">
-      <div class="f"><span class="lab">Dan</span><div class="pills" data-bk="dan"><button type="button" data-v="1">1er</button><button type="button" data-v="2">2e</button><button type="button" data-v="3">3e</button><button type="button" data-v="4">4e</button></div></div>
-      <div class="f"><span class="lab">UV à imprimer</span><div class="pills multi" data-bk="uvs"><button type="button" data-v="1">UV1 Kata</button><button type="button" data-v="2">UV2 Technique</button><button type="button" data-v="3">UV3 Combinée</button></div></div>
-      <div class="f"><span class="lab">Règlement UV1</span><div class="pills" data-bk="fo1"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="old">Ancien</button></div></div>
-      <div class="f"><span class="lab">Règlement UV2</span><div class="pills" data-bk="fo2"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="comp">Ancien · compétition</button><button type="button" data-v="tech">Ancien · technique</button></div></div>
-      <div class="f" id="bkatasw"><span class="lab">Kata(s) UV1</span><div class="pills multi" data-bk="katas" id="bkatas"></div></div>
-      <div class="f"><span class="lab">Techniques</span><div class="pills" data-bk="draw"><button type="button" data-v="0">Vierges (le jury choisit)</button><button type="button" data-v="1">🎲 Avec tirage au sort</button></div></div>
-      <div class="f"><span class="lab">Mise en page</span><div class="pills" data-bk="lay"><button type="button" data-v="sep">1 page par UV</button><button type="button" data-v="one">3 UV sur 1 page</button><button type="button" data-v="big">Gros caractères</button></div></div>
-      <div class="f"><label class="lab" for="bcopies">Nombre d'exemplaires</label><input id="bcopies" type="number" min="1" max="40" inputmode="numeric" value="1" style="max-width:120px"></div>
-    </div>
-    <p class="hint" id="bsum"></p>
-    <div class="bar"><button class="btn big" type="button" id="bprint">🖨 Imprimer les fiches vierges</button></div>
+    <h2 class="sth"><span class="sn">🖨</span>Imprimer des fiches vierges</h2>
+    <p class="guide">Répondez aux 4 questions, puis cliquez sur le bouton vert. Les fiches s'impriment sans nom de candidat, à remplir à la main.</p>
+    <div class="bq"><span class="bqn">1</span><div class="bqb"><b>Quel dan ?</b>
+      <div class="pills xl" data-bk="dan"><button type="button" data-v="1">1er dan</button><button type="button" data-v="2">2e dan</button><button type="button" data-v="3">3e dan</button><button type="button" data-v="4">4e dan</button></div></div></div>
+    <div class="bq"><span class="bqn">2</span><div class="bqb"><b>Quelles UV ?</b> <span class="hint">touchez pour ajouter ou retirer</span>
+      <div class="pills xl multi" data-bk="uvs"><button type="button" data-v="1">UV1 · Kata</button><button type="button" data-v="2">UV2 · Technique</button><button type="button" data-v="3">UV3 · Combinée</button></div></div></div>
+    <div class="bq"><span class="bqn">3</span><div class="bqb"><b>Les techniques de l'UV2 et de l'UV3 ?</b>
+      <div class="pills xl" data-bk="draw"><button type="button" data-v="1">🎲 Déjà tirées au sort</button><button type="button" data-v="0">✋ Liste complète, l'évaluateur choisit</button></div></div></div>
+    <div class="bq"><span class="bqn">4</span><div class="bqb"><b>Combien de fiches ?</b> <span class="hint">avec tirage, chaque fiche a un tirage différent</span>
+      <div class="qty"><button type="button" class="btn ghost" id="bminus" aria-label="Une fiche de moins">−</button><input id="bcopies" type="number" min="1" max="40" inputmode="numeric" value="1" aria-label="Nombre de fiches"><button type="button" class="btn ghost" id="bplus" aria-label="Une fiche de plus">+</button></div></div></div>
+    <details class="more bopt"><summary>Options (règlement, katas, mise en page)</summary>
+      <div class="bgrid">
+        <div class="f"><span class="lab">Règlement UV1</span><div class="pills" data-bk="fo1"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="old">Ancien (pour terminer)</button></div></div>
+        <div class="f"><span class="lab">Règlement UV2</span><div class="pills" data-bk="fo2"><button type="button" data-v="nr">Nouveau</button><button type="button" data-v="comp">Ancien · compétition</button><button type="button" data-v="tech">Ancien · technique</button></div></div>
+        <div class="f" id="bkatasw"><span class="lab">Kata(s) UV1</span><div class="pills multi" data-bk="katas" id="bkatas"></div></div>
+        <div class="f"><span class="lab">Mise en page</span><div class="pills" data-bk="lay"><button type="button" data-v="sep">1 page par UV</button><button type="button" data-v="one">3 UV sur 1 page</button><button type="button" data-v="big">Gros caractères</button></div></div>
+      </div>
+    </details>
+    <div class="bgo"><button class="btn big res" type="button" id="bprint">🖨 Imprimer</button><span id="bsum"></span></div>
   </section>
 
   <div class="bar noprint stepnav" data-steps="1"><button class="btn big" type="button" data-go="2">Étape suivante : évaluer les candidats →</button></div>
@@ -742,7 +759,7 @@ function decHTML(u, label, part){
     <p class="decmsg" id="dm${u}"></p>
   </div>
   <div class="f"><label for="m${u}">${part ? 'Motif du refus, ou kata réussi / kata à repasser' : 'Motif du refus'}</label><textarea id="m${u}" data-k="m${u}"></textarea></div>
-  <div class="sign" style="grid-column:1/-1"><div class="box"><span>Évaluateur 1 · nom et signature</span><input type="text" data-k="e1-${u}" aria-label="Évaluateur 1"></div><div class="box"><span>Évaluateur 2 · nom et signature</span><input type="text" data-k="e2-${u}" aria-label="Évaluateur 2"></div><div class="box"><span>Cadre réservé CORG · signature et cachet</span></div></div></div>`;
+  <div class="sign" style="grid-column:1/-1"><div class="box"><span>Évaluateur 1 · nom et signature</span><input type="text" data-k="e1-${u}" aria-label="Évaluateur 1"></div><div class="box"><span>Évaluateur 2 · nom et signature</span><input type="text" data-k="e2-${u}" aria-label="Évaluateur 2"></div><div class="box"><span>Évaluateur 3 · nom et signature</span><input type="text" data-k="e3-${u}" aria-label="Évaluateur 3"></div><div class="box"><span>Cadre réservé CORG · signature et cachet</span></div></div></div>`;
 }
 function progFor(d, dom){
   const out = {};
@@ -1605,7 +1622,7 @@ document.addEventListener('click', e => {
 });
 
 /* ===== Fiches vierges : par dan, règlement, UV, avec ou sans tirage, en plusieurs exemplaires ===== */
-const BK = () => Object.assign({dan:'1', uvs:['1','2','3'], fo1:'nr', fo2:'nr', katas:null, draw:'0', lay:'sep'}, DB.g.blank || {});
+const BK = () => Object.assign({dan:'1', uvs:['1','2','3'], fo1:'nr', fo2:'nr', katas:null, draw:'1', lay:'sep'}, DB.g.blank || {});
 function renderBlank(){
   const b = BK(), d = +b.dan, katas = b.katas || (b.fo1 === 'old' ? OLDK[d] : defKatas(d));
   $$('.pills[data-bk]').forEach(g => { const k = g.dataset.bk; if (k === 'katas') return;
@@ -1613,7 +1630,10 @@ function renderBlank(){
   $('#bkatas').innerHTML = Object.entries(KATAS).map(([k,v]) => `<button type="button" data-v="${k}" aria-pressed="${katas.includes(k)}">${v.name}</button>`).join('');
   $('#bkatasw').hidden = !b.uvs.includes('1');
   const nT = +$('#bcopies').value || 1;
-  $('#bsum').textContent = `${nT} exemplaire${nT>1?'s':''} · ${DAN(d)} · ${b.uvs.sort().map(u => 'UV' + u).join(', ') || 'aucune UV'} · ${b.draw === '1' ? 'avec tirage au sort' : 'techniques vierges'} · ${({sep:'1 page par UV', one:'3 UV sur 1 page (paysage)', big:'gros caractères'})[b.lay]}`;
+  const uvl = b.uvs.slice().sort().map(u => 'UV' + u).join(' + ');
+  const old = (b.uvs.includes('1') && b.fo1 !== 'nr') || (b.uvs.includes('2') && b.fo2 !== 'nr');
+  $('#bsum').textContent = b.uvs.length ? `${nT} fiche${nT>1?'s':''} ${DAN(d)} · ${uvl} · ${b.draw === '1' ? 'techniques tirées au sort' : 'liste complète'}${old ? ' · ancien règlement' : ''}${b.lay !== 'sep' ? ' · ' + ({one:'3 UV sur 1 page', big:'gros caractères'})[b.lay] : ''}` : 'Choisissez au moins une UV.';
+  $('#bprint').disabled = !b.uvs.length;
 }
 $('.blankc').addEventListener('click', e => {
   const btn = e.target.closest('.pills[data-bk] button'); if (!btn) return;
@@ -1624,6 +1644,8 @@ $('.blankc').addEventListener('click', e => {
   DB.g.blank = b; save(); renderBlank();
 });
 $('#bcopies').addEventListener('input', renderBlank);
+$('#bminus').addEventListener('click', () => { $('#bcopies').value = Math.max(1, (+$('#bcopies').value || 1) - 1); renderBlank(); });
+$('#bplus').addEventListener('click', () => { $('#bcopies').value = Math.min(40, (+$('#bcopies').value || 1) + 1); renderBlank(); });
 let bActive = false;
 function blankCleanup(){
   if (!bActive) return; bActive = false;
