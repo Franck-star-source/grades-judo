@@ -672,7 +672,8 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
         <p>Pour tester : scannez ce QR code avec le téléphone, touchez « Ouvrir ». Il doit afficher « ✓ Téléphone relié ».</p>
         <p>Ensuite, sur le téléphone, utilisez le gros bouton <b>« 📷 Scanner une fiche »</b> : photo du QR entouré, la décision part à l'ordinateur et le bouton revient pour la fiche suivante. Sans internet, et même pour les fiches imprimées depuis GitHub.</p>
         <p class="hint">Imprimez les fiches depuis cette page (adresse localhost) : leurs QR codes visent ce relais. <span id="relayaddr"></span></p>
-        <label id="relayipw" hidden>Réseau utilisé : <select id="relayip"></select></label></div>
+        <label id="relayipw" hidden>Réseau utilisé : <select id="relayip"></select></label>
+        <p><button class="btn ghost sm" type="button" id="relayfold">📁 Ouvrir le dossier des photos de fiches</button></p></div>
       <div class="rqr" id="relayqr"></div>
     </div>
     <div class="bar"><button class="btn big" type="button" id="scanbtn">📷 Ouvrir le scanner</button></div>
@@ -1715,7 +1716,7 @@ function renderQuick(){
     const cell = u => { if (!us.includes(u)) return '<td class="c"><span class="qd none">non inscrit</span></td>';
       const opts = [['ok','V','Validée'], ...(u === 1 && f1 === 'old' && katas.length >= 2 ? [['part','P','Partielle']] : []), ['ko','R','Refusée'], ['abs','A','Absent']];
       return `<td class="c"><span class="qd" role="group" aria-label="UV${u}">${opts.map(([v,l,t]) => `<button type="button" data-id="${esc(c.id)}" data-u="${u}" data-v="${v}" aria-pressed="${dd['r:d'+u] === v}" title="${t}">${l}</button>`).join('')}</span></td>`; };
-    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · ' + esc(tabsOf(c, P)) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
+    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · ' + esc(tabsOf(c, P)) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${[1,2,3].some(u => dd['ph'+u]) ? ' 📷' : ''}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
   }).join('') || '<tr><td colspan="5" class="hint">Aucun candidat avec ces filtres.</td></tr>';
   $('#qcount').textContent = list.length ? `${list.length} candidat${list.length>1?'s':''} · ${miss ? miss + ' avec au moins une décision à saisir' : 'toutes les décisions saisies'}` : '';
 }
@@ -2028,7 +2029,11 @@ function toast(html, cls, ms){ const t = $('#scantoast'); t.innerHTML = html; t.
 /* QR scanné avec l'appareil photo du téléphone : la page s'ouvre avec #fj=… */
 function scanFeedback(sc, r, ms){
   if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', ms ? 6000 : 0); return; }
-  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span><button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms);
+  /* mail du candidat proposé tout de suite après le scan */
+  const c = DB.list.find(x => x.id === sc.id), dd = DB.data[sc.id] || {}, wait = c ? usOf(c).filter(u => !dd['r:d'+u]) : [];
+  const mt = c ? `<button class="btn light sm" type="button" id="tmail">✉ Envoyer le mail${wait.length ? ' (UV' + wait.join(', UV') + ' en attente)' : ''}</button> ` : '';
+  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span>${mt}<button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms ? Math.max(ms, 15000) : 0);
+  if (c) $('#tmail').onclick = () => { $('#scantoast').hidden = true; setTimeout(() => mailTo(c.id), 300); };
   $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
   $('#tok').onclick = () => { $('#scantoast').hidden = true; };
 }
@@ -2180,13 +2185,20 @@ async function relayLoop(){
     try{ const r = await fetch('/relay/poll', {cache:'no-store'}); list = r.ok ? await r.json() : []; if (!r.ok) throw 0; }
     catch(e){ await new Promise(ok => setTimeout(ok, 2000)); continue; }
     for (const it of list){
-      const sc = parseScan(it.text); let a;
+      if (/^mail:/.test(it.text)){   /* le téléphone demande le mail du candidat */
+        const sm = parseScan('fj=' + it.text.slice(5)), c = sm && DB.list.find(x => x.id === sm.id);
+        if (c) mailTo(c.id);
+        fetch('/relay/ack', {method:'POST', body:JSON.stringify(c ? {id:it.id, ok:true, name:((c.nom||'') + ' ' + (c.prenom||'')).trim(), label:'mail'} : {id:it.id, ok:false, err:'Candidat inconnu sur l\'ordinateur.'})}).catch(() => {});
+        continue;
+      }
+      const sc = parseScan(it.text); let a, a_mail = null;
       if (!sc) a = {id:it.id, ok:false, err:'QR code non reconnu.'};
       else { reloadFromStorage(); const res = applyScan(sc); scanFeedback(sc, res, 6000);
-        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = {id:it.id, ok:true, name:res.name, label:res.label}; } }
+        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { const cm = DB.list.find(x => x.id === sc.id), mm = cm ? resultMail(cm) : null; if (mm){ a_mail = {mailto:mm.to || '', mailsubj:mm.subj, mailbody:mm.body}; } scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = Object.assign({id:it.id, ok:true, name:res.name, label:res.label}, a_mail || {}); } }
       try{ const r = await fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}); const j = await r.json().catch(() => ({}));
         /* photo de la fiche conservée par le relais : jointe ensuite au mail du candidat */
-        if (a.ok && j.file && sc){ const dd = DB.data[sc.id] || (DB.data[sc.id] = initData(DB.list.find(x => x.id === sc.id))); dd['ph'+sc.u] = j.file; save(); renderQuick(); }
+        if (a.ok && j.file && sc){ const dd = DB.data[sc.id] || (DB.data[sc.id] = initData(DB.list.find(x => x.id === sc.id))); dd['ph'+sc.u] = j.file; save(); renderQuick(); $('#qrinst').textContent += ' · 📷 photo enregistrée'; }
+        else if (a.ok && it.photo) toast('⚠ Décision enregistrée, mais la photo de la fiche n\'a pas pu être enregistrée (voir la fenêtre noire du relais).', 'err', 6000);
       }catch(e){}
     }
   }
@@ -2211,6 +2223,7 @@ async function rlPing(){
 }
 if (RELAY || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) $('#rlaunch').hidden = true;   /* vérification seulement après le clic : le navigateur peut demander l'accès au réseau local */
 $('#rlgo').addEventListener('click', () => { $('#rlst').textContent = 'Démarrage…'; if (!rlTimer) rlTimer = setInterval(rlPing, 2000); setTimeout(() => { if (rlTimer){ clearInterval(rlTimer); rlTimer = null; if (!/✓/.test($('#rlst').textContent)) $('#rlst').textContent = 'Pas de réponse : le relais est-il installé ? (voir « Première fois » ci-dessous)'; } }, 30000); });
+$('#relayfold').addEventListener('click', () => { fetch('/relay/folder', {method:'POST'}).catch(() => {}); });
 $('#relayoff').addEventListener('click', () => { try{ localStorage.removeItem(RKEY); }catch(e){} renderRelayLink(); });
 renderRelayLink();
 $('#relayip').addEventListener('change', e => { DB.g.relayIp = e.target.value; save(); RELAY.ip = e.target.value; renderRelay(); });
