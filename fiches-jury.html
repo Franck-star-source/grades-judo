@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261115.21">
+<meta name="fj-version" content="20261115.23">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -695,7 +695,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="rtx"><b>📱 Relais téléphone actif</b>
         <p>Scannez les QR codes des fiches avec <b>l'appareil photo du téléphone</b>, connecté au <b>même Wi-Fi</b> que cet ordinateur (internet inutile). La décision s'enregistre ici et le téléphone affiche la confirmation.</p>
         <p>Pour tester : scannez ce QR code avec le téléphone, touchez « Ouvrir ». Il doit afficher « ✓ Téléphone relié ».</p>
-        <p>Ensuite, sur le téléphone, utilisez le gros bouton <b>« 📷 Scanner une fiche »</b> : photo du QR entouré, la décision part à l'ordinateur et le bouton revient pour la fiche suivante. Sans internet, et même pour les fiches imprimées depuis GitHub.</p>
+        <p><b>Que photographier ?</b> Avec le gros bouton du téléphone <b>« 📷 Photographier une fiche »</b> :<br>• fiche « 1 page par UV » (conseillé avec le téléphone) : la <b>feuille entière</b>, à plat et bien éclairée ;<br>• fiche « 3 UV sur 1 page » : <b>de près</b>, le cadre « Décision du jury » de chaque UV, une photo par UV.<br>La décision entourée est lue toute seule, la photo est gardée pour le mail, et le téléphone indique la fiche suivante. Sans internet, même pour les fiches imprimées depuis GitHub.</p>
         <p class="hint">Imprimez les fiches depuis cette page (adresse localhost) : leurs QR codes visent ce relais. <span id="relayaddr"></span></p>
         <label id="relayipw" hidden>Réseau utilisé : <select id="relayip"></select></label>
         <p><button class="btn ghost sm" type="button" id="relayfold">📁 Ouvrir le dossier des photos de fiches</button></p></div>
@@ -1836,7 +1836,7 @@ function renderQuick(){
     const cell = u => { if (!us.includes(u)) return '<td class="c"><span class="qd none">non inscrit</span></td>';
       const opts = [['ok','V','Validée'], ...(u === 1 && f1 === 'old' && katas.length >= 2 ? [['part','P','Partielle']] : []), ['ko','R','Refusée'], ['abs','A','Absent']];
       return `<td class="c"><span class="qd" role="group" aria-label="UV${u}">${opts.map(([v,l,t]) => `<button type="button" data-id="${esc(c.id)}" data-u="${u}" data-v="${v}" aria-pressed="${dd['r:d'+u] === v}" title="${t}">${l}</button>`).join('')}</span></td>`; };
-    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · ' + esc(tabsOf(c, P)) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${[1,2,3].some(u => dd['ph'+u]) ? ' 📷' : ''}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
+    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · ' + esc(tabsOf(c, P)) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${[1,2,3].filter(u => dd['ph'+u]).length ? ' 📷' + [1,2,3].filter(u => dd['ph'+u]).length : ''}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
   }).join('') || '<tr><td colspan="5" class="hint">Aucun candidat avec ces filtres.</td></tr>';
   $('#qcount').textContent = list.length ? `${list.length} candidat${list.length>1?'s':''} · ${miss ? miss + ' avec au moins une décision à saisir' : 'toutes les décisions saisies'}` : '';
 }
@@ -2157,8 +2157,9 @@ function fichesOf(c){
   const dd = DB.data[c.id] || {};
   return usOf(c).map(u => ({u, v:dd['r:d'+u], pr:!!(dd.pr && dd.pr[u])}));
 }
-const fichesTxt = c => fichesOf(c).map(f => f.v ? `UV${f.u} ✓ scannée : ${DECL[f.v]}` : f.pr ? `UV${f.u} ⏳ fiche à scanner` : `UV${f.u} — pas de fiche imprimée`);
-const pendingOf = c => fichesOf(c).filter(f => !f.v && f.pr).map(f => f.u);
+const fichesTxt = c => fichesOf(c).map(f => f.v ? `UV${f.u} ✓ scannée : ${DECL[f.v]}` : `UV${f.u} ⏳ fiche à scanner`);
+/* le mail attend toutes les UV du candidat (une UV non passée : « Envoyer quand même ») ; ne dépend pas de l'endroit où les fiches ont été imprimées */
+const pendingOf = c => fichesOf(c).filter(f => !f.v).map(f => f.u);
 function scanFeedback(sc, r, ms){
   if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', ms ? 6000 : 0); return; }
   /* mail du candidat proposé tout de suite après le scan */
