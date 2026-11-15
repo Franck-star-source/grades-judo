@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261115.12">
+<meta name="fj-version" content="20261115.13">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -2145,12 +2145,21 @@ function applyScan(sc){
 function undoScan(r, sc){ if (r.prev) r.dd['r:d'+sc.u] = r.prev; else delete r.dd['r:d'+sc.u]; if (r.c.id === DB.cur){ S = r.dd; restore(); calc(); } save(); syncDec(r.c.id); renderList(); renderQuick(); }
 function toast(html, cls, ms){ const t = $('#scantoast'); t.innerHTML = html; t.style.background = {ok:'var(--ok)', ko:'var(--bad)', part:'var(--warn)', abs:'#5d6370', err:'#5d6370'}[cls] || 'var(--ai)'; t.hidden = false; clearTimeout(t._h); if (ms) t._h = setTimeout(() => t.hidden = true, ms); }
 /* QR scanné avec l'appareil photo du téléphone : la page s'ouvre avec #fj=… */
+/* État des fiches d'un candidat à plusieurs UV : scannée (décision), imprimée à scanner, ou pas de fiche */
+const DECL = {ok:'VALIDÉE', ko:'REFUSÉE', part:'PARTIELLE', abs:'ABSENT'};
+function fichesOf(c){
+  const dd = DB.data[c.id] || {};
+  return usOf(c).map(u => ({u, v:dd['r:d'+u], pr:!!(dd.pr && dd.pr[u])}));
+}
+const fichesTxt = c => fichesOf(c).map(f => f.v ? `UV${f.u} ✓ scannée : ${DECL[f.v]}` : f.pr ? `UV${f.u} ⏳ fiche à scanner` : `UV${f.u} — pas de fiche imprimée`);
+const pendingOf = c => fichesOf(c).filter(f => !f.v && f.pr).map(f => f.u);
 function scanFeedback(sc, r, ms){
   if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', ms ? 6000 : 0); return; }
   /* mail du candidat proposé tout de suite après le scan */
-  const c = DB.list.find(x => x.id === sc.id), dd = DB.data[sc.id] || {}, wait = c ? usOf(c).filter(u => !dd['r:d'+u]) : [];
+  const c = DB.list.find(x => x.id === sc.id), wait = c ? pendingOf(c) : [];
+  const fl = c && usOf(c).length > 1 ? `<span style="font-size:14px">${fichesTxt(c).map(esc).join('<br>')}</span>` : '';
   const mt = !c ? '' : wait.length ? `<span style="font-size:14px">✉ Mail proposé après la dernière UV (en attente : UV${wait.join(', UV')})</span> ` : `<button class="btn light sm" type="button" id="tmail">✉ Envoyer le mail (toutes les UV)</button> `;
-  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span>${mt}<button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms ? Math.max(ms, 15000) : 0);
+  toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span>${fl}<span>${mt}<button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms ? Math.max(ms, 15000) : 0);
   if (c && !wait.length) $('#tmail').onclick = () => { $('#scantoast').hidden = true; setTimeout(() => mailTo(c.id), 300); };
   $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
   $('#tok').onclick = () => { $('#scantoast').hidden = true; };
@@ -2313,7 +2322,7 @@ async function relayLoop(){
       const sc = parseScan(it.text); let a, a_mail = null;
       if (!sc) a = {id:it.id, ok:false, err:'QR code non reconnu.'};
       else { reloadFromStorage(); const res = applyScan(sc); scanFeedback(sc, res, 6000);
-        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { const cm = DB.list.find(x => x.id === sc.id), mm = cm ? resultMail(cm) : null; if (mm){ const dw = DB.data[sc.id] || {}; a_mail = {mailto:mm.to || '', mailsubj:mm.subj, mailbody:mm.body, pending:usOf(cm).filter(u => !dw['r:d'+u]).map(u => 'UV' + u).join(', ')}; } scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = Object.assign({id:it.id, ok:true, name:res.name, label:res.label}, a_mail || {}); } }
+        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { const cm = DB.list.find(x => x.id === sc.id), mm = cm ? resultMail(cm) : null; if (mm){ const dw = DB.data[sc.id] || {}; a_mail = {mailto:mm.to || '', mailsubj:mm.subj, mailbody:mm.body, pending:pendingOf(cm).map(u => 'UV' + u).join(', '), fiches: usOf(cm).length > 1 ? fichesTxt(cm).join('|') : ''}; } scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = Object.assign({id:it.id, ok:true, name:res.name, label:res.label}, a_mail || {}); } }
       try{ const r = await fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}); const j = await r.json().catch(() => ({}));
         /* photo de la fiche conservée par le relais : jointe ensuite au mail du candidat */
         if (a.ok && j.file && sc){ const dd = DB.data[sc.id] || (DB.data[sc.id] = initData(DB.list.find(x => x.id === sc.id))); dd['ph'+sc.u] = j.file; save(); renderQuick(); $('#qrinst').textContent += ' · 📷 photo enregistrée'; }
