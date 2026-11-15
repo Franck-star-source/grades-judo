@@ -1456,9 +1456,30 @@ function resultMail(c){
   const subj = `Passage de grade ${DAN(d)}${DB.g.date ? ' du ' + DB.g.date : ''} : ${g.ok.length === us.length ? 'félicitations !' : 'vos résultats'}`;
   return {to: c.mail || '', subj, body};
 }
+/* Mail avec la photo de la fiche en pièce jointe : brouillon .eml ouvert par la messagerie de l'ordinateur (via le relais) */
+const b64u = t => btoa(unescape(encodeURIComponent(t)));
+const wrap76 = t => t.replace(/.{76}/g, '$&\r\n');
+async function mailWithPhotos(c, m, files){
+  const B = 'b' + Math.random().toString(36).slice(2), parts = [];
+  for (const f of files){
+    const r = await fetch('/relay/photo?f=' + encodeURIComponent(f)); if (!r.ok) continue;
+    const buf = new Uint8Array(await r.arrayBuffer()); let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+    const fn = f.split('/').pop();
+    parts.push(`--${B}\r\nContent-Type: image/jpeg; name="=?UTF-8?B?${b64u(fn)}?="\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename="=?UTF-8?B?${b64u(fn)}?="\r\n\r\n${wrap76(btoa(bin))}\r\n`);
+  }
+  if (!parts.length) return false;
+  const eml = `X-Unsent: 1\r\nTo: ${m.to || ''}\r\nSubject: =?UTF-8?B?${b64u(m.subj)}?=\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="${B}"\r\n\r\n--${B}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64u(m.body.replace(/\n/g, '\r\n')))}\r\n${parts.join('')}--${B}--\r\n`;
+  const nm = ((c.nom || '') + ' ' + (c.prenom || '')).trim() || 'candidat';
+  const r = await fetch('/relay/mail?n=' + encodeURIComponent('Résultats ' + nm), {method:'POST', body:eml});
+  return r.ok;
+}
 function mailTo(id){
   const c = DB.list.find(x => x.id === id); if (!c) return;
-  const m = resultMail(c); openMail(m.to, m.subj, m.body);
+  const m = resultMail(c), dd0 = DB.data[id] || {}, files = usOf(c).map(u => dd0['ph'+u]).filter(Boolean);
+  if (RELAY && files.length){
+    m.body = m.body.replace(/\n\nSportivement,/, `\n\nVous trouverez en pièce jointe ${files.length > 1 ? 'vos fiches d\'évaluation' : 'votre fiche d\'évaluation'}.\n\nSportivement,`);
+    mailWithPhotos(c, m, files).then(ok => { if (ok) toast('✉ Le mail s\'ouvre dans votre messagerie, avec la fiche en pièce jointe. Vérifiez puis envoyez.', 'ok', 5000); else openMail(m.to, m.subj, m.body); }).catch(() => openMail(m.to, m.subj, m.body));
+  } else openMail(m.to, m.subj, m.body);
   if (!DB.data[id]) DB.data[id] = initData(c);
   DB.data[id].mailed = Date.now(); save(); renderQuick();
 }
@@ -1642,7 +1663,7 @@ const decCount = () => DB.list.reduce((n, c) => { const dd = DB.data[c.id] || {}
 $('#decclr').addEventListener('click', () => { const n = decCount(); $('#decclrt').textContent = n ? `Effacer les ${n} décision${n>1?'s':''} enregistrée${n>1?'s':''} ?` : 'Aucune décision enregistrée.'; $('#decclry').hidden = !n; $('#decclrc').hidden = false; });
 $('#decclrn').addEventListener('click', () => { $('#decclrc').hidden = true; });
 $('#decclry').addEventListener('click', () => {
-  DB.list.forEach(c => { const dd = DB.data[c.id]; if (!dd) return; [1,2,3].forEach(u => { delete dd['r:d'+u]; delete dd['m'+u]; }); });
+  DB.list.forEach(c => { const dd = DB.data[c.id]; if (!dd) return; [1,2,3].forEach(u => { delete dd['r:d'+u]; delete dd['m'+u]; delete dd['ph'+u]; }); });
   Object.keys(RESFILES).forEach(k => delete RESFILES[k]); $('#rinfo').hidden = true; $('#rinfo').innerHTML = '';
   save(); DB.list.forEach(c => syncDec(c.id));
   loadCurrent(); restore(); calc(); renderList(); renderQuick(); stepStatus();
@@ -2163,7 +2184,10 @@ async function relayLoop(){
       if (!sc) a = {id:it.id, ok:false, err:'QR code non reconnu.'};
       else { reloadFromStorage(); const res = applyScan(sc); scanFeedback(sc, res, 6000);
         if (res.err) a = {id:it.id, ok:false, err:res.err}; else { scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = {id:it.id, ok:true, name:res.name, label:res.label}; } }
-      fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}).catch(() => {});
+      try{ const r = await fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}); const j = await r.json().catch(() => ({}));
+        /* photo de la fiche conservée par le relais : jointe ensuite au mail du candidat */
+        if (a.ok && j.file && sc){ const dd = DB.data[sc.id] || (DB.data[sc.id] = initData(DB.list.find(x => x.id === sc.id))); dd['ph'+sc.u] = j.file; save(); renderQuick(); }
+      }catch(e){}
     }
   }
 }
