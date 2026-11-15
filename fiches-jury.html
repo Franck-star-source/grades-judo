@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261115.20">
+<meta name="fj-version" content="20261115.21">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -263,9 +263,11 @@ html.pm .u2 table.tech.has-req tr.off{display:none}
 html.pm .dk{flex-wrap:nowrap;justify-content:space-between;gap:3mm}
 html.pm .qr{display:block;flex:0 0 auto;line-height:0;order:2}
 html.pm .qr svg{width:30mm;height:30mm}
-html.pm.one .qr svg{width:22mm;height:22mm}
+html.pm.one .qr svg{width:26mm;height:26mm}
 html.pm.big .qr svg{width:32mm;height:32mm}
-html.pm.one .decch:has(.dk.part) .dk{flex-direction:column;justify-content:center;gap:2mm}
+/* 3 UV sur 1 page : libellé au-dessus du QR, QR aussi large que la case, cases bien séparées */
+html.pm.one .decch{grid-auto-columns:minmax(0,1fr)!important;grid-template-columns:none!important;gap:3mm}
+html.pm.one .dk{flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:1mm;padding:2mm!important}
 html.pm:not(.one) .dec{grid-template-columns:1fr!important}
 html.pm.big .decch{grid-template-columns:none!important}
 html.pm .dk .qr svg{margin:1mm 0}
@@ -1756,7 +1758,7 @@ function enterPrint(){
     $('.wrap').insertBefore(head, vis[0]);
     const room = 194 * 96 / 25.4 - head.getBoundingClientRect().height - 12;
     const fitOne = () => vis.forEach(x => { for (let k = 0; k < 5; k++){ const h = x.getBoundingClientRect().height; if (h <= room) break; x.style.zoom = String(Math.floor((+x.style.zoom || 1) * room / h * 1000) / 1000); } });
-    fitOne(); qrMin(vis, 20); fitOne(); qrMin(vis, 20);
+    fitOne(); qrMin(vis, 26); fitOne(); qrMin(vis, 26);
     return;
   }
   vis.forEach(x => {
@@ -2119,7 +2121,11 @@ function addQR(vis){
       const sp = document.createElement('span'); sp.className = 'qr pm-tmp'; sp.innerHTML = qrSvg(qrUrl(`${encodeURIComponent(c.id)}.${u}.${v}.${qrReg(u)}`)); lab.appendChild(sp); }); });
 }
 /* Taille imprimée minimale des QR codes malgré la réduction de la fiche (lisibilité au téléphone) */
-function qrMin(vis, mm){ vis.forEach(x => { const z = +x.style.zoom || 1; x.querySelectorAll('.qr svg').forEach(sv => { const cur = parseFloat(getComputedStyle(sv).width) / 96 * 25.4 * z; if (cur < mm){ sv.style.width = sv.style.height = (mm / z).toFixed(2) + 'mm'; } }); }); }
+function qrMin(vis, mm){ vis.forEach(x => { const z = +x.style.zoom || 1; x.querySelectorAll('.qr svg').forEach(sv => {
+  /* 3 UV sur 1 page : le QR prend toute la largeur de sa case (sans la dépasser), au plus mm */
+  let target = mm; const dk = sv.closest('.dk');
+  if (document.documentElement.classList.contains('one') && dk){ const cap = (dk.clientWidth - 10) / 96 * 25.4 * z; target = Math.max(16, Math.min(mm, cap)); }
+  const cur = parseFloat(getComputedStyle(sv).width) / 96 * 25.4 * z; if (Math.abs(cur - target) > 0.3){ sv.style.width = sv.style.height = (target / z).toFixed(2) + 'mm'; } }); }); }
 function parseScan(text){
   const m = String(text).match(/fj=([^&#\s]+)/) || String(text).match(/fj\W?([A-Za-z0-9_-]+\W\d\W(?:ok|ko|part|abs)(?:\W[a-z]{1,2})?)\s*$/i); if (!m) return null;
   m[1] = m[1].replace(/[^A-Za-z0-9_-]/g, '.');
