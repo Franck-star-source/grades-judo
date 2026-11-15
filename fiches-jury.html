@@ -87,7 +87,7 @@ details.card>summary{cursor:pointer;font:600 12px var(--f-mono);letter-spacing:.
 .ident{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px;align-items:start}
 .f{display:grid;gap:4px;min-width:0}
 .f label,.lab{font:600 12px var(--f-mono);color:var(--muted);letter-spacing:.04em}
-input[type=text],input[type=number],select,textarea{font:15px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+input[type=text],input[type=number],input[type=time],select,textarea{font:15px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
 textarea{resize:vertical;min-height:44px}
 td input[type=text],td select{padding:5px 8px;font-size:14px}
 .age{font-size:13px;font-weight:600;color:var(--uv1)}
@@ -263,6 +263,7 @@ html.pm .qrnote{display:block;font-size:9px;color:#000}
 .relay{margin:12px 0;padding:14px;border:2px solid var(--ok);border-radius:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
 .relay p{margin:6px 0}.rqr svg{width:150px;height:150px;display:block;background:#fff;padding:8px;border-radius:8px}
 @media (max-width:640px){.relay{grid-template-columns:1fr}}
+.plan td:first-child,.plan th:first-child{width:44px}.plan td{font-size:13px}.durs{display:flex;gap:8px;flex-wrap:wrap}.durs label{display:flex;align-items:center;gap:4px;font-size:13px}.durs input{width:58px}
 .scantoast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:60;width:min(92vw,520px);border-radius:14px;padding:16px 18px;color:#fff;font-size:18px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);display:grid;gap:8px}
 .scantoast[hidden]{display:none!important}
 .xinfo{font-size:13.5px;color:var(--ai);background:var(--ai-soft);padding:6px 10px;border-radius:8px}
@@ -296,6 +297,13 @@ input[type=radio],input[type=checkbox]{width:20px;height:20px;margin:0;cursor:po
 tr.req td{background:var(--uv2-soft)}
 tr.off td.c input:not([data-req]){opacity:.25}
 tr.f-g td,tr.f-o td{background:var(--bad-soft)} tr.f-m td{background:var(--warn-soft)} tr.f-c td{background:#f2f9f3}
+.hint.formule{font-weight:700;color:var(--fg)}
+.katabar h4{font-size:17px;font-weight:800;letter-spacing:.01em}
+table.kt td:nth-child(2){font-weight:700}
+html.pm .hint.formule{font-weight:700;color:#000;font-size:1.05em}
+html.pm .katabar h4{font-size:15pt;font-weight:800;color:#000}
+html.pm.one .katabar h4{font-size:24pt;margin:6px 0 2px}
+html.pm table.kt td:nth-child(2){font-weight:700;color:#000}
 .rule{display:grid;gap:6px;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px dashed var(--uv2)}
 .checks{display:flex;flex-wrap:wrap;gap:6px}
 .ck{font:500 12.5px var(--f-mono);padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
@@ -529,6 +537,8 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="g-sig">Signature des mails</label><input id="g-sig" type="text" data-g="sig" placeholder="Le jury"></div>
       <div class="f"><label for="g-ky">Exercices d'application UV3-B</label><select id="g-ky" data-g="ky"><option value="ky">1 kakari-geiko + 1 yaku-soku-geiko</option><option value="kk">2 kakari-geiko</option><option value="yy">2 yaku-soku-geiko</option></select></div>
       <div class="f"><label for="g-ntab">Nombre de tables de jury</label><input id="g-ntab" type="number" inputmode="numeric" min="1" max="30" data-g="ntab" placeholder="10"></div>
+      <div class="f"><label for="g-h0">Heure du premier passage</label><input id="g-h0" type="time" data-g="h0" placeholder="09:00"></div>
+      <div class="f" style="grid-column:span 2"><label>Temps de passage par candidat (minutes, installation comprise)</label><span class="durs"><label>UV1 <input type="number" inputmode="numeric" min="1" max="90" data-g="du1" placeholder="15"></label><label>UV2 <input type="number" inputmode="numeric" min="1" max="90" data-g="du2" placeholder="12"></label><label>UV3 <input type="number" inputmode="numeric" min="1" max="90" data-g="du3" placeholder="12"></label><label>battement <input type="number" inputmode="numeric" min="0" max="60" data-g="dub" placeholder="5"></label></span></div>
       <div class="f"><label for="g-cumul">Programme UV2</label><select id="g-cumul" data-g="cumul"><option value="">Programme du dan seulement</option><option value="1">Programme cumulé (dan + dans inférieurs)</option></select></div>
     </div>
     <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
@@ -537,9 +547,11 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
 
   <section class="card noprint" data-steps="1" aria-label="Répartir sur les tables">
     <h2 class="sth"><span class="sn">3</span>Répartir les candidats sur les tables</h2>
-    <p class="guide">Un clic répartit tous les candidats de façon équilibrée (nombre de tables dans les réglages ci-dessus). Vous pourrez changer la table d'un candidat à l'étape 2.</p>
+    <p class="guide">Un clic répartit tous les candidats de façon équilibrée (nombre de tables, heure de début et temps de passage dans les réglages ci-dessus). Chaque candidat <b>change de table d'une UV à l'autre</b> (UV suivante = table suivante) et ne commence une UV qu'<b>après la fin de la précédente</b> : il n'est jamais appelé à deux tables à la fois. Vous pourrez changer la table de départ d'un candidat à l'étape 2.</p>
     <div class="bar"><button class="btn big" type="button" id="dispatch">🗂 Répartir sur les tables</button></div>
     <p class="hint" id="tabsum"></p>
+    <details class="more" id="planw" hidden><summary>Voir l'ordre de passage (horaires par table)</summary><div class="tw"><table class="qt plan" id="plan"></table></div></details>
+    <div id="tprint" hidden><p class="guide"><b>Fiches par table :</b> chaque table reçoit sa pile, une fiche par UV, dans l'ordre de passage avec l'heure. Rien ne circule entre les tables.</p><div class="bar" id="tprintb"></div></div>
     <span class="confirm" id="dconf" hidden>Répartir à nouveau tous les candidats sur les tables ? Les affectations actuelles seront remplacées. <button class="btn ghost sm" type="button" id="dyes">Oui, répartir</button><button class="btn ghost sm" type="button" id="dno">Annuler</button></span>
   </section>
 
@@ -613,7 +625,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="i-dan">Dan visé</label><select id="i-dan" data-k="dan"><option value="1">1er dan</option><option value="2">2e dan</option><option value="3">3e dan</option><option value="4">4e dan</option></select></div>
       <div class="f"><label for="i-uke">Partenaire (uke)</label><input id="i-uke" type="text" data-k="uke"></div>
       <div class="f"><label for="i-ep">Épreuve(s)</label><input id="i-ep" type="text" data-k="ep"></div>
-      <div class="f"><label for="i-table">Table de jury</label><select id="i-table"></select></div>
+      <div class="f"><label for="i-table">Table de départ (1re UV)</label><select id="i-table"></select></div>
       <div class="f noprint" id="licw" hidden><label for="i-lic">N° de licence <span class="oblig">pour les résultats</span></label><input id="i-lic" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="ex. M123456789"><span class="hint">Confidentiel : jamais imprimé ni partagé. Sans lui, le candidat ne peut pas figurer dans les fichiers de résultats.</span></div>
       <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
     </div>
@@ -649,6 +661,11 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <h2 class="sth"><span class="sn">📷</span>Scanner les fiches imprimées <span class="sub">(facultatif)</span></h2>
     <p class="guide">Chaque fiche imprimée porte un QR code sous VALIDÉE et sous REFUSÉE. L'évaluateur entoure le bon ; vous le scannez et la décision s'enregistre ici.</p>
     <p class="relaylink" id="relaylink" hidden>📱 Ce téléphone envoie les QR codes scannés à l'ordinateur relais <b id="relaylinkt"></b>. <button class="btn ghost sm" type="button" id="relayoff">Ne plus envoyer</button></p>
+    <div class="relay" id="rlaunch">
+      <div class="rtx"><b>📱 Scanner avec le téléphone, sans application : programme « Relais jury » (Windows)</b>
+        <p><a class="btn" href="relaisjury://start" id="rlgo">▶ Lancer le relais</a> <span id="rlst" class="dlst" aria-live="polite"></span></p>
+        <p class="hint">Première fois : <a href="https://franck-star-source.github.io/grades-judo/Relais-jury.zip">téléchargez Relais-jury</a>, décompressez-le et double-cliquez une fois sur <b>Relais-jury.exe</b>. Ensuite, ce bouton suffit (Windows demande « Ouvrir Relais jury ? » : acceptez). La page du relais s'ouvre : importez-y vos listes et scannez.</p></div>
+    </div>
     <div class="relay" id="relay" hidden>
       <div class="rtx"><b>📱 Relais téléphone actif</b>
         <p>Scannez les QR codes des fiches avec <b>l'appareil photo du téléphone</b>, connecté au <b>même Wi-Fi</b> que cet ordinateur (internet inutile). La décision s'enregistre ici et le téléphone affiche la confirmation.</p>
@@ -893,7 +910,7 @@ function renderSheets(){
   const K1O = {1:'Compétition : 3 premières séries du nage-no-kata en tori, tout ou partie en uke. Technique : nage-no-kata ou goshin-jitsu en entier en tori. Nés en 1976 et avant : tori seulement.',2:'Compétition : nage-no-kata entier en tori. Technique : nage-no-kata ou goshin-jitsu, différent de celui du 1er dan.',3:'Compétition : katame-no-kata et goshin-jitsu. Technique : katame-no-kata et nage-no-kata ou goshin-jitsu. Le kata réussi reste acquis ; seul le kata manquant se représente.',4:'Kime-no-kata et un kata parmi nage-no-kata, katame-no-kata, goshin-jitsu, go-no-sen. Le kata réussi reste acquis ; seul le kata manquant se représente.'};
   $('#s1').innerHTML = `<div class="shead"><h2>UV1 · Kata</h2><span class="chip${f1==='old'?' old':''}">${DAN(d)} · ${f1==='old'?'ancien règlement':'nouveau règlement'}</span></div>${pid}
     <ol class="howto noprint"><li>Vérifiez le kata présenté (cases « Kata(s) présenté(s) »).</li><li>Pour chaque technique, cochez <b>une</b> colonne : Correct, ou le type de faute.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
-    <p class="hint">${f1==='old' ? 'Ancien règlement. ' + K1O[d] + ' Cochez le ou les katas présentés aujourd\'hui.' : 'Nouveau règlement. ' + K1N[d]}</p>
+    <p class="hint formule">${f1==='old' ? 'Ancien règlement. ' + K1O[d] + ' Cochez le ou les katas présentés aujourd\'hui.' : 'Nouveau règlement. ' + K1N[d]}</p>
     <div class="f noprint"><span class="lab">Kata(s) présenté(s)</span><div class="chips" id="kchips">${allK}</div>
     ${(S.katas||[]).includes('nage') ? `<div class="radios" style="margin-top:6px"><span class="lab">Nage-no-kata :</span><label><input type="radio" name="nseries-ui" value="3"${S.nseries==='3'?' checked':''}> 3 séries</label><label><input type="radio" name="nseries-ui" value="5"${S.nseries!=='3'?' checked':''}> 5 séries</label></div>` : ''}</div>
     ${(S.katas||[]).map(kataTable).join('') || '<p class="hint">Cochez au moins un kata.</p>'}
@@ -905,8 +922,8 @@ function renderSheets(){
   const f2 = fo2(), C = uv2Cfg(d, f2), DL = {N:'Nage-waza', W:'Ne-waza', D:'Défense'};
   let h2 = `<div class="shead"><h2>UV2 · Technique</h2><span class="chip${f2!=='nr'?' old':''}">${DAN(d)} · ${f2==='nr'?'nouveau règlement':'ancien règlement, '+(f2==='tech'?'dom. technique':'dom. compétition')}</span></div>${pid}
     ${C.q ? '<ol class="howto noprint"><li>Partie 1 éventuelle : choisissez dans la liste la technique présentée par le candidat.</li><li>Cliquez sur <b>🎲 Tirer au sort les techniques</b> (ou cochez vous-même la colonne « Demandée »).</li><li>Pour chaque technique demandée, cochez <b>Maîtrisée</b> ou <b>Méconnaissance</b>.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>' : '<ol class="howto noprint"><li>Go-no-sen : indiquez s\'il est déjà acquis ou évalué aujourd\'hui.</li><li>Notez les tokui-waza présentés et remplissez les grilles.</li><li>En bas, cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>'}
-    <p class="hint">${C.txt}</p>`;
-  if (C.cand.length) h2 += `<h4>Partie 1 · au choix du candidat</h4><p class="hint">${C.candTxt}</p><div class="tw"><table><thead><tr><th>Domaine</th><th>Technique présentée</th>${d==3?'<th>Direction / situation</th>':''}<th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
+    <p class="hint formule">${C.txt}</p>`;
+  if (C.cand.length) h2 += `<h4>Partie 1 · au choix du candidat</h4><p class="hint formule">${C.candTxt}</p><div class="tw"><table><thead><tr><th>Domaine</th><th>Technique présentée</th>${d==3?'<th>Direction / situation</th>':''}<th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
       ${C.cand.map((dm,i) => `<tr><td class="grp">${DL[dm]}</td><td>${dm === 'D' ? `<input type="text" data-k="ct${i}" aria-label="${DL[dm]} ${i+1}">` : techSelect('ct'+i, [dm], DL[dm]+' '+(i+1))}</td>${d==3?`<td><input type="text" data-k="cd${i}" aria-label="Direction ${i+1}"></td>`:''}<td class="c"><input type="radio" name="cc${i}" value="ok" aria-label="maîtrisée"></td><td class="c"><input type="radio" name="cc${i}" value="ko" aria-label="insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
   if (C.q){
     if (C.cand.length) h2 += `<h4>Partie 2 · techniques imposées par le jury</h4>`;
@@ -934,7 +951,7 @@ function renderSheets(){
   $('#s3').innerHTML = `<div class="shead"><h2>UV3 · Efficacité, option combinée</h2><span class="chip">${DAN(d)}</span></div>${pid}
     <ol class="howto noprint"><li>Partie A : cochez la situation des points.</li><li>Partie B : cliquez sur <b>🎲 Tirer au sort les techniques</b> ou choisissez-les dans les listes, puis cochez « Réalisé » à chaque exercice.</li><li>Remplissez la grille, puis cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
     ${fo1()!=='nr'||fo2()!=='nr' ? '<p class="hint"><b>Le candidat termine l\'UV1 ou l\'UV2 à l\'ancien règlement ; l\'UV3-B est une épreuve du nouveau règlement.</b></p>' : ''}
-    <p class="hint">Partie A : 20 points en shiai judo, dispense à 40 ans et plus. Partie B : exercices évalués par le jury, passables avant les 20 points. L'UV est enregistrée quand A et B sont acquises.</p>
+    <p class="hint formule">Partie A : 20 points en shiai judo, dispense à 40 ans et plus. Partie B : exercices évalués par le jury, passables avant les 20 points. L'UV est enregistrée quand A et B sont acquises.</p>
     <h4>Partie A · Points</h4><div class="radios"><label><input type="radio" name="pa" value="ok"> 20 points atteints</label><label><input type="radio" name="pa" value="disp"> Dispensé (40 ans et +)</label><label><input type="radio" name="pa" value="wait"> Pas encore atteints</label></div>
     <div class="f" style="max-width:320px"><label>Points (dont avant la réforme)</label><input type="text" data-k="pts" placeholder="ex. 24 dont 14"></div>
     <h4>Partie B · Déroulé</h4>
@@ -1070,7 +1087,7 @@ function calc(){
   const c = cur(), I = ins();
   [1,2,3].forEach(u => {
     const x = c && c.uvs && c.uvs[u], ni = !I.includes(u);
-    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Table · ordre :</span> ${c && c.table ? 'T' + esc(c.table) : '—'} · ${esc(S.ordre)}</div>`;
+    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Table · passage :</span> ${(() => { const x = c && plan()[c.id]; return x && x[u] ? 'T' + x[u].t + ' · ' + hm(x[u].s) + ' (n°' + x[u].o + ')' : '— · ' + esc(S.ordre); })()}</div>`;
     const tb = $('#t'+u); tb.toggleAttribute('data-ni', ni);
     let sp = tb.querySelector('.ni'); if (ni && !sp){ sp = document.createElement('span'); sp.className = 'ni'; sp.textContent = '· non inscrit'; tb.appendChild(sp); } if (!ni && sp) sp.remove();
     /* UV non inscrite dans l'export : ajout sur place possible */
@@ -1089,17 +1106,18 @@ function renderList(){
   const uOf = c => c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number) : [1,2,3];
   const dans = [...new Set(DB.list.map(dOf))].sort();
   const hasUV = DB.list.some(c => c.uvs && Object.keys(c.uvs).length);
-  const tabs = [...new Set(DB.list.map(c => +c.table).filter(Boolean))].sort((a,b) => a-b), ft = DB.ftab || 'all';
+  const P = plan(), onT = (c, t) => !!P[c.id] && Object.values(P[c.id]).some(x => x.t === +t);
+  const tabs = [...new Set(Object.values(P).flatMap(x => Object.values(x).map(y => y.t)))].sort((a,b) => a-b), ft = DB.ftab || 'all';
   $('#lfilter').hidden = !DB.list.length || (dans.length < 2 && !hasUV && !tabs.length);
   const fu = DB.fuv || 'all';
   $('#lfilter').innerHTML = `<span class="lfil"><span class="lab">Dan</span>${['all', ...dans].map(x => `<button type="button" class="btn ${DB.filter==x?'':'ghost'} sm" data-f="${x}">${x==='all'?'Tous':DAN(x)}</button>`).join('')}</span>`
     + (hasUV ? `<span class="lfil"><span class="lab">Épreuve</span>${['all',1,2,3].map(x => `<button type="button" class="btn ${fu==x?'':'ghost'} sm" data-u="${x}">${x==='all'?'Toutes':'UV'+x+' · '+DB.list.filter(c => uOf(c).includes(x)).length}</button>`).join('')}</span>` : '')
-    + (tabs.length ? `<span class="lfil"><span class="lab">Table</span>${['all', ...tabs].map(x => `<button type="button" class="btn ${ft==x?'':'ghost'} sm" data-t="${x}">${x==='all'?'Toutes':'T'+x+' · '+DB.list.filter(c => +c.table === x).length}</button>`).join('')}</span>` : '');
+    + (tabs.length ? `<span class="lfil"><span class="lab">Table</span>${['all', ...tabs].map(x => `<button type="button" class="btn ${ft==x?'':'ghost'} sm" data-t="${x}">${x==='all'?'Toutes':'T'+x+' · '+DB.list.filter(c => onT(c, x)).length}</button>`).join('')}</span>` : '');
   $('#cands').innerHTML = DB.list.map((c,i) => {
     const dd = DB.data[c.id] || {}, dn = dOf(c), us = uOf(c);
     if (DB.filter !== 'all' && DB.filter != dn) return '';
     if (fu !== 'all' && !us.includes(+fu)) return '';
-    if (ft !== 'all' && +c.table !== +ft) return '';
+    if (ft !== 'all' && !onT(c, ft)) return '';
     const old = u => (dd['fo'+u] || autoFo(c,u)) !== 'nr';
     const st = us.map(u => { const v = dd['r:d'+u]; const plus = c.uvs && c.uvs[u] && c.uvs[u].added; return `<i class="${v||(plus?'plus':(u<3 && old(u)?'ar':''))}">UV${u}${plus?' +':''}${u<3 && old(u)?' AR':''}${v==='ok'?' ✓':v==='ko'?' ✗':v==='part'?' ½':v==='abs'?' abs.':''}</i>`; }).join('');
     return `<button type="button" class="cand dd${dn}" data-id="${esc(c.id)}" aria-current="${c.id===DB.cur}"><b>${i+1}. ${esc(c.nom)} ${esc(c.prenom)}</b><small>${c.annee ? 'Né(e) en '+esc(c.annee)+' · ' : ''}${esc(c.ep || 'Saisie manuelle')}</small><span class="st"><i class="dan dan${dn}">${dn}D</i>${st}</span></button>`;
@@ -1389,7 +1407,7 @@ document.addEventListener('input', e => {
   if (t.id === 'i-lic'){ const c = cur(); if (c){ c.lic = t.value.replace(/\s+/g,'').toUpperCase(); c.licm = true; save(); } return; }
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
   if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
-  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); return; }
+  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); if (/^(ntab|h0|du\d|dub)$/.test(t.dataset.g)){ stepStatus(); renderList(); } return; }
   if (!t.closest('#ident, .sheet')) return;
   if (!cur()){ addManual(); }
   if (t.dataset.kata){ const k = t.dataset.kata; S.katas = (S.katas||[]).filter(x => x !== k); if (t.checked) S.katas.push(k); store(); rendered=''; renderSheets(); restore(); calc(); return; }
@@ -1449,16 +1467,43 @@ $('#mails').addEventListener('click', () => {
   const ids = $$('#csel option').map(o => o.value).filter(Boolean);
   const lines = DB.list.filter(c => ids.includes(c.id)).sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr')).map(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1);
-    return `${(dd.nom || c.nom || '').toUpperCase()} ${dd.prenom || c.prenom || ''} · ${DAN(d)}${c.table ? ' · table ' + c.table : ''}\n${usOf(c).map(u => '  ' + uvLine(dd, c, u)).join('\n')}`;
+    return `${(dd.nom || c.nom || '').toUpperCase()} ${dd.prenom || c.prenom || ''} · ${DAN(d)}${c.table ? ' · ' + tabsOf(c) : ''}\n${usOf(c).map(u => '  ' + uvLine(dd, c, u)).join('\n')}`;
   });
   openMail('', 'Récapitulatif passage de grades' + (sessTxt() ? ' · ' + sessTxt() : ''), `Bonjour,\n\nRécapitulatif des décisions du jury${sessTxt() ? ', session ' + sessTxt() : ''} (${lines.length} candidat${lines.length>1?'s':''}) :\n\n${lines.join('\n\n')}\n\nCordialement`);
 });
 /* Tables de jury : répartition équilibrée, regroupée par dan puis par épreuves ; modifiable candidat par candidat */
 const ntab = () => Math.max(1, Math.min(30, +DB.g.ntab || 10));
+/* Rotation : la 1re UV du candidat se passe à sa table, la suivante à la table suivante, etc.
+   Horaires : chaque UV a sa durée ; un candidat ne commence une UV qu'après la fin de la précédente
+   (plus un battement pour changer de table) : jamais deux UV à la même table, jamais appelé à deux tables à la fois. */
+const tabKey = c => [String(+((DB.data[c.id]||{}).dan || c.dan || 1)), c.uvs ? Object.keys(c.uvs).sort().join('') : '', ((c.nom||'') + ' ' + (c.prenom||'')).toUpperCase()].join('|');
+const durOf = u => Math.max(1, +DB.g['du'+u] || ({1:15, 2:12, 3:12})[u]);
+const hm = m => `${String(Math.floor(m / 60) % 24).padStart(2,'0')}h${String(m % 60).padStart(2,'0')}`;
+const h0 = () => { const m = String(DB.g.h0 || '09:00').match(/(\d{1,2})\D?(\d{2})?/); return m ? (+m[1]) * 60 + (+(m[2] || 0)) : 540; };
+function plan(){
+  const n = ntab(), groups = {}, out = {}, bat = Math.max(0, DB.g.dub === '' || DB.g.dub == null ? 5 : +DB.g.dub || 0), start = h0();
+  DB.list.forEach(c => { if (+c.table >= 1) (groups[+c.table] = groups[+c.table] || []).push(c); });
+  const L = []; Object.keys(groups).sort((a,b) => a-b).forEach(t => groups[t].sort((a,b) => tabKey(a).localeCompare(tabKey(b), 'fr')).forEach((c,p) => L.push({c, p, us:usOf(c), k:0})));
+  const tFree = {}, cFree = {};
+  for (;;){
+    let best = null;
+    L.forEach(x => { if (x.k >= x.us.length) return; const t = ((+x.c.table - 1 + x.k) % n) + 1, st = Math.max(tFree[t] ?? start, cFree[x.c.id] ?? start);
+      if (!best || st < best.st || (st === best.st && (x.k < best.x.k || (x.k === best.x.k && x.p < best.x.p)))) best = {x, t, st}; });
+    if (!best) break;
+    const {x, t, st} = best, u = x.us[x.k], d = durOf(u);
+    (out[x.c.id] = out[x.c.id] || {})[u] = {t, s:st, e:st + d};
+    tFree[t] = st + d; cFree[x.c.id] = st + d + bat; x.k++;
+  }
+  /* rang de passage à chaque table */
+  const byT = {}; Object.entries(out).forEach(([id, x]) => Object.values(x).forEach(y => (byT[y.t] = byT[y.t] || []).push(y)));
+  Object.values(byT).forEach(a => a.sort((p,q) => p.s - q.s).forEach((y,i) => y.o = i + 1));
+  return out;
+}
+const tabsOf = (c, P) => { const x = (P || plan())[c.id]; return x ? usOf(c).filter(u => x[u]).map(u => `UV${u} T${x[u].t} ${hm(x[u].s)}`).join(' · ') : ''; };
 function leastTable(){ const n = ntab(), load = Array(n).fill(0); DB.list.forEach(c => { if (+c.table >= 1 && +c.table <= n) load[c.table-1]++; }); return String(load.indexOf(Math.min(...load)) + 1); }
 function dispatchAll(){
-  const n = ntab(), key = c => [String(+((DB.data[c.id]||{}).dan || c.dan || 1)), c.uvs ? Object.keys(c.uvs).sort().join('') : '', (c.nom + ' ' + c.prenom).toUpperCase()].join('|');
-  const L = DB.list.slice().sort((a,b) => key(a).localeCompare(key(b), 'fr')), N = L.length;
+  const n = ntab();
+  const L = DB.list.slice().sort((a,b) => tabKey(a).localeCompare(tabKey(b), 'fr')), N = L.length;
   L.forEach((c,i) => c.table = String(Math.floor(i * Math.min(n, N) / N) + 1));
   DB.ftab = 'all'; save(); refresh();
 }
@@ -1641,7 +1686,7 @@ function renderQuick(){
   if ($('#quick').hidden) return;
   const ids = $$('#csel option').map(o => o.value).filter(Boolean);
   const list = ids.map(id => DB.list.find(c => c.id === id)).filter(Boolean);
-  let miss = 0;
+  let miss = 0; const P = plan();
   $('#qbody').innerHTML = list.map(c => {
     const dd = DB.data[c.id] || {}, d = +(dd.dan || c.dan || 1), us = usOf(c);
     const f1 = dd.fo1 || autoFo(c,1), katas = dd.katas || katasFor(c, d, f1), m = us.some(u => !dd['r:d'+u]);
@@ -1649,7 +1694,7 @@ function renderQuick(){
     const cell = u => { if (!us.includes(u)) return '<td class="c"><span class="qd none">non inscrit</span></td>';
       const opts = [['ok','V','Validée'], ...(u === 1 && f1 === 'old' && katas.length >= 2 ? [['part','P','Partielle']] : []), ['ko','R','Refusée'], ['abs','A','Absent']];
       return `<td class="c"><span class="qd" role="group" aria-label="UV${u}">${opts.map(([v,l,t]) => `<button type="button" data-id="${esc(c.id)}" data-u="${u}" data-v="${v}" aria-pressed="${dd['r:d'+u] === v}" title="${t}">${l}</button>`).join('')}</span></td>`; };
-    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · table ' + esc(c.table) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
+    return `<tr class="${m ? 'miss' : ''}${c.id === DB.cur ? ' cur' : ''}"><td class="qn"><b>${esc(((dd.nom || c.nom) + ' ' + (dd.prenom || c.prenom)).trim() || 'Sans nom')}</b><small>${DAN(d)}${c.table ? ' · ' + esc(tabsOf(c, P)) : ''}${f1 === 'old' || (dd.fo2 || autoFo(c,2)) !== 'nr' ? ' · ancien règlement' : ''}</small></td>${cell(1)}${cell(2)}${cell(3)}<td class="c"><button type="button" class="qm${dd.mailed ? ' sent' : ''}" data-mail="${esc(c.id)}" title="${c.mail ? 'Ouvrir le mail de résultat' : 'Pas d\'adresse mail : le mail s\'ouvre sans destinataire'}">${dd.mailed ? '✉ envoyé' : '✉ Mail'}${c.mail ? '' : ' ⚠'}</button></td></tr>`;
   }).join('') || '<tr><td colspan="5" class="hint">Aucun candidat avec ces filtres.</td></tr>';
   $('#qcount').textContent = list.length ? `${list.length} candidat${list.length>1?'s':''} · ${miss ? miss + ' avec au moins une décision à saisir' : 'toutes les décisions saisies'}` : '';
 }
@@ -1738,6 +1783,17 @@ $('#spub').addEventListener('click', async () => {
 })();
 
 /* ===== Parcours en 3 étapes : Préparer · Évaluer · Résultats ===== */
+function renderPlan(PL){
+  const w = $('#planw'); if (!w) return;
+  const byT = {}; let maxT = 0, maxO = 0;
+  DB.list.forEach(c => { const x = PL[c.id]; if (!x) return; const dd = DB.data[c.id] || {};
+    Object.entries(x).forEach(([u,y]) => { (byT[y.t] = byT[y.t] || [])[y.o - 1] = `<b>${hm(y.s)}</b> ${esc(((dd.nom || c.nom || '') + ' ' + ((dd.prenom || c.prenom || '').charAt(0))).trim())}. <small>UV${u}</small>`; maxT = Math.max(maxT, y.t); maxO = Math.max(maxO, y.o); }); });
+  w.hidden = !maxO; $('#tprint').hidden = !maxO; if (!maxO) return;
+  let h = '<thead><tr><th>N°</th>' + [...Array(maxT)].map((_,i) => `<th class="c">T${i+1}</th>`).join('') + '</tr></thead><tbody>';
+  for (let o = 1; o <= maxO; o++) h += `<tr><td><b>${o}</b></td>` + [...Array(maxT)].map((_,i) => `<td class="c">${(byT[i+1] || [])[o-1] || ''}</td>`).join('') + '</tr>';
+  $('#plan').innerHTML = h + '</tbody>';
+  $('#tprintb').innerHTML = [...Array(maxT)].map((_,i) => (byT[i+1] || []).length ? `<button class="btn sm" type="button" data-tprint="${i+1}">🖨 Table ${i+1} · ${(byT[i+1] || []).filter(Boolean).length} fiche${(byT[i+1] || []).filter(Boolean).length>1?'s':''}</button>` : '').join('');
+}
 function stepStatus(){
   const n = DB.list.length, tabs = DB.list.filter(c => c.table).length;
   let tot = 0, done = 0;
@@ -1746,8 +1802,10 @@ function stepStatus(){
   $('#st2').textContent = n ? `${done}/${tot} décision${tot>1?'s':''}` : 'remplir les fiches';
   $('#st3').textContent = tot && done === tot ? 'tout est prêt' : 'fichiers et mails';
   /* résumé des tables */
-  const per = {}; DB.list.forEach(c => { if (c.table) per[c.table] = (per[c.table]||0) + 1; });
-  $('#tabsum').textContent = Object.keys(per).length ? 'Répartition : ' + Object.keys(per).sort((a,b) => a-b).map(t => `table ${t} · ${per[t]}`).join(' | ') : (n ? 'Pas encore réparti.' : '');
+  const PL = plan(), per = {}; let fin = 0; Object.values(PL).forEach(x => Object.values(x).forEach(y => { per[y.t] = (per[y.t]||0) + 1; fin = Math.max(fin, y.e); }));
+  const maxU = Math.max(0, ...DB.list.filter(c => c.table).map(c => usOf(c).length));
+  $('#tabsum').textContent = Object.keys(per).length ? 'Passages par table : ' + Object.keys(per).sort((a,b) => a-b).map(t => `T${t} · ${per[t]}`).join(' | ') + ` · fin estimée ${hm(fin)}.` + (maxU > ntab() ? ` ⚠ Avec ${ntab()} table${ntab()>1?'s':''}, un candidat inscrit à ${maxU} UV repasserait à la même table : prévoyez au moins ${maxU} tables.` : '') : (n ? 'Pas encore réparti.' : '');
+  renderPlan(PL);
   /* bandeau du candidat en cours */
   const c = cur(), dd = c ? (DB.data[c.id] || {}) : {};
   const I = c ? usOf(c) : [1,2,3], F = {1: fo1(), 2: fo2(), 3: 'nr'};
@@ -1755,7 +1813,7 @@ function stepStatus(){
     if (rg){ rg.classList.toggle('old', old); rg.classList.toggle('ni', !I.includes(u)); }
     if (u === 1){ const ds = $('#dom1'); if (ds){ if (old && !S.dom1 && F[2] !== 'nr') ds.value = ''; ds.classList.toggle('need', old && !S.dom1 && F[2] === 'nr'); } }
     if (tg){ tg.textContent = old ? 'ancien règlement' : 'nouveau règlement'; tg.classList.toggle('old', old); } });
-  $('#who').textContent = c ? `${(((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Nouveau candidat'} · ${DAN(+(dd.dan || c.dan || 1))}${c.table ? ' · table ' + c.table : ''} · ${usOf(c).map(u => 'UV' + u).join(', ')}` : '';
+  $('#who').textContent = c ? `${(((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Nouveau candidat'} · ${DAN(+(dd.dan || c.dan || 1))}${c.table ? ' · ' + tabsOf(c) : ' · ' + usOf(c).map(u => 'UV' + u).join(', ')}` : '';
 }
 function showStep(n){
   DB.step = n; save();
@@ -1815,12 +1873,12 @@ function blankCleanup(){
   $$('.bpwrap').forEach(x => x.remove());
   document.documentElement.classList.remove('pm','one','big','bmode'); document.documentElement.style.removeProperty('--cols');
   try{ DB = JSON.parse(bActive.backup || window.__bBackup); }catch(err){}
-  save(); refresh(); showStep(4);
+  save(); refresh(); showStep(window.__bStep || 4);
 }
 $('#bprint').addEventListener('click', () => {
   const b = BK(); if (!b.uvs.length) return;
   const n = Math.max(1, Math.min(40, +$('#bcopies').value || 1)), d = +b.dan;
-  window.__bBackup = JSON.stringify(DB);
+  window.__bBackup = JSON.stringify(DB); window.__bStep = 4;
   /* candidat fictif, jamais enregistré ni partagé */
   const c = {id:'__blank', nom:'', prenom:'', annee:'', ep:'', uke:'', dan:d, uvs:Object.fromEntries(b.uvs.map(u => [u, {ep:'', uke:''}]))};
   DB.list.push(c); DB.cur = c.id;
@@ -1852,6 +1910,35 @@ $('#bprint').addEventListener('click', () => {
   if (!window.__bAfter){ window.__bAfter = true; window.addEventListener('afterprint', () => setTimeout(blankCleanup, 0)); }
 });
 renderBlank();
+/* Impression des fiches d'une table : une fiche par UV, dans l'ordre de passage (heure et n° en tête) */
+document.addEventListener('click', e => {
+  const tb = e.target.closest('[data-tprint]'); if (!tb) return;
+  const t = +tb.dataset.tprint, PL = plan();
+  const items = []; DB.list.forEach(c => Object.entries(PL[c.id] || {}).forEach(([u,y]) => { if (y.t === t) items.push({c, u:+u, y}); }));
+  items.sort((a,b) => a.y.s - b.y.s); if (!items.length) return;
+  const backup = JSON.parse(JSON.stringify(DB)), cur0 = DB.cur, lay = DB.g.lay === 'big' ? 'big' : 'sep';
+  DB.g.lay = lay; DB.g.one = false;
+  const pages = [];
+  items.forEach(({c, u}) => {
+    [1,2,3].forEach(k => DB.g['p'+k] = k === u); DB.cur = c.id; refresh();
+    enterPrint();
+    const page = document.createElement('div'); page.className = 'bpage';
+    $$('.wrap > .sheet:not(.skip)').forEach(nd => { const cl = nd.cloneNode(true); const src = nd.querySelectorAll('input,select,textarea');
+      cl.removeAttribute('id'); cl.hidden = false; cl.classList.remove('stephide');
+      cl.querySelectorAll('input,select,textarea').forEach((el,i) => { const o = src[i]; el.removeAttribute('id'); el.name = ''; if ('checked' in el) el.checked = o.checked; if (el.tagName === 'SELECT') el.value = o.value; });
+      cl.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+      page.appendChild(cl); });
+    pages.push(page); exitPrint();
+    /* fiche imprimée : retenue pour les absents par défaut */
+    const bd = backup.data[c.id] || (backup.data[c.id] = DB.data[c.id]); bd.pr = Object.assign({}, bd.pr); bd.pr[u] = 1;
+  });
+  backup.cur = cur0; window.__bBackup = JSON.stringify(backup); window.__bStep = 1;
+  const wrapB = document.createElement('div'); wrapB.className = 'bpwrap'; pages.forEach(pg => wrapB.appendChild(pg)); $('.wrap').appendChild(wrapB);
+  const H = document.documentElement; H.classList.add('pm','bmode'); if (lay === 'big') H.classList.add('big');
+  bActive = true;
+  try{ window.print(); }catch(err){}
+  if (!window.__bAfter){ window.__bAfter = true; window.addEventListener('afterprint', () => setTimeout(blankCleanup, 0)); }
+});
 
 /* Fiches plus simples à remplir : clic sur toute la case, « tout correct » pour le kata, liste UV2 réduite aux techniques demandées */
 document.addEventListener('click', e => {
@@ -2091,6 +2178,15 @@ async function relayLoop(){
     relayLoop();
   }catch(e){}
 })();
+/* bouton « Lancer le relais » : vérifie si le programme tourne déjà sur cet ordinateur */
+let rlTimer = null;
+async function rlPing(){
+  try{ const r = await fetch('http://127.0.0.1:8765/relay/ping', {cache:'no-store'}); if (!r.ok) throw 0;
+    $('#rlst').innerHTML = '✓ Relais lancé. <a href="http://localhost:8765/" target="_blank" rel="noopener">Ouvrir la page du relais</a>'; clearInterval(rlTimer); rlTimer = null; return true;
+  }catch(e){ return false; }
+}
+if (RELAY || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) $('#rlaunch').hidden = true;   /* vérification seulement après le clic : le navigateur peut demander l'accès au réseau local */
+$('#rlgo').addEventListener('click', () => { $('#rlst').textContent = 'Démarrage…'; if (!rlTimer) rlTimer = setInterval(rlPing, 2000); setTimeout(() => { if (rlTimer){ clearInterval(rlTimer); rlTimer = null; if (!/✓/.test($('#rlst').textContent)) $('#rlst').textContent = 'Pas de réponse : le relais est-il installé ? (voir « Première fois » ci-dessous)'; } }, 30000); });
 $('#relayoff').addEventListener('click', () => { try{ localStorage.removeItem(RKEY); }catch(e){} renderRelayLink(); });
 renderRelayLink();
 $('#relayip').addEventListener('change', e => { DB.g.relayIp = e.target.value; save(); RELAY.ip = e.target.value; renderRelay(); });
