@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="fj-version" content="20261115.12">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -43,6 +44,11 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body)}
 .wrap{max-width:1100px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:grid;gap:14px}
+/* écran large : les fiches des UV du candidat côte à côte, chacune défile dans sa colonne */
+html:not(.pm) .wrap.uvc{max-width:1920px;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));align-items:start}
+html:not(.pm) .wrap.uvc > :not(.sheet){grid-column:1/-1;width:100%;max-width:1100px;justify-self:center}
+html:not(.pm) .wrap.uvc > .sheet{max-height:calc(100vh - 16px);overflow:auto;position:sticky;top:8px;font-size:14px;padding:14px}
+html:not(.pm) .wrap.uvc > .sheet table{font-size:13px}
 .wrap>*,.card>*,.sheet>*{min-width:0}
 .fo select{max-width:100%}
 .fo>*{min-width:0}
@@ -185,6 +191,20 @@ nav.tabs button{padding:12px 18px;font-size:16px}
 .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px}
 .rg{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:var(--surface);border:2px solid var(--ok);cursor:pointer}
 .rg .rgl{font:700 13px var(--f-body)}
+.acc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:8px}
+.acc:empty{display:none}
+.accb{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:6px;align-content:start}
+.accb h5{margin:0;font:700 13px var(--f-body)}
+.accr{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);gap:6px;align-items:center;font-size:13px}
+.accr.d3{grid-template-columns:minmax(0,5.5em) minmax(0,1.7fr) minmax(0,1fr)}
+.accr select,.accr input[type=text],.accb textarea{font-size:14px;padding:6px 8px;min-height:0}
+.accb .chips{display:flex;flex-wrap:wrap;gap:6px}.accb .chips label{display:flex;gap:5px;align-items:center;font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.stk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;margin-left:auto;padding:0 8px;white-space:nowrap}.stk input{width:18px;height:18px}
+.sheet{scroll-margin-top:70px}
+.rg{cursor:default}.rg.off{opacity:.55;border-style:dashed;border-color:var(--line)}
+.rgp{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;margin-top:2px}.rgp input{width:20px;height:20px}
+.rgins{font-weight:600;font-size:12px;color:var(--ok);margin-left:6px}.rgins .btn{margin-left:4px}
+.rgdan{display:flex;align-items:center;gap:6px;font-weight:700}.rgdan select{font-weight:700;width:auto}
 .rg select{font-weight:600}
 .rg .rgv{font-size:14px;font-weight:600;color:var(--ok);padding:8px 0}
 .rg.old{border-color:var(--warn);background:var(--warn-soft)}
@@ -608,12 +628,14 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="cselrow"><button class="btn ghost" type="button" id="prev" aria-label="Candidat précédent">◀</button><select id="csel"></select><button class="btn ghost" type="button" id="next" aria-label="Candidat suivant">▶</button></div>
       <p class="who" id="who"></p>
       <div class="regle" id="regle">
-        <div class="rgh"><b>Règlement appliqué</b><span class="hint">Réglé tout seul d'après l'inscription. À changer seulement si le candidat termine une UV à l'ancien règlement.</span></div>
+        <div class="rgh"><b>Fiche du candidat</b><label class="rgdan">Grade <select id="q-dan" aria-label="Dan visé"><option value="1">1er dan</option><option value="2">2e dan</option><option value="3">3e dan</option><option value="4">4e dan</option></select></label><span class="hint">Tout est réglé d'après l'inscription : vérifiez, cochez les UV à imprimer, imprimez.</span></div>
         <div class="rgrid">
-          <label class="rg" id="rg1"><span class="rgl">UV1 · Kata</span><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement</option><option value="old">Ancien règlement (pour terminer)</option></select><select id="dom1" data-k="dom1" aria-label="Dominante de l'ancien règlement pour l'UV1"><option value="">Dominante ? (à choisir)</option><option value="comp">Dominante compétition</option><option value="tech">Dominante technique</option></select></label>
-          <label class="rg" id="rg2"><span class="rgl">UV2 · Technique</span><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement</option><option value="comp">Ancien · dom. compétition</option><option value="tech">Ancien · dom. technique</option></select></label>
-          <div class="rg" id="rg3"><span class="rgl">UV3 · Combinée</span><span class="rgv">Nouveau règlement (UV3-B)</span></div>
+          <div class="rg" id="rg1"><span class="rgl">UV1 · Kata <span class="rgins" id="rgi1"></span></span><select id="fo1" data-k="fo1"><option value="nr">Nouveau règlement</option><option value="old">Ancien règlement (pour terminer)</option></select><select id="dom1" data-k="dom1" aria-label="Dominante de l'ancien règlement pour l'UV1"><option value="">Dominante ? (à choisir)</option><option value="comp">Dominante compétition</option><option value="tech">Dominante technique</option></select><label class="rgp"><input type="checkbox" data-pr="1"> 🖨 à imprimer</label></div>
+          <div class="rg" id="rg2"><span class="rgl">UV2 · Technique <span class="rgins" id="rgi2"></span></span><select id="fo2" data-k="fo2"><option value="nr">Nouveau règlement</option><option value="comp">Ancien · dom. compétition</option><option value="tech">Ancien · dom. technique</option></select><label class="rgp"><input type="checkbox" data-pr="2"> 🖨 à imprimer</label></div>
+          <div class="rg" id="rg3"><span class="rgl">UV3 · Combinée <span class="rgins" id="rgi3"></span></span><span class="rgv">Nouveau règlement (UV3-B)</span><label class="rgp"><input type="checkbox" data-pr="3"> 🖨 à imprimer</label></div>
         </div>
+        <div class="acc" id="accueil"></div>
+        <div class="bar"><button class="btn" type="button" id="q-print">🖨 Imprimer les fiches de ce candidat</button><span class="dlst" id="q-n"></span></div>
       </div>
       <div class="bar"><button class="btn sm" type="button" id="manual">+ Ajouter un candidat</button><button class="btn ghost sm" type="button" id="mailc">✉ Résultat au candidat</button><button class="btn ghost sm" type="button" id="delc">Supprimer ce candidat</button>
       <span class="confirm" id="delconf" hidden><span id="delname"></span> <button class="btn ghost sm del" type="button" id="delyes">Oui, supprimer</button><button class="btn ghost sm" type="button" id="delno">Annuler</button></span></div></div>
@@ -642,6 +664,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <button role="tab" id="t1" aria-controls="s1" aria-selected="true"><span class="dot"></span><span class="tl">UV1 · Kata<small class="trg" id="trg1"></small></span></button>
     <button role="tab" id="t2" aria-controls="s2" aria-selected="false"><span class="dot"></span><span class="tl">UV2 · Technique<small class="trg" id="trg2"></small></span></button>
     <button role="tab" id="t3" aria-controls="s3" aria-selected="false"><span class="dot"></span><span class="tl">UV3 · Combinée<small class="trg" id="trg3"></small></span></button>
+    <label class="stk"><input type="checkbox" id="stack" checked> Toutes les UV ensemble</label>
   </nav>
 
   <section class="card sheet u1" id="s1" data-steps="2" role="tabpanel" aria-labelledby="t1"></section>
@@ -750,6 +773,13 @@ const CRIT3 = [['Qualité technique','kuzushi, placement, forme'],['Déplacement
 const CRIT4N = [['Opportunités','saisir le bon moment'],['Séquences tactiques','enchaînements, feintes'],['Liaisons debout-sol','continuité vers le sol'],['Efficacité et contrôle','projection, maîtrise de uke']];
 const CRIT4W = [['Contrôle','immobilisation, maîtrise'],['Enchaînements','passages, retournements'],['Efficacité','étranglements, clés'],['Sécurité','contrôle de uke']];
 /* UV3-B : durées par défaut (positions CORG IDF, modifiables) */
+/* kakari-geiko et yaku-soku-geiko : exercices sans technique à choisir ni tirage au sort */
+const freeEx = e => /geiko/i.test(e);
+const exTech = (e, k, i) => freeEx(e) ? '<span class="hint">Exercice libre : pas de technique à choisir</span>' : techSelect(k + i, ['N'], 'Technique présentée ' + (i+1));
+const UV3TXT = {1:"Uchi-komi en déplacement (1'30) sur 2 techniques différentes : 1 sur avancée, 1 sur recul. 2 exercices d'application de 2' (kakari-geiko, yaku-soku-geiko).",
+  2:"Uchi-komi en déplacement (1'30) sur 2 techniques différentes, nage-komi en déplacement, 2 exercices d'application de 2' (kakari-geiko, yaku-soku-geiko).",
+  3:"Uchi-komi 1' maximum sur 3 techniques différentes, nage-komi 1' maximum sur 2 techniques différentes, 2 exercices d'application de 2' maximum (kakari-geiko, yaku-soku-geiko).",
+  4:"Uchi-komi, nage-komi, kakari-geiko et/ou yaku-soku-geiko selon les consignes d'action du coordonnateur de l'épreuve ; 10 minutes maximum."};
 function rowsB(dan, ky){
   const ex = ky==='kk' ? ['Kakari-geiko','Kakari-geiko'] : ky==='yy' ? ['Yaku-soku-geiko','Yaku-soku-geiko'] : ['Kakari-geiko','Yaku-soku-geiko'];
   const E = [[ex[0]+', exercice d\'application 1','2 min'],[ex[1]+', exercice d\'application 2','2 min']];
@@ -943,22 +973,22 @@ function renderSheets(){
       <h4>${C.gos?'Épreuve 3 · ':''}Tokui-waza ne-waza (2 min${f2==='nr'?'':' minimum'})</h4><div class="f"><label>Techniques présentées</label><input type="text" data-k="tw" aria-label="Tokui-waza ne-waza"></div>${critTable(CRIT4W,'cw')}`;
   if (C.def.length) h2 += `<h4>Défenses${C.q ? ' imposées par le jury' : ''}</h4><div class="tw"><table><thead><tr><th>Défense</th><th>Attaque / réponse présentée</th><th class="c">Maîtrisée</th><th class="c">Insuffisante</th></tr></thead><tbody>
       ${C.def.map((l,i) => `<tr><td class="grp">${l}</td><td><input type="text" data-k="dft${i}" aria-label="${l} ${i+1}"></td><td class="c"><input type="radio" name="df${i}" value="ok" aria-label="${l} : maîtrisée"></td><td class="c"><input type="radio" name="df${i}" value="ko" aria-label="${l} : insuffisante"></td></tr>`).join('')}</tbody></table></div>`;
-  if (C.ex.length) h2 += `<h4>${C.exTitle}</h4><div class="bar noprint"><button class="btn" type="button" data-drawsel="ot" data-n="${C.ex.length}">🎲 Tirer au sort les techniques</button><button class="btn ghost sm" type="button" data-undrawsel="ot" data-n="${C.ex.length}">Effacer</button></div><div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
-      ${C.ex.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td>${du}</td><td>${techSelect('ot'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="od${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>${critTable(CRIT3,'ox')}`;
+  if (C.ex.length) h2 += `<h4>${C.exTitle}</h4><div class="bar noprint"><button class="btn" type="button" data-drawsel="ot" data-n="${C.ex.filter(([e]) => !freeEx(e)).length}">🎲 Tirer au sort les techniques</button><button class="btn ghost sm" type="button" data-undrawsel="ot" data-n="${C.ex.filter(([e]) => !freeEx(e)).length}">Effacer</button></div><div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
+      ${C.ex.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td>${du}</td><td>${exTech(e, 'ot', i)}</td><td class="c"><input type="checkbox" data-k="od${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>${critTable(CRIT3,'ox')}`;
   h2 += `<div class="f" style="max-width:260px"><label>Durée</label><select data-k="dur2"><option value="">—</option><option value="ok">Dans le temps</option><option value="ko">Temps dépassé</option></select></div><div class="sugg" id="sg2"></div>${decHTML(2)}`;
   $('#s2').innerHTML = h2;
   // UV3
   const rb = rowsB(d, DB.g.ky);
   $('#s3').innerHTML = `<div class="shead"><h2>UV3 · Efficacité, option combinée</h2><span class="chip">${DAN(d)}</span></div>${pid}
-    <ol class="howto noprint"><li>Partie A : cochez la situation des points.</li><li>Partie B : cliquez sur <b>🎲 Tirer au sort les techniques</b> ou choisissez-les dans les listes, puis cochez « Réalisé » à chaque exercice.</li><li>Remplissez la grille, puis cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
+    <ol class="howto noprint"><li>Partie A : cochez la situation des points.</li><li>Partie B : notez les techniques présentées en uchi-komi et nage-komi (souvent déjà notées à l'accueil), puis cochez « Réalisé » à chaque exercice.</li><li>Remplissez la grille, puis cochez <b>VALIDÉE</b> ou <b>REFUSÉE</b>.</li></ol>
     ${fo1()!=='nr'||fo2()!=='nr' ? '<p class="hint"><b>Le candidat termine l\'UV1 ou l\'UV2 à l\'ancien règlement ; l\'UV3-B est une épreuve du nouveau règlement.</b></p>' : ''}
     <p class="hint formule">Partie A : 20 points en shiai judo, dispense à 40 ans et plus. Partie B : exercices évalués par le jury, passables avant les 20 points. L'UV est enregistrée quand A et B sont acquises.</p>
     <h4>Partie A · Points</h4><div class="radios"><label><input type="radio" name="pa" value="ok"> 20 points atteints</label><label><input type="radio" name="pa" value="disp"> Dispensé (40 ans et +)</label><label><input type="radio" name="pa" value="wait"> Pas encore atteints</label></div>
     <div class="f" style="max-width:320px"><label>Points (dont avant la réforme)</label><input type="text" data-k="pts" placeholder="ex. 24 dont 14"></div>
     <h4>Partie B · Déroulé</h4>
-    <div class="bar noprint"><button class="btn" type="button" data-drawsel="bt" data-n="${rb.length}">🎲 Tirer au sort les techniques</button><button class="btn ghost sm" type="button" data-undrawsel="bt" data-n="${rb.length}">Effacer</button></div>
-    <div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique choisie</th><th class="c">Réalisé</th></tr></thead><tbody>
-    ${rb.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td><input type="text" class="dur" data-g="dur${d}-${i}" aria-label="Durée ${i+1}" value="${esc(DB.g['dur'+d+'-'+i] ?? du)}"></td><td>${techSelect('bt'+i, ['N'], 'Technique '+(i+1))}</td><td class="c"><input type="checkbox" data-k="bd${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>
+    <p class="hint formule">${UV3TXT[Math.min(4, d)] || ''}</p>
+    <div class="tw"><table><thead><tr><th>N°</th><th>Exercice</th><th>Durée max</th><th>Technique présentée</th><th class="c">Réalisé</th></tr></thead><tbody>
+    ${rb.map(([e,du],i) => `<tr><td>${i+1}</td><td>${e}</td><td><input type="text" class="dur" data-g="dur${d}-${i}" aria-label="Durée ${i+1}" value="${esc(DB.g['dur'+d+'-'+i] ?? du)}"></td><td>${exTech(e, 'bt', i)}</td><td class="c"><input type="checkbox" data-k="bd${i}" aria-label="Exercice ${i+1} réalisé"></td></tr>`).join('')}</tbody></table></div>
     <h4>Partie B · Grille</h4>${critTable(CRIT3,'cr')}
     <div class="sugg" id="sg3"></div>${decHTML(3, ' · partie B')}
     <div class="radios"><b>UV3 complète :</b><label><input type="radio" name="uvc" value="oui"> Oui, A et B acquises</label><label><input type="radio" name="uvc" value="non"> Non, partie A en attente</label></div>`;
@@ -1088,7 +1118,7 @@ function calc(){
   const c = cur(), I = ins();
   [1,2,3].forEach(u => {
     const x = c && c.uvs && c.uvs[u], ni = !I.includes(u);
-    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? x.ep : S.ep)}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Table · passage :</span> ${(() => { const x = c && plan()[c.id]; return x && x[u] ? 'T' + x[u].t + ' · ' + hm(x[u].s) + ' (n°' + x[u].o + ')' : '— · ' + esc(S.ordre); })()}</div>`;
+    const p = $('#s'+u+' .print-ident'); if (p) p.innerHTML = `<div><span>Nom :</span> ${esc(S.nom)}</div><div><span>Prénom :</span> ${esc(S.prenom)}</div><div><span>Né(e) en :</span> ${esc(S.annee)}</div><div><span>Dan visé :</span> ${DAN(d)}</div><div><span>Épreuve :</span> ${esc(x ? (x.added ? epFor(c, u, S).ep : x.ep) : (c && !S.ep ? epFor(c, u, S).ep : S.ep))}</div><div><span>Uke :</span> ${esc(x && x.uke ? x.uke : S.uke)}</div><div><span>Session :</span> ${esc(DB.g.sess)} ${esc(DB.g.date)}</div><div><span>Table · passage :</span> ${(() => { const x = c && plan()[c.id]; return x && x[u] ? 'T' + x[u].t + ' · ' + hm(x[u].s) + ' (n°' + x[u].o + ')' : '— · ' + esc(S.ordre); })()}</div>`;
     const tb = $('#t'+u); tb.toggleAttribute('data-ni', ni);
     let sp = tb.querySelector('.ni'); if (ni && !sp){ sp = document.createElement('span'); sp.className = 'ni'; sp.textContent = '· non inscrit'; tb.appendChild(sp); } if (!ni && sp) sp.remove();
     /* UV non inscrite dans l'export : ajout sur place possible */
@@ -1139,13 +1169,29 @@ function renderSelect(){
   $('#csel').innerHTML = (list.some(c => c.id === DB.cur) ? '' : '<option value="">— choisir —</option>') + list.map(opt).join('');
 }
 /* Onglet ouvert : l'UV filtrée, sinon une UV à laquelle le candidat est inscrit */
-function showTab(u){ $$('[role=tab]').forEach(x => { const on = x.id === 't'+u; x.setAttribute('aria-selected', on); $('#'+x.getAttribute('aria-controls')).hidden = !on; }); }
+/* « Toutes les UV à la suite » (par défaut) : les fiches des UV du candidat s'affichent l'une sous l'autre, sans changer d'onglet ;
+   les onglets servent alors à sauter directement à une UV */
+const stacked = () => DB.g.stack !== false;
+function showTab(u, scroll){
+  const I = ins();
+  $$('[role=tab]').forEach(x => { const k = +x.id.slice(1), on = k === u; x.setAttribute('aria-selected', on); $('#'+x.getAttribute('aria-controls')).hidden = stacked() ? !(I.includes(k) || on) : !on; });
+  uvCols();
+  if (scroll && stacked()){ const el = $('#s'+u); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+function uvCols(){
+  const w = document.querySelector('.wrap'); if (!w) return;
+  const n = $$('.wrap > .sheet').filter(x => !x.hidden).length;
+  const on = stacked() && window.innerWidth >= 1100 && n > 1;
+  w.classList.toggle('uvc', on); w.style.setProperty('--n', n);
+}
+window.addEventListener('resize', uvCols);
 function autoTab(){
   const I = ins(), fu = DB.fuv && DB.fuv !== 'all' ? +DB.fuv : null;
   const curU = +($('[role=tab][aria-selected=true]')||{id:'t1'}).id.slice(1);
+  if (stacked()){ showTab(fu && I.includes(fu) ? fu : I.includes(curU) ? curU : I[0]); return; }
   if (fu && I.includes(fu)) showTab(fu); else if (!I.includes(curU)) showTab(I[0]);
 }
-function refresh(){ $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = ['sep','one','big'][+r.dataset.one] === (DB.g.lay || (DB.g.one ? 'one' : 'sep'))); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
+function refresh(){ $('#stack').checked = stacked(); $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = ['sep','one','big'][+r.dataset.one] === (DB.g.lay || (DB.g.one ? 'one' : 'sep'))); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
 $('#csel').addEventListener('change', e => { if (!e.target.value) return; DB.cur = e.target.value; save(); refresh(); });
 
 /* ===== Import Excel ===== */
@@ -1406,7 +1452,7 @@ document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'xlsx' || t.id === 'csel' || t.id === 'i-table') return;
   if (t.id === 'i-lic'){ const c = cur(); if (c){ c.lic = t.value.replace(/\s+/g,'').toUpperCase(); c.licm = true; save(); } return; }
-  if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; save(); return; }
+  if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; $$(`[data-pr="${t.dataset.pr}"]`).forEach(x => x.checked = t.checked); save(); syncFiche(); return; }
   if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
   if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); if (/^(ntab|h0|du\d|dub)$/.test(t.dataset.g)){ stepStatus(); renderList(); } return; }
   if (!t.closest('#ident, .sheet')) return;
@@ -1529,7 +1575,64 @@ function dispatchAll(){
   L.forEach((c,i) => c.table = String(Math.floor(i * Math.min(n, N) / N) + 1));
   DB.ftab = 'all'; save(); refresh();
 }
+/* Bloc « Fiche du candidat » : grade, UV inscrites, règlement et UV à imprimer au même endroit */
+let ficheFor = null, ficheI = '';
+function syncFiche(){
+  const c = cur(); if (!$('#q-dan')) return;
+  $('#regle').hidden = !c; if (!c) return;
+  const I = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number) : [1,2,3];
+  if (ficheFor !== c.id){ ficheFor = c.id; ficheI = I.join(); [1,2,3].forEach(u => { DB.g['p'+u] = I.includes(u); $$(`[data-pr="${u}"]`).forEach(x => x.checked = I.includes(u)); }); save(); }
+  else if (ficheI !== I.join()){ I.filter(u => !ficheI.split(',').includes(String(u))).forEach(u => { DB.g['p'+u] = true; $$(`[data-pr="${u}"]`).forEach(x => x.checked = true); }); ficheI = I.join(); save(); }
+  if (document.activeElement !== $('#q-dan')) $('#q-dan').value = String(S.dan || c.dan || 1);
+  [1,2,3].forEach(u => { const on = I.includes(u); $('#rg'+u).classList.toggle('off', !on);
+    $('#rgi'+u).innerHTML = on ? (c.uvs && c.uvs[u] && c.uvs[u].added ? '· ajoutée sur place' : '· inscrit') : `· non inscrit <button class="btn sm" type="button" data-adduv="${u}">+ Ajouter</button>`; });
+  const n = [1,2,3].filter(u => I.includes(u) && DB.g['p'+u] !== false).length;
+  $('#q-n').textContent = n ? `${n} fiche${n>1?'s':''} à imprimer` : 'Cochez au moins une UV à imprimer.';
+  $('#q-print').disabled = !n;
+}
+/* Accueil : ce que le candidat annonce (kata, techniques de la partie 1, techniques d'uchi-komi / nage-komi),
+   saisi ici sans ouvrir les fiches ; chaque champ est relié au champ correspondant de la fiche */
+function renderAccueil(){
+  const box = $('#accueil'), c = cur(); if (!box) return;
+  if (!c){ box.innerHTML = ''; return; }
+  if (box.contains(document.activeElement) && document.activeElement.tagName !== 'SELECT' && document.activeElement.type !== 'checkbox') return;
+  const I = c.uvs && Object.keys(c.uvs).length ? Object.keys(c.uvs).map(Number) : [1,2,3];
+  const clone = (el, cls) => { const x = el.cloneNode(true); x.removeAttribute('data-k'); x.removeAttribute('data-kata'); x.removeAttribute('id'); x.removeAttribute('name');
+    x.dataset.src = el.dataset.k ? `[data-k="${el.dataset.k}"]` : `[data-kata="${el.dataset.kata}"]`; x.dataset.sheet = el.closest('.sheet').id;
+    if (el.tagName === 'SELECT') x.value = el.value; else if (el.type === 'checkbox') x.checked = el.checked; else x.value = el.value; if (cls) x.className = cls; return x; };
+  const out = [];
+  if (I.includes(1)){ const ks = $$('#s1 input[data-kata]'); if (ks.length){ const b = document.createElement('div'); b.className = 'accb';
+    b.innerHTML = '<h5>UV1 · kata présenté(s)</h5><div class="chips"></div>';
+    ks.forEach(k => { const l = document.createElement('label'); l.appendChild(clone(k)); l.append(' ' + (k.closest('label') ? k.closest('label').textContent.trim() : k.dataset.kata)); b.querySelector('.chips').appendChild(l); }); out.push(b); } }
+  if (I.includes(2)){ const ct = $$('#s2 [data-k^="ct"]'), tx = $$('#s2 [data-k="tn"], #s2 [data-k="tw"]');
+    if (ct.length || tx.length){ const b = document.createElement('div'); b.className = 'accb'; b.innerHTML = '<h5>UV2 · partie 1 : techniques choisies par le candidat</h5>';
+      ct.forEach(el => { const i = el.dataset.k.slice(2), cd = $(`#s2 [data-k="cd${i}"]`), r = document.createElement('div'); r.className = 'accr' + (cd ? ' d3' : '');
+        const l = document.createElement('span'); l.textContent = el.getAttribute('aria-label') || ''; r.append(l, clone(el));
+        if (cd){ const x = clone(cd); x.placeholder = 'direction'; r.append(x); } b.appendChild(r); });
+      tx.forEach(el => { const r = document.createElement('div'); r.className = 'accr'; const l = document.createElement('span'); l.textContent = el.getAttribute('aria-label') || 'Techniques'; r.append(l, clone(el)); b.appendChild(r); });
+      out.push(b); } }
+  if (I.includes(3)){ const bt = $$('#s3 [data-k^="bt"]');
+    if (bt.length){ const b = document.createElement('div'); b.className = 'accb'; b.innerHTML = '<h5>UV3 · techniques présentées (uchi-komi, nage-komi)</h5>';
+      bt.forEach(el => { const tr = el.closest('tr'), r = document.createElement('div'); r.className = 'accr'; const l = document.createElement('span');
+        l.textContent = tr && tr.cells[1] ? tr.cells[1].textContent.trim() : (el.getAttribute('aria-label') || ''); r.append(l, clone(el)); b.appendChild(r); });
+      out.push(b); } }
+  box.replaceChildren(...out);
+}
+{ const syncAcc = e => {
+    const x = e.target; if (!x.dataset || !x.dataset.src) return; e.stopPropagation();
+    const o = document.querySelector(`#${x.dataset.sheet} ${x.dataset.src}`); if (!o) return;
+    if (x.type === 'checkbox'){ if (o.checked === x.checked) return; o.checked = x.checked; } else { if (o.value === x.value) return; o.value = x.value; }
+    o.dispatchEvent(new Event('input', {bubbles:true})); o.dispatchEvent(new Event('change', {bubbles:true}));
+    if (x.tagName === 'SELECT' || x.type === 'checkbox') setTimeout(renderAccueil, 0);
+  };
+  $('#accueil').addEventListener('input', e => { if (e.target.tagName === 'INPUT' && e.target.type === 'text') syncAcc(e); else e.stopPropagation(); });
+  $('#accueil').addEventListener('change', syncAcc);
+}
+{ const c1 = calc; calc = function(){ c1(); renderAccueil(); }; }
+$('#q-dan').addEventListener('change', e => { const d = $('#i-dan'); d.value = e.target.value; d.dispatchEvent(new Event('input', {bubbles:true})); d.dispatchEvent(new Event('change', {bubbles:true})); });
+$('#q-print').addEventListener('click', () => $('#print').click());
 function renderTableSel(){
+  syncFiche();
   const c = cur(), n = ntab();
   $('#i-table').innerHTML = '<option value="">—</option>' + [...Array(n)].map((_,i) => `<option value="${i+1}">Table ${i+1} · ${DB.list.filter(x => +x.table === i+1).length} cand.</option>`).join('');
   $('#i-table').value = c && c.table ? c.table : ''; $('#i-table').disabled = !c;
@@ -1562,7 +1665,8 @@ $('#lfilter').addEventListener('click', e => { const b = e.target.closest('butto
 const step = dd => { const ids = $$('#csel option').map(o => o.value).filter(Boolean); if (!ids.length) return; const i = ids.indexOf(DB.cur); const j = i < 0 ? 0 : Math.min(ids.length-1, Math.max(0, i+dd)); DB.cur = ids[j]; save(); refresh(); };
 $('#prev').addEventListener('click', () => step(-1));
 $('#next').addEventListener('click', () => step(1));
-$$('[role=tab]').forEach(b => b.addEventListener('click', () => showTab(+b.id.slice(1))));
+$$('[role=tab]').forEach(b => b.addEventListener('click', () => showTab(+b.id.slice(1), true)));
+$('#stack').addEventListener('change', e => { DB.g.stack = e.target.checked; save(); showTab(+($('[role=tab][aria-selected=true]')||{id:'t1'}).id.slice(1)); autoTab(); });
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { a = a.slice(); for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
 /* Tirage : une technique par famille, compléments dans des familles différentes ; si moins de techniques que de familles, familles toutes différentes */
@@ -1585,7 +1689,7 @@ document.addEventListener('click', e => {
     if (add.dataset.adduv){ const u = +add.dataset.adduv; c.uvs[u] = {ep: `${dan()}D - UV${u} (ajout sur place)`, uke: S.uke || '', added: true}; }
     else { const u = +add.dataset.deluv; delete c.uvs[u]; }
     c.ep = Object.entries(c.uvs).sort().map(([u,x]) => x.ep).join(' · '); S.ep = c.ep;
-    store(); rendered = ''; renderSheets(); restore(); calc(); renderList();
+    store(); rendered = ''; renderSheets(); restore(); calc(); renderList(); syncFiche();
     if (add.dataset.adduv) showTab(+add.dataset.adduv); else autoTab();
     return;
   }
@@ -1598,6 +1702,20 @@ document.addEventListener('click', e => {
     $$('tr[data-t]').forEach(tr => { const id = tr.dataset.t; S['q:'+id] = sel.includes(id); if (!sel.includes(id)) delete S['r:r'+id]; });
     store(); restore(); calc(); renderList();
   }
+});
+/* UV2 : dès que les techniques de la partie 1 (choix du candidat) sont toutes saisies, les techniques du jury
+   (partie 2) sont tirées automatiquement, sans reprendre celles de la partie 1 ; refait si une technique de la partie 1 change et entre en conflit */
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || !/^ct\d+$/.test(t.dataset.k || '') || !t.closest('#s2')) return;
+  setTimeout(() => {
+    const d = dan(), C = uv2Cfg(d, fo2()); if (!C.q || !C.cand.length) return;
+    const ps = C.cand.map((_,i) => S['ct'+i]).filter(Boolean); if (ps.length < C.cand.length) return;
+    const asked = $$('#s2 tr[data-t]').filter(tr => S['q:'+tr.dataset.t]).map(tr => norm(tr.dataset.t.split('|')[1]));
+    const clash = asked.some(x => ps.map(norm).includes(x));
+    if (asked.length && !clash) return;
+    const dr = $('#draw'); if (!dr) return; dr.click();
+    toast('🎲 Techniques du jury (partie 2) tirées au sort automatiquement, sans celles de la partie 1.', 'ok', 4000);
+  }, 0);
 });
 /* Impression : fiches cochées seulement, chaque fiche réduite si besoin pour tenir sur une page A4 */
 let pmHidden = null;
@@ -2031,9 +2149,9 @@ function scanFeedback(sc, r, ms){
   if (r.err){ toast(`⚠ ${esc(r.err)}`, 'err', ms ? 6000 : 0); return; }
   /* mail du candidat proposé tout de suite après le scan */
   const c = DB.list.find(x => x.id === sc.id), dd = DB.data[sc.id] || {}, wait = c ? usOf(c).filter(u => !dd['r:d'+u]) : [];
-  const mt = c ? `<button class="btn light sm" type="button" id="tmail">✉ Envoyer le mail${wait.length ? ' (UV' + wait.join(', UV') + ' en attente)' : ''}</button> ` : '';
+  const mt = !c ? '' : wait.length ? `<span style="font-size:14px">✉ Mail proposé après la dernière UV (en attente : UV${wait.join(', UV')})</span> ` : `<button class="btn light sm" type="button" id="tmail">✉ Envoyer le mail (toutes les UV)</button> `;
   toast(`<span>✓ Enregistré : ${esc(r.name)}</span><span style="font-size:16px">${esc(r.label)}</span><span>${mt}<button class="btn light sm" type="button" id="tundo">Annuler</button> <button class="btn light sm" type="button" id="tok">OK</button></span>`, sc.v, ms ? Math.max(ms, 15000) : 0);
-  if (c) $('#tmail').onclick = () => { $('#scantoast').hidden = true; setTimeout(() => mailTo(c.id), 300); };
+  if (c && !wait.length) $('#tmail').onclick = () => { $('#scantoast').hidden = true; setTimeout(() => mailTo(c.id), 300); };
   $('#tundo').onclick = () => { undoScan(r, sc); toast('Décision annulée.', 'err', 2500); };
   $('#tok').onclick = () => { $('#scantoast').hidden = true; };
 }
@@ -2175,7 +2293,8 @@ function renderRelay(){
   if (!RELAY) return;
   $('#relay').hidden = false;
   $('#relayqr').innerHTML = qrSvg(`http://${RELAY.ip}:${RELAY.port}/s?test=1`);
-  $('#relayaddr').textContent = `Adresse du relais : http://${RELAY.ip}:${RELAY.port}`;
+  const pv = (document.querySelector('meta[name="fj-version"]') || {}).content || '?';
+  $('#relayaddr').textContent = `Adresse du relais : http://${RELAY.ip}:${RELAY.port} · relais v${RELAY.version || '?'} · page v${pv}`;
   $('#relayipw').hidden = RELAY.ips.length < 2;
   $('#relayip').innerHTML = RELAY.ips.map(ip => `<option${ip === RELAY.ip ? ' selected' : ''}>${esc(ip)}</option>`).join('');
 }
@@ -2194,7 +2313,7 @@ async function relayLoop(){
       const sc = parseScan(it.text); let a, a_mail = null;
       if (!sc) a = {id:it.id, ok:false, err:'QR code non reconnu.'};
       else { reloadFromStorage(); const res = applyScan(sc); scanFeedback(sc, res, 6000);
-        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { const cm = DB.list.find(x => x.id === sc.id), mm = cm ? resultMail(cm) : null; if (mm){ a_mail = {mailto:mm.to || '', mailsubj:mm.subj, mailbody:mm.body}; } scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = Object.assign({id:it.id, ok:true, name:res.name, label:res.label}, a_mail || {}); } }
+        if (res.err) a = {id:it.id, ok:false, err:res.err}; else { const cm = DB.list.find(x => x.id === sc.id), mm = cm ? resultMail(cm) : null; if (mm){ const dw = DB.data[sc.id] || {}; a_mail = {mailto:mm.to || '', mailsubj:mm.subj, mailbody:mm.body, pending:usOf(cm).filter(u => !dw['r:d'+u]).map(u => 'UV' + u).join(', ')}; } scanN++; $('#qrinst').textContent = `${scanN} scan${scanN>1?'s':''} reçu${scanN>1?'s':''}`; a = Object.assign({id:it.id, ok:true, name:res.name, label:res.label}, a_mail || {}); } }
       try{ const r = await fetch('/relay/ack', {method:'POST', body:JSON.stringify(a)}); const j = await r.json().catch(() => ({}));
         /* photo de la fiche conservée par le relais : jointe ensuite au mail du candidat */
         if (a.ok && j.file && sc){ const dd = DB.data[sc.id] || (DB.data[sc.id] = initData(DB.list.find(x => x.id === sc.id))); dd['ph'+sc.u] = j.file; save(); renderQuick(); $('#qrinst').textContent += ' · 📷 photo enregistrée'; }
@@ -2209,7 +2328,7 @@ async function relayLoop(){
     const r = await fetch('/relay/info', {cache:'no-store'}); if (!r.ok) return;
     const j = await r.json(); const ips = j.ips || [];
     if (!ips.length){ $('#relay').hidden = false; $('#relay').innerHTML = '<div class="rtx"><b>📱 Relais téléphone</b><p>⚠ Cet ordinateur n\'est connecté à aucun Wi-Fi. Connectez-le au même Wi-Fi que le téléphone (box ou partage de connexion), puis rechargez la page.</p></div>'; return; }
-    RELAY = {ips, port:j.port, ip: ips.includes(DB.g.relayIp) ? DB.g.relayIp : ips[0]};
+    RELAY = {ips, port:j.port, version:j.version, ip: ips.includes(DB.g.relayIp) ? DB.g.relayIp : ips[0]};
     renderRelay(); rendered = ''; renderSheets(); restore(); calc();
     relayLoop();
   }catch(e){}
