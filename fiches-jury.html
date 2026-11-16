@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261115.23">
+<meta name="fj-version" content="20261116.02">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -191,6 +191,20 @@ nav.tabs button{padding:12px 18px;font-size:16px}
 .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px}
 .rg{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:var(--surface);border:2px solid var(--ok);cursor:pointer}
 .rg .rgl{font:700 13px var(--f-body)}
+/* statistiques */
+.stk4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:8px 0 14px}
+.stk4 div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.stk4 b{display:block;font-size:26px;line-height:1.1}.stk4 span{font-size:13px;color:var(--muted)}
+#stats h3{margin:18px 0 6px;font-size:16px}
+#stats table{width:100%;border-collapse:collapse;font-size:14px}#stats th,#stats td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left}
+#stats td.n,#stats th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);min-width:120px}
+.sbar i{display:block;height:100%}.sbar .ok{background:#1f7a4d}.sbar .part{background:#c98a00}.sbar .ko{background:#b3261e}.sbar .abs{background:#8a8f99}
+.sleg{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;margin:4px 0}.sleg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+@media print{ html:not(.pstat) #statsc{display:none!important}
+  html.pstat body *{visibility:hidden} html.pstat #statsc, html.pstat #statsc *{visibility:visible}
+  html.pstat .wrap > #statsc{display:block!important;position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none;max-width:none} html.pstat #statsc .noprint{display:none!important}
+  html.pstat #statsc *{-webkit-print-color-adjust:exact;print-color-adjust:exact} }
 .acc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:8px}
 .acc:empty{display:none}
 .accb{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:6px;align-content:start}
@@ -530,6 +544,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <button type="button" data-step="2"><span class="n">2</span><span class="tx"><b>Évaluer</b><small id="st2">remplir les fiches</small></span></button>
       <button type="button" data-step="3"><span class="n">3</span><span class="tx"><b>Résultats</b><small id="st3">fichiers et mails</small></span></button>
       <button type="button" data-step="4" class="bstep"><span class="n">🖨</span><span class="tx"><b>Fiches vierges</b><small>à imprimer sans candidat</small></span></button>
+      <button type="button" data-step="5" class="bstep"><span class="n">📊</span><span class="tx"><b>Statistiques</b><small>bilan de la session</small></span></button>
     </nav>
   </header>
 
@@ -575,6 +590,13 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <details class="more" id="planw" hidden><summary>Voir l'ordre de passage (horaires par table)</summary><div class="tw"><table class="qt plan" id="plan"></table></div></details>
     <div id="tprint" hidden><p class="guide"><b>Fiches par table :</b> chaque table reçoit sa pile, une fiche par UV, dans l'ordre de passage avec l'heure. Rien ne circule entre les tables.</p><div class="bar" id="tprintb"></div></div>
     <span class="confirm" id="dconf" hidden>Répartir à nouveau tous les candidats sur les tables ? Les affectations actuelles seront remplacées. <button class="btn ghost sm" type="button" id="dyes">Oui, répartir</button><button class="btn ghost sm" type="button" id="dno">Annuler</button></span>
+  </section>
+
+  <section class="card" id="statsc" data-steps="5" aria-label="Statistiques de la session">
+    <h2 class="sth"><span class="sn">📊</span>Statistiques de la session</h2>
+    <p class="guide">Bilan calculé sur les décisions enregistrées sur cet appareil. Il se met à jour à chaque ouverture de cet onglet.</p>
+    <div class="bar noprint"><button class="btn" type="button" id="stprint">🖨 Imprimer le bilan</button><button class="btn ghost" type="button" id="stxlsx">📥 Exporter en Excel</button><span class="dlst" id="stmsg"></span></div>
+    <div id="stats"></div>
   </section>
 
   <section class="card noprint blankc" data-steps="4" aria-label="Fiches vierges">
@@ -651,6 +673,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <div class="f"><label for="i-ep">Épreuve(s)</label><input id="i-ep" type="text" data-k="ep"></div>
       <div class="f"><label for="i-table">Table de départ (1re UV)</label><select id="i-table"></select></div>
       <div class="f noprint" id="licw" hidden><label for="i-lic">N° de licence <span class="oblig">pour les résultats</span></label><input id="i-lic" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="ex. M123456789"><span class="hint">Confidentiel : jamais imprimé ni partagé. Sans lui, le candidat ne peut pas figurer dans les fichiers de résultats.</span></div>
+      <div class="f noprint" id="mailw" hidden><label for="i-mail">Adresse mail <span class="oblig">pour le mail de résultat</span></label><input id="i-mail" type="email" inputmode="email" autocomplete="off" spellcheck="false" placeholder="ex. prenom.nom@exemple.fr"><span class="hint">Confidentielle : jamais imprimée ni partagée.</span></div>
       <div class="f"><label for="i-ordre">Ordre de passage</label><input id="i-ordre" type="text" data-k="ordre"></div>
     </div>
   
@@ -1454,6 +1477,7 @@ document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'xlsx' || t.id === 'csel' || t.id === 'i-table') return;
   if (t.id === 'i-lic'){ const c = cur(); if (c){ c.lic = t.value.replace(/\s+/g,'').toUpperCase(); c.licm = true; save(); } return; }
+  if (t.id === 'i-mail'){ const c = cur(); if (c){ c.mail = t.value.trim(); c.mailm = true; save(); renderQuick(); } return; }
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; $$(`[data-pr="${t.dataset.pr}"]`).forEach(x => x.checked = t.checked); save(); syncFiche(); return; }
   if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
   if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); if (/^(ntab|h0|du\d|dub)$/.test(t.dataset.g)){ stepStatus(); renderList(); } return; }
@@ -1641,6 +1665,9 @@ function renderTableSel(){
   /* n° de licence : saisi seulement pour un candidat ajouté à la main (celui d'un candidat importé n'est jamais affiché) */
   const lw = $('#licw'), show = !!c && (!c.lic || !!c.licm);
   lw.hidden = !show; if (show && document.activeElement !== $('#i-lic')) $('#i-lic').value = c.lic || '';
+  /* adresse mail : à saisir pour un candidat ajouté à la main ou sans adresse à l'inscription */
+  const mw = $('#mailw'), showM = !!c && (!c.mail || !!c.mailm);
+  mw.hidden = !showM; if (showM && document.activeElement !== $('#i-mail')) $('#i-mail').value = c.mail || '';
 }
 $('#i-table').addEventListener('change', e => { const c = cur(); if (!c) return; c.table = e.target.value; save(); renderList(); renderTableSel(); calc(); });
 $('#dispatch').addEventListener('click', () => { if (DB.list.some(c => c.table)) $('#dconf').hidden = false; else dispatchAll(); });
@@ -1722,7 +1749,7 @@ document.addEventListener('change', e => {
 /* Impression : fiches cochées seulement, chaque fiche réduite si besoin pour tenir sur une page A4 */
 let pmHidden = null;
 function enterPrint(){
-  const H = document.documentElement; if (H.classList.contains('pm') || bActive) return;
+  const H = document.documentElement; if (H.classList.contains('pm') || bActive || H.classList.contains('pstat')) return;
   let sel = [1,2,3].filter(u => DB.g['p'+u] !== false); if (!sel.length) sel = [1,2,3];
   const I = ins(), si = sel.filter(u => I.includes(u)); if (si.length) sel = si;
   /* fiche imprimée pour ce candidat : sans fiche imprimée ni décision, il sera « Absent » dans les résultats */
@@ -1957,11 +1984,68 @@ function stepStatus(){
     if (tg){ tg.textContent = old ? 'ancien règlement' : 'nouveau règlement'; tg.classList.toggle('old', old); } });
   $('#who').textContent = c ? `${(((dd.nom || c.nom || '') + ' ' + (dd.prenom || c.prenom || '')).trim()) || 'Nouveau candidat'} · ${DAN(+(dd.dan || c.dan || 1))}${c.table ? ' · ' + tabsOf(c) : ' · ' + usOf(c).map(u => 'UV' + u).join(', ')}` : '';
 }
+/* Statistiques de la session (décisions enregistrées sur cet appareil) */
+function statsData(){
+  const L = DB.list.filter(c => !String(c.id).startsWith('__')), PL = plan();
+  const D = c => DB.data[c.id] || {}, danOf = c => Math.min(4, +(D(c).dan || c.dan || 1));
+  const byUV = {1:{}, 2:{}, 3:{}}, byDanUV = {}, byTab = {}, reg = {1:{nr:0, old:0}, 2:{nr:0, old:0}};
+  let passages = 0, decided = 0, mailed = 0, photos = 0; const full = [], partial = [];
+  L.forEach(c => { const d = D(c), us = usOf(c), dn = danOf(c);
+    if (d.mailed) mailed++;
+    let all = us.length > 0, any = false;
+    us.forEach(u => { passages++; const v = d['r:d'+u] || 'none'; if (v !== 'none') decided++; if (d['ph'+u]) photos++;
+      byUV[u][v] = (byUV[u][v] || 0) + 1;
+      const k = dn + '|' + u; byDanUV[k] = byDanUV[k] || {}; byDanUV[k][v] = (byDanUV[k][v] || 0) + 1;
+      const t = PL[c.id] && PL[c.id][u] ? PL[c.id][u].t : 0; if (t){ byTab[t] = byTab[t] || {}; byTab[t][v] = (byTab[t][v] || 0) + 1; }
+      if (u < 3){ const f = u === 1 ? (d.fo1 || autoFo(c,1)) : (d.fo2 || autoFo(c,2)); reg[u][f === 'old' || f === 'comp' || f === 'tech' ? 'old' : 'nr']++; }
+      if (v !== 'ok') all = false; if (v === 'ok') any = true; });
+    const nm = ((d.nom || c.nom || '') + ' ' + (d.prenom || c.prenom || '')).trim();
+    if (all) full.push(`${nm} (${dn === 1 ? '1er' : dn + 'e'} dan)`); else if (any) partial.push(nm); });
+  const dans = {}; L.forEach(c => { const dn = danOf(c); dans[dn] = (dans[dn] || 0) + 1; });
+  let fin = 0; Object.values(PL).forEach(x => Object.values(x).forEach(y => fin = Math.max(fin, y.e)));
+  return {L, dans, byUV, byDanUV, byTab, reg, passages, decided, mailed, photos, full, partial, fin};
+}
+const KEYS = [['ok','Validées'],['part','Partielles'],['ko','Refusées'],['abs','Absents'],['none','Sans décision']];
+const pc = (a, b) => b ? Math.round(a * 100 / b) + ' %' : '—';
+function rate(o){ const ev = (o.ok || 0) + (o.ko || 0) + (o.part || 0); return pc(o.ok || 0, ev); }
+function sbar(o){ const tot = KEYS.reduce((n,[k]) => n + (o[k] || 0), 0) || 1;
+  return '<div class="sbar">' + KEYS.filter(([k]) => k !== 'none').map(([k]) => o[k] ? `<i class="${k}" style="width:${(o[k] * 100 / tot).toFixed(1)}%" title="${o[k]}"></i>` : '').join('') + '</div>'; }
+function renderStats(){
+  const S0 = statsData(), g = DB.g || {}, UVN = {1:'UV1 · Kata', 2:'UV2 · Technique', 3:'UV3 · Combinée'};
+  const head = `<tr><th></th>${KEYS.map(([,l]) => `<th class="n">${l}</th>`).join('')}<th class="n">Réussite*</th><th>Répartition</th></tr>`;
+  const row = (lab, o) => `<tr><td><b>${esc(lab)}</b></td>${KEYS.map(([k]) => `<td class="n">${o[k] || 0}</td>`).join('')}<td class="n"><b>${rate(o)}</b></td><td>${sbar(o)}</td></tr>`;
+  let h = `<p><b>${esc(g.lieu || g.session || 'Session de grades')}</b>${g.date ? ' · ' + esc(g.date) : ''}${S0.fin ? ' · fin estimée ' + hm(S0.fin) : ''}</p>
+  <div class="stk4"><div><b>${S0.L.length}</b><span>candidats</span></div><div><b>${S0.passages}</b><span>UV à évaluer</span></div><div><b>${S0.decided}</b><span>décisions saisies (${pc(S0.decided, S0.passages)})</span></div>
+  <div><b>${S0.full.length}</b><span>candidats : toutes leurs UV du jour validées</span></div><div><b>${S0.photos}</b><span>fiches photographiées</span></div><div><b>${S0.mailed}</b><span>mails envoyés</span></div></div>
+  <div class="sleg"><span><i style="background:#1f7a4d"></i>Validée</span><span><i style="background:#c98a00"></i>Partielle</span><span><i style="background:#b3261e"></i>Refusée</span><span><i style="background:#8a8f99"></i>Absent</span></div>
+  <h3>Résultats par UV</h3><div class="tw"><table>${head}${[1,2,3].map(u => row(UVN[u], S0.byUV[u])).join('')}</table></div>
+  <h3>Résultats par grade et par UV</h3><div class="tw"><table>${head}${Object.keys(S0.byDanUV).sort().map(k => { const [d,u] = k.split('|'); return row(`${d === '1' ? '1er' : d + 'e'} dan · UV${u}`, S0.byDanUV[k]); }).join('')}</table></div>
+  <h3>Candidats par grade</h3><div class="tw"><table><tr><th>Grade</th><th class="n">Candidats</th></tr>${Object.keys(S0.dans).sort().map(d => `<tr><td>${d === '1' ? '1er' : d + 'e'} dan</td><td class="n">${S0.dans[d]}</td></tr>`).join('')}</table></div>
+  <h3>Règlement appliqué</h3><div class="tw"><table><tr><th></th><th class="n">Nouveau</th><th class="n">Ancien</th></tr>${[1,2].map(u => `<tr><td>${UVN[u]}</td><td class="n">${S0.reg[u].nr}</td><td class="n">${S0.reg[u].old}</td></tr>`).join('')}</table></div>`;
+  if (Object.keys(S0.byTab).length) h += `<h3>Par table de jury</h3><div class="tw"><table>${head}${Object.keys(S0.byTab).sort((a,b) => a-b).map(t => row('Table ' + t, S0.byTab[t])).join('')}</table></div>`;
+  h += `<h3>Toutes les UV du jour validées (${S0.full.length})</h3><p>${S0.full.length ? S0.full.map(esc).join(' · ') : '—'}</p>
+  <p class="hint">* Réussite = validées ÷ (validées + partielles + refusées), absents et UV sans décision exclus. « Toutes les UV du jour validées » ne tient compte que des UV passées aujourd'hui, pas des UV acquises lors de sessions précédentes.</p>`;
+  $('#stats').innerHTML = h;
+}
+$('#stprint').addEventListener('click', () => { renderStats(); const H = document.documentElement; H.classList.add('pstat'); const off = () => { H.classList.remove('pstat'); window.removeEventListener('afterprint', off); }; window.addEventListener('afterprint', off); try{ window.print(); }catch(e){} setTimeout(() => { if (!matchMedia('print').matches) off(); }, 1500); });
+$('#stxlsx').addEventListener('click', async () => {
+  const S0 = statsData(), rows = [['Statistiques de la session', (DB.g && (DB.g.lieu || DB.g.session)) || '', (DB.g && DB.g.date) || ''], [],
+    ['Candidats', S0.L.length], ['UV à évaluer', S0.passages], ['Décisions saisies', S0.decided], ['Toutes UV du jour validées', S0.full.length], ['Fiches photographiées', S0.photos], ['Mails envoyés', S0.mailed], [],
+    ['', ...KEYS.map(([,l]) => l), 'Réussite']];
+  [1,2,3].forEach(u => rows.push(['UV' + u, ...KEYS.map(([k]) => S0.byUV[u][k] || 0), rate(S0.byUV[u])]));
+  rows.push([]); Object.keys(S0.byDanUV).sort().forEach(k => { const [d,u] = k.split('|'); rows.push([`${d} dan · UV${u}`, ...KEYS.map(([kk]) => S0.byDanUV[k][kk] || 0), rate(S0.byDanUV[k])]); });
+  rows.push([]); Object.keys(S0.byTab).sort((a,b) => a-b).forEach(t => rows.push(['Table ' + t, ...KEYS.map(([k]) => S0.byTab[t][k] || 0), rate(S0.byTab[t])]));
+  rows.push([], ['Toutes UV du jour validées'], ...S0.full.map(n => [n]));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Statistiques');
+  const stamp = new Date().toISOString().slice(0,10);
+  try{ await saveFile(`statistiques_session_${stamp}.xlsx`, XLSX.write(wb, {bookType:'xlsx', type:'array'})); $('#stmsg').textContent = '✓ Fichier créé.'; }catch(e){ $('#stmsg').textContent = '⚠ ' + (e.message || e); }
+});
 function showStep(n){
   DB.step = n; save();
   $$('[data-steps]').forEach(el => el.classList.toggle('stephide', !el.dataset.steps.split(' ').includes(String(n))));
   $$('.steps button').forEach(b => { if (+b.dataset.step === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
   if (n === 3){ $('#quick').hidden = false; renderQuick(); }
+  if (n === 5) renderStats();
   stepStatus(); window.scrollTo({top:0});
 }
 $$('.steps button').forEach(b => b.addEventListener('click', () => showStep(+b.dataset.step)));
