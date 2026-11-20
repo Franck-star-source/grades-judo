@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261120.01">
+<meta name="fj-version" content="20261120.02">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -126,6 +126,8 @@ tr.demo td:nth-child(2)::after{content:' · démontrée par le candidat';font:60
 .rinfo ul{margin:2px 0 0;padding-left:18px}
 .rinfo .w{color:var(--warn);font-weight:600}
 .dlst{font-size:13px;font-weight:600;color:var(--ok)}
+#trainf{display:block;width:100%;height:calc(100vh - 24px);min-height:620px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.trainc{padding-bottom:12px}
 .linkb{font:inherit;border:0;background:none;color:var(--ai);text-decoration:underline;cursor:pointer;padding:0}
 #cv-body{font:14px/1.45 var(--f-body);min-height:240px}
 .rinfo .e{color:var(--bad);font-weight:600}
@@ -547,6 +549,7 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
       <button type="button" data-step="3"><span class="n">3</span><span class="tx"><b>Résultats</b><small id="st3">fichiers et mails</small></span></button>
       <button type="button" data-step="4" class="bstep"><span class="n">🖨</span><span class="tx"><b>Fiches vierges</b><small>à imprimer sans candidat</small></span></button>
       <button type="button" data-step="5" class="bstep"><span class="n">📊</span><span class="tx"><b>Statistiques</b><small>bilan de la session</small></span></button>
+      <button type="button" data-step="6" class="bstep"><span class="n">🎲</span><span class="tx"><b>Entraînement</b><small>tirage des techniques</small></span></button>
     </nav>
   </header>
 
@@ -618,6 +621,524 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     <p class="guide">Bilan calculé sur les décisions enregistrées sur cet appareil. Il se met à jour à chaque ouverture de cet onglet.</p>
     <div class="bar noprint"><button class="btn" type="button" id="stprint">🖨 Imprimer le bilan</button><button class="btn ghost" type="button" id="stxlsx">📥 Exporter en Excel</button><span class="dlst" id="stmsg"></span></div>
     <div id="stats"></div>
+  </section>
+
+  <section class="card noprint trainc" id="trainc" data-steps="6" aria-label="Entraînement : tirage des techniques">
+    <h2 class="sth"><span class="sn">🎲</span>Entraînement : tirage des techniques</h2>
+    <p class="guide">Une technique du programme est tirée au sort, le chrono démarre ; appuyez sur <b>Réalisée</b> dès qu'elle est exécutée. Mode <b>🧀 Enfants</b> pour le fromage chrono. <b>Plein écran</b> pour le grand écran de la salle.</p>
+    <iframe id="trainf" title="Tirage des techniques" allow="fullscreen; screen-wake-lock" allowfullscreen></iframe>
+    <template id="train-src"><title>Tirage des techniques</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout : une scène centrale (technique + chrono), réglages au-dessus, programme et historique en dessous */
+:root{
+  --bg:#F2F4EE; --surface:#FFFFFF; --ink:#18211D; --muted:#5B6862; --line:#D6DDD4;
+  --accent:#1E5B45; --accent-ink:#FFFFFF; --soft:#E3ECE5; --alert:#B3261E;
+  --display:"Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --cheese:#FFCF3F; --cheese-d:#E9A800; --crumb:#F3EBD2;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1513; --surface:#17201C; --ink:#E7EEE9; --muted:#9AA8A0; --line:#2B3732;
+  --accent:#62BB95; --accent-ink:#0C1310; --soft:#1F2C26; --alert:#F07167; --crumb:#2C2A20; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1513; --surface:#17201C; --ink:#E7EEE9; --muted:#9AA8A0; --line:#2B3732;
+  --accent:#62BB95; --accent-ink:#0C1310; --soft:#1F2C26; --alert:#F07167; --crumb:#2C2A20; color-scheme:dark}
+body.kids{font-family:var(--display);font-size:16px}
+
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:0}
+
+/* Réglages */
+.set{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end}
+.grp{display:grid;gap:5px}
+.lab{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-weight:600;border:0;background:transparent;color:var(--ink);padding:9px 14px;cursor:pointer;border-right:1px solid var(--line);min-height:42px}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+select{font:inherit;font-weight:600;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);min-height:42px}
+.chk{display:flex;align-items:center;gap:8px;font-weight:500;min-height:42px;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--accent)}
+
+/* Scène */
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,40px);display:grid;gap:18px;justify-items:center;text-align:center;position:relative}
+.meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.pill{font-size:.78rem;font-weight:600;letter-spacing:.04em;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--ink)}
+.pill.dom{background:var(--accent);color:var(--accent-ink)}
+.tech{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,8vw,5.6rem);line-height:1.05;margin:0;min-height:1.1em;overflow-wrap:anywhere;text-wrap:balance}
+.tech.roll{color:var(--muted)}
+.fam{font-size:1.05rem;color:var(--muted);margin:0;min-height:1.5em}
+.clock{position:relative;width:min(220px,52vw);aspect-ratio:1;max-width:100%}
+.clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+.clock circle{fill:none;stroke-width:9}
+.clock .trk{stroke:var(--soft)}
+.clock .arc{stroke:var(--accent);stroke-linecap:round;transition:stroke .3s}
+.clock.end .arc{stroke:var(--alert)}
+.sec{position:absolute;inset:0;display:grid;place-items:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:clamp(2.6rem,10vw,4rem);line-height:1}
+.sec small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.clock.end .sec{color:var(--alert)}
+.ctl{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.btn{font:inherit;font-weight:700;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:12px 20px;cursor:pointer;min-height:48px}
+.btn.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-size:1.15rem;padding:14px 34px}
+.btn:disabled{opacity:.4;cursor:default}
+.left{color:var(--muted);font-size:.9rem;margin:0;font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:.85rem;margin:0}
+
+/* Programme + historique */
+.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:18px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0}
+.box h2{font-family:var(--display);font-size:1.15rem;margin:0 0 10px}
+.fams{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 18px}
+.fams h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 4px}
+.fams ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.fams li{font-size:.92rem}
+.fams li.done{color:var(--muted);text-decoration:line-through}
+.fams li.now{font-weight:700;color:var(--accent)}
+.fams li .d{font-size:.72rem;color:var(--muted);margin-left:4px}
+ol.hist{margin:0;padding-left:1.4em;display:grid;gap:3px}
+ol.hist li > span:not(.lv){color:var(--muted);font-size:.8rem}
+ol.hist .lv{font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);margin:0}
+.keys{color:var(--muted);font-size:.8rem;margin:0}
+kbd{font:inherit;font-size:.75rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--soft)}
+
+.btn.ok{background:var(--alert);border-color:var(--alert);color:#fff;font-size:1.15rem;padding:14px 34px}
+.res{margin:0;font-size:1.1rem;font-weight:600;font-variant-numeric:tabular-nums}
+.lv{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;margin-right:4px}
+.a3{background:var(--accent);color:var(--accent-ink)}
+.a2{background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--accent)}
+.a1{background:var(--soft);color:var(--muted)}
+.a0{background:transparent;color:var(--alert);box-shadow:inset 0 0 0 1px var(--alert)}
+.k4{background:#F2A900;color:#2A1A00}.k3{background:#1E8A5F;color:#fff}.k2{background:#E07A1F;color:#fff}.k1{background:#7A9A2E;color:#fff}
+/* Familles */
+.fsel{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);padding:6px 12px;cursor:pointer;min-height:36px}
+.chip[aria-pressed="true"]{background:var(--soft);color:var(--ink);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Fromage (mode enfants) */
+.cheese{display:grid;justify-items:center;gap:4px}
+.cheese canvas{width:min(640px,94vw,72vh);min-width:min(300px,94vw);height:auto;aspect-ratio:1;max-width:100%}
+.who{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4.5vw,3rem);line-height:1.15;margin:0;min-height:1.2em;text-wrap:balance}
+.lvls{font-size:.85rem;color:var(--muted);line-height:2}
+.bilan{margin-top:10px;display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.bilan .big{font-size:1.05rem;color:var(--ink)}
+/* Éclair de niveau : un seul look volontaire, couleurs fixes lisibles sur les deux thèmes */
+.flash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;cursor:pointer;overflow:hidden;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));
+  color:#fff;animation:fIn .35s ease-out both}
+.flash.a3,.flash.k4{background:radial-gradient(circle at 50% 45%,#FFE27A 0%,#F2A900 38%,#7A4A00 100%);color:#2A1A00}
+.flash.a2,.flash.k3{background:radial-gradient(circle at 50% 45%,#9BE7C4 0%,#1E8A5F 45%,#0B3B29 100%)}
+.flash.a1{background:radial-gradient(circle at 50% 45%,#A9C8FF 0%,#3D6FD1 45%,#142A5C 100%)}
+.flash.a0{background:radial-gradient(circle at 50% 45%,#FFB3A8 0%,#D2453A 45%,#561410 100%)}
+.flash.k2{background:radial-gradient(circle at 50% 45%,#FFD3A1 0%,#E07A1F 45%,#5A2A05 100%)}
+.flash.k1{background:radial-gradient(circle at 50% 45%,#D9F2A6 0%,#7A9A2E 45%,#2C3A0C 100%)}
+.flash .in{display:grid;gap:10px;justify-items:center;max-width:900px;position:relative;z-index:2}
+.flash .emo{font-size:clamp(4rem,16vw,9rem);line-height:1;animation:bounce .9s ease-out both}
+.flash .lvl{font-family:var(--display);font-weight:700;font-size:clamp(2.6rem,10vw,6.5rem);line-height:1;margin:0;text-shadow:0 4px 30px rgba(0,0,0,.25);animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+.flash .tm{font-size:clamp(1.3rem,4vw,2rem);font-weight:700;font-variant-numeric:tabular-nums;margin:0;opacity:.95}
+.flash .joke{font-size:clamp(1.15rem,3.6vw,1.9rem);font-weight:600;margin:0;max-width:30ch;text-wrap:balance}
+.flash .ring{position:absolute;left:50%;top:45%;width:20vmin;height:20vmin;margin:-10vmin 0 0 -10vmin;border-radius:50%;border:6px solid rgba(255,255,255,.7);animation:ring 1.4s ease-out infinite;z-index:1}
+.flash .ring.b{animation-delay:.45s}
+.flash .cf{position:absolute;top:-10vh;font-size:clamp(1.4rem,4vw,2.4rem);animation:fall linear both;z-index:1}
+@keyframes fIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%{transform:translateY(-40px) scale(.5);opacity:0}60%{transform:translateY(8px) scale(1.1);opacity:1}100%{transform:none}}
+@keyframes ring{from{transform:scale(.4);opacity:1}to{transform:scale(5);opacity:0}}
+@keyframes fall{to{transform:translateY(125vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.flash,.flash *{animation:none!important}.flash .ring,.flash .cf{display:none}}
+/* Plein écran */
+:fullscreen body{overflow:auto}
+@media (prefers-reduced-motion:reduce){.clock .arc{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Tirage des techniques</h1>
+    <p class="sub">Programme technique UV2 · 1er, 2e et 3e dan</p>
+  </header>
+
+  <div class="set" role="group" aria-label="Réglages">
+    <div class="grp"><span class="lab" id="l-mode">Public</span>
+      <div class="seg" id="mode" aria-labelledby="l-mode">
+        <button type="button" data-v="adult" aria-pressed="true">🥋 Adultes</button>
+        <button type="button" data-v="kids" aria-pressed="false">🧀 Enfants</button>
+      </div></div>
+    <div class="grp"><span class="lab" id="l-dan">Grade</span>
+      <div class="seg" id="dan" aria-labelledby="l-dan">
+        <button type="button" data-v="1" aria-pressed="true">1er dan</button>
+        <button type="button" data-v="2" aria-pressed="false">2e dan</button>
+        <button type="button" data-v="3" aria-pressed="false">3e dan</button>
+      </div></div>
+    <div class="grp"><span class="lab" id="l-dom">Domaine</span>
+      <div class="seg" id="dom" aria-labelledby="l-dom">
+        <button type="button" data-v="N" aria-pressed="false">Nage-waza</button>
+        <button type="button" data-v="W" aria-pressed="false">Ne-waza</button>
+        <button type="button" data-v="NW" aria-pressed="true">Les deux</button>
+      </div></div>
+    <div class="grp"><label class="lab" for="prog">Programme</label>
+      <select id="prog"><option value="dan">Du grade seulement</option><option value="cumul">Cumulé (grade + grades inférieurs)</option></select></div>
+    <div class="grp"><label class="lab" for="dur">Durée</label>
+      <select id="dur"><option value="15">15 s</option><option value="20">20 s</option><option value="30" selected>30 s</option><option value="45">45 s</option><option value="60">60 s</option></select></div>
+    <label class="chk"><input type="checkbox" id="auto" checked> Enchaîner automatiquement</label>
+    <label class="chk"><input type="checkbox" id="snd" checked> Son</label>
+  </div>
+  <div class="grp"><span class="lab" id="l-fam">Familles tirées au sort <span style="text-transform:none;letter-spacing:0;font-weight:500">· touchez pour retirer ou ajouter</span></span>
+    <div class="fsel" id="famsel" aria-labelledby="l-fam"></div></div>
+
+  <section class="stage" aria-live="polite">
+    <div class="meta" id="meta"><span class="pill dom">Prêt</span><span class="pill" id="pdan">1er dan</span></div>
+    <p class="tech" id="tech">Appuyez sur Lancer</p>
+    <p class="fam" id="fam">Une technique est tirée au sort, puis le chrono démarre.</p>
+    <p class="res" id="res" hidden></p>
+    <div class="cheese" id="cheese" hidden><canvas id="cv" width="900" height="900" aria-label="Fromage chrono"></canvas><p class="who" id="who"></p></div>
+    <div class="clock" id="clock" aria-label="Temps restant">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="44"/><circle class="arc" id="arc" cx="50" cy="50" r="44"/></svg>
+      <div class="sec"><div><span id="sec">30</span><small>secondes</small></div></div>
+    </div>
+    <div class="ctl">
+      <button class="btn go" type="button" id="go">▶ Lancer</button>
+      <button class="btn ok" type="button" id="ok" disabled>✓ Réalisée</button>
+      <button class="btn" type="button" id="pause" disabled>Pause</button>
+      <button class="btn" type="button" id="next" disabled>Suivante ⏭</button>
+      <button class="btn" type="button" id="stop" disabled>Arrêter</button>
+      <button class="btn" type="button" id="fs">Plein écran</button>
+    </div>
+    <p class="left" id="left"></p>
+    <p class="keys"><kbd>Espace</kbd> lancer / réalisée · <kbd>P</kbd> pause · <kbd>→</kbd> suivante · <kbd>Échap</kbd> arrêter</p>
+    <p class="note">Appuyez sur <b>Réalisée</b> dès que le candidat exécute la technique : le temps de réaction donne le niveau.</p>
+  </section>
+
+  <div class="cols">
+    <section class="box"><h2>Programme tiré au sort</h2><div class="fams" id="pool"></div>
+      <p class="note" style="margin-top:12px">Pas de répétition : chaque technique sort une seule fois. Quand toutes sont sorties, le tirage repart sur la liste complète.</p></section>
+    <section class="box"><h2>Bilan</h2>
+      <div class="lvls" id="lvls"></div>
+      <div id="bilan" class="bilan"></div>
+      <h2 style="margin-top:16px">Déjà tirées</h2><ol class="hist" id="hist"></ol><p class="empty" id="hempty">Aucune pour l'instant.</p>
+      <div class="ctl" style="justify-content:flex-start;margin-top:12px"><button class="btn" type="button" id="reset">Remettre à zéro</button></div></section>
+  </div>
+</div>
+
+<div class="flash" id="flash" hidden role="status" aria-live="assertive"></div>
+<script>
+(function(){
+'use strict';
+/* Programme technique FFJudo par grade (listes du programme UV2, identiques à fiches-jury) */
+const PROG = {
+  1:{N:{'Te-waza':['Ippon-seoi-nage','Morote-seoi-nage','Kata-guruma','Tai-otoshi','Uki-otoshi'],'Koshi-waza':['Harai-goshi','Koshi-guruma','Kubi-nage','O-goshi','Tsurikomi-goshi','Uchi-mata','Uki-goshi'],'Ashi-waza':['De-ashi-barai','Hiza-guruma','Ko-soto-gari','Ko-uchi-gari','Okuri-ashi-barai','O-soto-gari','O-uchi-gari','Sasae-tsurikomi-ashi'],'Sutemi-waza':['Sumi-gaeshi','Tomoe-nage']},
+     W:{'Osaekomi-waza':['Hon-gesa-gatame','Ushiro-gesa-gatame','Kami-shiho-gatame','Yoko-shiho-gatame','Tate-shiho-gatame'],'Shime-waza':['Gyaku-juji-jime','Kata-juji-jime','Nami-juji-jime','Hadaka-jime','Okuri-eri-jime'],'Kansetsu-waza':['Ude-garami','Ude-hishigi-juji-gatame','Ude-hishigi-ude-gatame']}},
+  2:{N:{'Te-waza':['Eri-seoi-nage','Te-guruma','Morote-gari','Kuchiki-taoshi'],'Koshi-waza':['Hane-goshi','Sode-tsurikomi-goshi','Tsuri-goshi'],'Ashi-waza':['O-guruma','Ashi-guruma','Ko-soto-gake','O-soto-otoshi','Tsubame-gaeshi'],'Sutemi-waza':['Ura-nage','Tani-otoshi','Yoko-guruma','Yoko-gake','Ko-uchi-makikomi','Yoko-tomoe-nage','Uki-waza']},
+     W:{'Osaekomi-waza':['Kuzure-kami-shiho-gatame','Kuzure-kesa-gatame','Kuzure-tate-shiho-gatame','Kuzure-yoko-shiho-gatame'],'Shime-waza':['Sankaku-jime','Kata-ha-jime','Kata-te-jime','Sode-guruma-jime'],'Kansetsu-waza':['Ude-hishigi-hiza-gatame','Ude-hishigi-waki-gatame']}},
+  3:{N:{'Te-waza':['Sumi-otoshi','Kibisu-gaeshi','Uchi-mata-sukashi','Sukui-nage','Yama-arashi','Seoi-otoshi'],'Koshi-waza':['Utsuri-goshi','Ushiro-goshi'],'Ashi-waza':['Harai-tsurikomi-ashi','O-soto-guruma','O-soto-gaeshi'],'Sutemi-waza':['Soto-makikomi','Harai-makikomi','Yoko-wakare','Yoko-otoshi','Tawara-gaeshi','Daki-wakare']},
+     W:{'Osaekomi-waza':['Makura-gesa-gatame','Kata-gatame'],'Shime-waza':['Morote-jime','Tsukkomi-jime','Ashi-gatame-jime','Ryote-jime'],'Kansetsu-waza':['Ude-hishigi-ashi-gatame','Ude-hishigi-sankaku-gatame','Ude-hishigi-hara-gatame']}}
+};
+const DOMN = {N:'Nage-waza', W:'Ne-waza'};
+const DANL = d => d === 1 ? '1er dan' : d + 'e dan';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let cfg = {mode:'adult', dan:1, dom:'NW', prog:'dan', dur:30, auto:true, snd:true, excl:[]};
+try{ const s = JSON.parse(localStorage.getItem('tirage-tech-v2') || 'null'); if (s && typeof s === 'object') cfg = Object.assign(cfg, s); }catch(e){}
+if (!Array.isArray(cfg.excl)) cfg.excl = [];
+const saveCfg = () => { try{ localStorage.setItem('tirage-tech-v2', JSON.stringify(cfg)); }catch(e){} };
+
+/* Niveaux : adultes (seuils en secondes) et enfants (le fromage : part du temps écoulé) */
+const LEVELS = {
+  adult:[
+    {cls:'a3', label:'Expert judo', emo:'⚡', lim:() => 3, txt:'moins de 3 s', conf:['🥇','⚡','⭐','🔥','🥋'], snd:'fan',
+     jokes:['Plus rapide que l\'ombre de Jigoro Kano !','Ippon ! Même le tatami n\'a rien vu venir.','Uke cherche encore ce qui s\'est passé.','Le chrono demande un ralenti vidéo.','Réflexe de ceinture noire, on ne discute pas.','Jigoro Kano vient de liker ton passage.','Les évaluateurs ont cligné des yeux : trop tard.']},
+    {cls:'a2', label:'Confirmé', emo:'💪', lim:() => 8, txt:'de 3 à 8 s', conf:['💪','⭐','🥋'],
+     jokes:['Solide ! Ton judogi est fier de toi.','Waza-ari bien mérité, on garde ce rythme.','Propre, efficace… et avec le sourire.','Encore un poil de vitesse et c\'est la médaille.','Le sensei hoche la tête. C\'est bon signe.','Ça sent la ceinture qui se mérite.']},
+    {cls:'a1', label:'Débutant', emo:'🐢', lim:() => Infinity, txt:'plus de 8 s', conf:['🐢','🍃'],
+     jokes:['Pas de panique, la technique est arrivée… en tram.','Uke a eu le temps de refaire sa ceinture.','Lent mais sûr : la tortue aussi a gagné.','Chargement de la technique… 87 %… 100 % !','Le kuzushi était là, la vitesse arrive bientôt.','On a vu le cerveau feuilleter le Gokyo.']}
+  ],
+  adultOut:{cls:'a0', label:'Non réalisée', emo:'🍵', txt:'temps écoulé', conf:['🍵','💤'], snd:'boing',
+     jokes:['Mate ! Même les 6e dan ont des trous de mémoire.','La technique est partie boire un thé vert.','Pas grave : on dira que c\'était une feinte.','Le cerveau a fait un tomoe-nage arrière.','Hajime… ah non, c\'est déjà Sore-made.','Cette technique est en télétravail aujourd\'hui.']},
+  kids:[
+    {cls:'k4', label:'Einstein', emo:'🐆', who:'le guépard', say:['Trop facile !','Vroum !','Même pas chaud !'], f:.10, conf:['🧠','🐆','⭐','🥇','🧀'], snd:'fan',
+     jokes:['Cerveau de génie et pattes de guépard !','Einstein en kimono, c\'est toi !','Si rapide que le guépard veut des cours.','E = mc² : Excellent, Magnifique, Champion au carré !','Le fromage n\'a même pas eu le temps de rétrécir !']},
+    {cls:'k3', label:'Ingénieur', emo:'🐇', who:'le lapin', say:['Hop hop hop !','Je bondis !','Carotte power !'], f:8/30, conf:['🐇','🔧','⭐','🧀'],
+     jokes:['Malin comme un lapin, précis comme un ingénieur !','Technique bien construite, plans validés !','Le lapin a bondi pile au bon moment.','Encore un petit bond et tu deviens Einstein !','Bravo, tu as gardé presque tout le fromage.']},
+    {cls:'k2', label:'Quiche', emo:'🐢', who:'la tortue', say:['J\'arrive…','Pas si vite !','Tranquille…'], f:.50, conf:['🥧','🐢','🧀'],
+     jokes:['Une bonne quiche, ça prend le temps de cuire !','La tortue est arrivée… et elle est contente.','Ding ! La quiche sort du four.','Doucement mais sûrement, comme une tortue ninja.','La souris a mangé la moitié du fromage, vite !']},
+    {cls:'k1', label:'Légume', emo:'🐌', who:'l\'escargot', say:['Zzz… déjà ?','On a le temps…','Attendez-moi !'], f:1, conf:['🥕','🐌','🥦','🧀'], snd:'boing',
+     jokes:['L\'escargot a fini… et il a sorti ses antennes !','Petit légume deviendra grand judoka !','Même les carottes apprennent le judo.','Le brocoli réfléchit encore… au prochain coup !','La souris a mangé tout le fromage, on rejoue ?']}
+  ]
+};
+const kids = () => cfg.mode === 'kids';
+const kLim = (l) => l.f * cfg.dur;
+function LV(rt){
+  if (kids()){ const L = LEVELS.kids; if (rt == null) return L[L.length - 1]; return L.find(l => rt < kLim(l)) || L[L.length - 1]; }
+  if (rt == null) return LEVELS.adultOut;
+  return LEVELS.adult.find(l => rt < l.lim()) || LEVELS.adult[2];
+}
+const levelList = () => kids() ? LEVELS.kids : LEVELS.adult.concat(LEVELS.adultOut);
+const fmt = x => x.toFixed(1).replace('.', ',') + ' s';
+let lastJ = {}, flashT = null;
+function joke(l){ const a = l.jokes; let i; do { i = Math.floor(Math.random() * a.length); } while (a.length > 1 && i === lastJ[l.cls]); lastJ[l.cls] = i; return a[i]; }
+function flash(l, rt){
+  const f = document.getElementById('flash'); let cf = '';
+  const n = (l.cls === 'a3' || l.cls === 'k4') ? 34 : 16;
+  for (let i = 0; i < n; i++){ const c = l.conf[i % l.conf.length]; cf += '<span class="cf" style="left:' + (Math.random() * 100).toFixed(1) + '%;animation-duration:' + (1.6 + Math.random() * 1.6).toFixed(2) + 's;animation-delay:' + (Math.random() * .6).toFixed(2) + 's">' + c + '</span>'; }
+  f.className = 'flash ' + l.cls;
+  f.innerHTML = '<div class="ring"></div><div class="ring b"></div>' + cf + '<div class="in"><div class="emo">' + l.emo + '</div><p class="lvl">' + esc(l.label) + '</p>' + (rt != null ? '<p class="tm">' + fmt(rt) + '</p>' : '<p class="tm">temps écoulé</p>') + '<p class="joke">' + esc(joke(l)) + '</p></div>';
+  f.hidden = false; clearTimeout(flashT); flashT = setTimeout(hideFlash, 2600);
+}
+function hideFlash(){ clearTimeout(flashT); const f = document.getElementById('flash'); f.hidden = true; f.innerHTML = ''; }
+document.getElementById('flash').addEventListener('click', hideFlash);
+
+let pool = [], bag = [], hist = [], cur = null, startAt = 0;
+let state = 'idle', endAt = 0, remain = 0, tick = null, rollT = null, lastBeep = -1, wake = null;
+
+const famsAvail = () => { const out = []; (cfg.dom === 'NW' ? ['N','W'] : [cfg.dom]).forEach(dm => Object.keys(PROG[1][dm]).forEach(f => out.push([dm, f]))); return out; };
+function buildPool(){
+  const dans = cfg.prog === 'cumul' ? [1,2,3].filter(x => x <= cfg.dan) : [cfg.dan];
+  const doms = cfg.dom === 'NW' ? ['N','W'] : [cfg.dom];
+  const out = [];
+  doms.forEach(dm => dans.forEach(d => Object.entries(PROG[d][dm]).forEach(([fam, l]) => { if (!cfg.excl.includes(fam)) l.forEach(t => out.push({t, fam, dom:dm, dan:d})); })));
+  return out;
+}
+const key = x => x.dom + '|' + x.t;
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function refill(){ const done = new Set(hist.map(key)); bag = shuffle(pool.filter(x => !done.has(key(x)))); if (!bag.length){ hist = []; bag = shuffle(pool.slice()); } }
+
+function syncSettings(){
+  document.querySelectorAll('#mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === cfg.mode)));
+  document.querySelectorAll('#dan button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v === cfg.dan)));
+  document.querySelectorAll('#dom button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === cfg.dom)));
+  $('#prog').value = cfg.prog; $('#dur').value = String(cfg.dur); $('#auto').checked = cfg.auto; $('#snd').checked = cfg.snd;
+  document.body.classList.toggle('kids', kids());
+  $('#cheese').hidden = !kids(); $('#clock').hidden = kids();
+  $('#famsel').innerHTML = famsAvail().map(([dm, f]) => '<button type="button" class="chip" data-fam="' + esc(f) + '" aria-pressed="' + !cfg.excl.includes(f) + '">' + esc(f) + '</button>').join('');
+  $('#lvls').innerHTML = levelList().map(l => '<span class="lv ' + l.cls + '">' + l.emo + ' ' + esc(l.label) + '</span> ' + (kids() ? (l.f < 1 ? 'moins de ' + fmt(kLim(l)).replace(',0','') : 'plus lent ou temps écoulé') : l.txt)).join('<br>');
+}
+function changeSettings(){
+  saveCfg(); stop(); pool = buildPool(); hist = []; cur = null; refill(); syncSettings();
+  $('#tech').textContent = 'Appuyez sur Lancer'; $('#tech').classList.remove('roll');
+  $('#fam').textContent = pool.length + ' techniques au programme du ' + DANL(cfg.dan) + (cfg.prog === 'cumul' && cfg.dan > 1 ? ' (cumulé)' : '') + (cfg.excl.length ? ', familles choisies' : '') + '.';
+  setMeta(); setClock(cfg.dur, cfg.dur); render(); animLoop();
+}
+function setMeta(){
+  const m = cur ? '<span class="pill dom">' + DOMN[cur.dom] + '</span><span class="pill">' + esc(cur.fam) + '</span>' + (cfg.prog === 'cumul' && cur.dan !== cfg.dan ? '<span class="pill">programme ' + DANL(cur.dan) + '</span>' : '')
+                : '<span class="pill dom">' + (state === 'idle' ? 'Prêt' : '…') + '</span>';
+  $('#meta').innerHTML = m + '<span class="pill">' + DANL(cfg.dan) + '</span>';
+}
+const C = 2 * Math.PI * 44;
+/* Fromage chrono : la souris mange le fromage, les animaux apparaissent au fil du temps */
+const HOLES = [[.42,.30,.09],[.70,.38,.07],[.30,.62,.08],[.62,.68,.10],[.50,.48,.05],[.80,.60,.05],[.22,.40,.05],[.45,.82,.06],[.62,.18,.05]];
+function bubble(ctx, txt, x, y, W){
+  ctx.font = '700 ' + (W * .042) + 'px Fredoka, system-ui'; const tw = ctx.measureText(txt).width, pw = tw + W * .05, ph = W * .075;
+  let bx = Math.min(W - pw - 6, Math.max(6, x - pw / 2)), by = Math.max(6, y - ph);
+  ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = '#1B1B1B'; ctx.lineWidth = W * .006;
+  ctx.beginPath(); const rr = ph / 2;
+  ctx.moveTo(bx + rr, by); ctx.lineTo(bx + pw - rr, by); ctx.arc(bx + pw - rr, by + rr, rr, -Math.PI / 2, Math.PI / 2); ctx.lineTo(bx + rr, by + ph); ctx.arc(bx + rr, by + rr, rr, Math.PI / 2, Math.PI * 1.5); ctx.closePath();
+  ctx.fill(); ctx.stroke(); ctx.fillStyle = '#1B1B1B'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, bx + pw / 2, by + ph / 2 + 1);
+}
+let sayIdx = {}, anim = 0;
+function drawCheese(r, tot){
+  const cv = $('#cv'); if (!cv || $('#cheese').hidden) return;
+  const ctx = cv.getContext('2d'), W = cv.width, c = W / 2, Rr = W * .24, cs = getComputedStyle(document.documentElement), t = performance.now() / 1000;
+  const col = n => cs.getPropertyValue(n).trim(), run = state === 'run' || state === 'pause';
+  const fEl = Math.min(1, Math.max(0, 1 - r / tot)), a0 = -Math.PI / 2, aE = a0 + 2 * Math.PI * fEl, aEnd = a0 + 2 * Math.PI;
+  ctx.clearRect(0, 0, W, W);
+  ctx.beginPath(); ctx.arc(c, c, Rr, 0, 2 * Math.PI); ctx.fillStyle = col('--crumb'); ctx.fill();
+  ctx.setLineDash([10, 12]); ctx.lineWidth = 4; ctx.strokeStyle = col('--line'); ctx.stroke(); ctx.setLineDash([]);
+  if (fEl < 1){
+    ctx.save(); ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, Rr, aE, aEnd); ctx.closePath();
+    const g = ctx.createRadialGradient(c - Rr * .3, c - Rr * .3, Rr * .1, c, c, Rr); g.addColorStop(0, '#FFE58A'); g.addColorStop(1, col('--cheese'));
+    ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 8; ctx.strokeStyle = col('--cheese-d'); ctx.stroke(); ctx.clip();
+    HOLES.forEach(([x, y, rr]) => { ctx.beginPath(); ctx.arc(c + (x - .5) * 2 * Rr, c + (y - .5) * 2 * Rr, rr * Rr * 2, 0, 2 * Math.PI); ctx.fillStyle = col('--cheese-d'); ctx.globalAlpha = .55; ctx.fill(); ctx.globalAlpha = 1; });
+    ctx.restore();
+  }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  // la souris qui grignote (elle mâchouille)
+  if (run && fEl > 0 && fEl < 1){
+    const mx = c + Math.cos(aE) * Rr * .66, my = c + Math.sin(aE) * Rr * .66, chew = 1 + .12 * Math.sin(t * 18);
+    ctx.save(); ctx.translate(mx, my); ctx.scale(chew, 1 / chew); ctx.font = (W * .11) + 'px system-ui'; ctx.fillText('🐭', 0, 0); ctx.restore();
+    if (Math.sin(t * 2.2) > .2){ ctx.font = (W * .05) + 'px system-ui'; ctx.fillText('🧀', mx + W * .06, my - W * .05 + Math.sin(t * 6) * 6); }
+  }
+  // les animaux autour du fromage, dans l'ordre de rapidité
+  let prev = 0; const L = LEVELS.kids, curL = run ? (L.find(l => fEl < l.f) || L[L.length - 1]) : null;
+  let bub = null;
+  L.forEach((l, li) => {
+    const b = l.f, ab = a0 + 2 * Math.PI * b;
+    if (b < 1){ ctx.beginPath(); ctx.moveTo(c, c); ctx.lineTo(c + Math.cos(ab) * (Rr + 18), c + Math.sin(ab) * (Rr + 18)); ctx.lineWidth = 5; ctx.strokeStyle = col('--muted'); ctx.globalAlpha = .45; ctx.stroke(); ctx.globalAlpha = 1; }
+    const am = a0 + 2 * Math.PI * (prev + b) / 2, isCur = l === curL, reached = run && fEl >= prev;
+    const base = isCur ? W * .18 : W * .12, rad = Rr + W * (isCur ? .13 : .11);
+    let x = c + Math.cos(am) * rad, y = c + Math.sin(am) * rad, sc = 1, rot = 0;
+    if (isCur){ y += -Math.abs(Math.sin(t * 7)) * W * .025; rot = Math.sin(t * 9) * .12; sc = 1 + .06 * Math.sin(t * 7); }
+    else if (!run){ y += Math.sin(t * 2 + li) * 3; }
+    // halo de couleur derrière l'animal en cours
+    if (isCur){ ctx.beginPath(); ctx.arc(x, y, base * .56, 0, 2 * Math.PI); ctx.fillStyle = ({k4:'#F2A900',k3:'#1E8A5F',k2:'#E07A1F',k1:'#7A9A2E'})[l.cls]; ctx.globalAlpha = .28 + .12 * Math.sin(t * 7); ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.globalAlpha = !run ? 1 : isCur ? 1 : reached ? .7 : .55;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(sc, sc); ctx.font = base + 'px system-ui'; ctx.fillText(l.emo, 0, 0); ctx.restore();
+    ctx.globalAlpha = 1;
+    // nom sous l'animal
+    ctx.font = '700 ' + (W * (isCur ? .042 : .032)) + 'px Fredoka, system-ui'; ctx.fillStyle = col('--ink'); ctx.globalAlpha = !run || isCur ? 1 : .6;
+    ctx.fillText(l.label, x, y + base * .62); ctx.globalAlpha = 1;
+    if (isCur){ if (sayIdx[l.cls] == null) sayIdx[l.cls] = Math.floor(Math.random() * l.say.length); bub = [l.say[sayIdx[l.cls]], x, y - base * .55]; }
+    prev = b;
+  });
+  if (bub) bubble(ctx, bub[0], bub[1], bub[2], W);
+  ctx.beginPath(); ctx.arc(c, c, W * .085, 0, 2 * Math.PI); ctx.fillStyle = col('--surface'); ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = col('--cheese-d'); ctx.stroke();
+  ctx.fillStyle = r <= 5 && run ? col('--alert') : col('--ink'); ctx.font = '700 ' + (W * .08) + 'px Fredoka, system-ui';
+  ctx.fillText(String(Math.max(0, Math.ceil(r))), c, c + 3);
+  $('#who').textContent = curL ? curL.emo + ' ' + curL.label + ' : ' + curL.who + ' court encore !' : '🧀 Plus tu es rapide, plus il reste de fromage !';
+}
+function animLoop(){
+  cancelAnimationFrame(anim);
+  const f = () => { if (!kids()) return; const r = state === 'run' ? (endAt - performance.now()) / 1000 : state === 'pause' ? remain : state === 'idle' ? cfg.dur : null; if (r != null) drawCheese(r, cfg.dur); anim = requestAnimationFrame(f); };
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) anim = requestAnimationFrame(f);
+}
+function setClock(r, tot){
+  const s = Math.ceil(r);
+  $('#sec').textContent = s;
+  $('#arc').style.strokeDasharray = C; $('#arc').style.strokeDashoffset = C * (1 - Math.max(0, r) / tot);
+  $('#clock').classList.toggle('end', state !== 'idle' && s <= 10);
+  drawCheese(r, tot);
+}
+function render(){
+  const done = new Set(hist.map(key)), now = cur ? key(cur) : '';
+  const byFam = {};
+  pool.forEach(x => { const k = DOMN[x.dom] + ' · ' + x.fam; (byFam[k] = byFam[k] || []).push(x); });
+  $('#pool').innerHTML = Object.entries(byFam).map(([f, l]) => '<div><h3>' + esc(f) + '</h3><ul>' + l.map(x => '<li class="' + (key(x) === now ? 'now' : done.has(key(x)) ? 'done' : '') + '">' + esc(x.t) + (cfg.prog === 'cumul' && x.dan !== cfg.dan ? '<span class="d">' + x.dan + 'D</span>' : '') + '</li>').join('') + '</ul></div>').join('');
+  $('#hist').innerHTML = hist.map(x => { const l = 'rt' in x ? LV(x.rt) : null; return '<li>' + esc(x.t) + ' ' + (l ? '<span class="lv ' + l.cls + '">' + (kids() ? l.emo + ' ' : '') + (x.rt != null ? fmt(x.rt) : '—') + '</span>' : '<span>en cours</span>') + '</li>'; }).join('');
+  const sc = hist.filter(x => 'rt' in x), ok = sc.filter(x => x.rt != null).map(x => x.rt).sort((a,b) => a - b);
+  if (!sc.length) $('#bilan').innerHTML = '<p class="empty">Le bilan apparaît après la première technique.</p>';
+  else {
+    const moy = ok.length ? ok.reduce((a,b) => a + b, 0) / ok.length : null, med = ok.length ? ok[Math.floor((ok.length - 1) / 2)] : null;
+    const nr = sc.length - ok.length, g = nr / sc.length > .25 ? (kids() ? LEVELS.kids[3] : LEVELS.adult[2]) : LV(med);
+    const cnt = levelList().map(l => [l, sc.filter(x => LV(x.rt) === l).length]);
+    $('#bilan').innerHTML = '<div class="big">Niveau : <span class="lv ' + g.cls + '">' + (kids() ? g.emo + ' ' : '') + esc(g.label) + '</span></div>'
+      + '<div>' + sc.length + ' technique' + (sc.length > 1 ? 's' : '') + ' · ' + ok.length + ' réalisée' + (ok.length > 1 ? 's' : '') + '</div>'
+      + (ok.length ? '<div>Temps moyen ' + fmt(moy) + ' · médian ' + fmt(med) + ' · meilleur ' + fmt(ok[0]) + '</div>' : '')
+      + '<div>' + cnt.map(([l,n]) => '<span class="lv ' + l.cls + '" title="' + esc(l.label) + '">' + (kids() ? l.emo + ' ' : '') + n + '</span>').join('') + '</div>';
+  }
+  $('#hempty').hidden = hist.length > 0;
+  $('#left').textContent = (pool.length - hist.length) + ' technique' + (pool.length - hist.length > 1 ? 's' : '') + ' restante' + (pool.length - hist.length > 1 ? 's' : '') + ' sur ' + pool.length;
+  $('#go').disabled = state !== 'idle' || !pool.length;
+  $('#ok').disabled = state !== 'run';
+  $('#pause').disabled = state !== 'run' && state !== 'pause';
+  $('#pause').textContent = state === 'pause' ? 'Reprendre' : 'Pause';
+  $('#next').disabled = state === 'idle' || state === 'roll';
+  $('#stop').disabled = state === 'idle';
+}
+
+/* Son (Web Audio, démarré par un clic) */
+let ac = null;
+function beep(f, d, v){ if (!cfg.snd) return; try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; o.type = 'sine'; g.gain.setValueAtTime(v || .25, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d); o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + d); }catch(e){} }
+const fanfare = () => [523,659,784,1047].forEach((f,i) => setTimeout(() => beep(f, .22, .25), i * 110));
+const boing = () => { [300,220,160].forEach((f,i) => setTimeout(() => beep(f, .2, .25), i * 120)); };
+const gong = () => { beep(392, 1.6, .35); setTimeout(() => beep(294, 1.8, .3), 120); };
+
+async function keepAwake(on){
+  try{ if (on && !wake && navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); else if (!on && wake){ await wake.release(); wake = null; } }catch(e){ wake = null; }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state !== 'idle') keepAwake(true); });
+
+function draw(){
+  if (!pool.length) return;
+  clearInterval(tick); clearTimeout(rollT);
+  if (!bag.length) refill();
+  if (cur && !('rt' in cur) && (state === 'run' || state === 'pause')) cur.rt = null;
+  const pick = Object.assign({}, bag.pop());
+  sayIdx = {}; state = 'roll'; cur = null; $('#res').hidden = true; setMeta(); render(); setClock(cfg.dur, cfg.dur);
+  const el = $('#tech'); el.classList.add('roll');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let n = 0; const steps = reduce ? 1 : 14;
+  const spin = () => {
+    if (n++ < steps){ el.textContent = pool[Math.floor(Math.random() * pool.length)].t; $('#fam').textContent = 'Tirage…'; beep(880, .03, .06); rollT = setTimeout(spin, 45 + n * 8); return; }
+    cur = pick; hist.push(pick); el.classList.remove('roll'); el.textContent = pick.t;
+    $('#fam').textContent = DOMN[pick.dom] + ' · ' + pick.fam;
+    beep(660, .25, .3); startClock(cfg.dur); setMeta(); render();
+  };
+  spin();
+}
+function startClock(sec){
+  state = 'run'; remain = sec; startAt = performance.now(); endAt = startAt + sec * 1000; lastBeep = -1;
+  clearInterval(tick); tick = setInterval(step, 100); step(); render();
+}
+let lastZone = null;
+function step(){
+  if (state !== 'run') return;
+  const r = (endAt - performance.now()) / 1000;
+  setClock(r, cfg.dur);
+  const s = Math.ceil(r);
+  if (s <= 3 && s >= 1 && s !== lastBeep){ lastBeep = s; beep(740, .15, .2); }
+  if (kids()){ const z = LV(cfg.dur - r); if (z !== lastZone){ if (lastZone) beep(520, .12, .15); lastZone = z; } }
+  if (r <= 0){
+    clearInterval(tick); gong(); setClock(0, cfg.dur);
+    if (cur && !('rt' in cur)) { cur.rt = null; showRes(); }
+    if (cfg.auto){ state = 'wait'; render(); rollT = setTimeout(() => { if (state === 'wait'){ hideFlash(); draw(); } }, 2900); }
+    else { state = 'done'; $('#fam').textContent = DOMN[cur.dom] + ' · ' + cur.fam + ' — temps écoulé'; render(); }
+  }
+}
+function showRes(){
+  const l = LV(cur.rt); flash(l, cur.rt);
+  if (cfg.snd){ if (l.snd === 'fan') fanfare(); else if (l.snd === 'boing') boing(); }
+  const r = $('#res'); r.hidden = false; r.innerHTML = (cur.rt != null ? 'Réaction : ' + fmt(cur.rt) + ' ' : '') + '<span class="lv ' + l.cls + '">' + l.emo + ' ' + esc(l.label) + '</span>';
+}
+function done(){
+  if (state !== 'run' || !cur) return;
+  clearInterval(tick); cur.rt = (performance.now() - startAt) / 1000; beep(988, .12, .25); showRes();
+  if (cfg.auto){ state = 'wait'; render(); rollT = setTimeout(() => { if (state === 'wait'){ hideFlash(); draw(); } }, 2900); }
+  else { state = 'done'; render(); }
+}
+function pauseResume(){
+  if (state === 'run'){ remain = (endAt - performance.now()) / 1000; clearInterval(tick); state = 'pause'; render(); }
+  else if (state === 'pause'){ const n = performance.now(), used = cfg.dur - remain; endAt = n + remain * 1000; startAt = n - used * 1000; state = 'run'; tick = setInterval(step, 100); render(); }
+}
+function stop(){
+  if (cur && !('rt' in cur)){ hist = hist.filter(x => x !== cur); bag.push(Object.assign({}, cur)); }
+  clearInterval(tick); clearTimeout(rollT); hideFlash(); state = 'idle'; lastZone = null; keepAwake(false);
+  if (cur){ $('#fam').textContent = DOMN[cur.dom] + ' · ' + cur.fam; }
+  setClock(cfg.dur, cfg.dur); setMeta(); render();
+}
+
+$('#go').addEventListener('click', () => { keepAwake(true); draw(); });
+$('#next').addEventListener('click', () => { if (state !== 'idle' && state !== 'roll') draw(); });
+$('#pause').addEventListener('click', pauseResume);
+$('#ok').addEventListener('click', done);
+$('#stop').addEventListener('click', stop);
+$('#reset').addEventListener('click', () => { stop(); hist = []; cur = null; refill(); $('#tech').textContent = 'Appuyez sur Lancer'; $('#fam').textContent = pool.length + ' techniques au programme du ' + DANL(cfg.dan) + '.'; setMeta(); render(); });
+$('#fs').addEventListener('click', () => { const st = document.documentElement; try{ if (document.fullscreenElement) document.exitFullscreen(); else if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); }catch(e){} });
+document.querySelectorAll('#mode button').forEach(b => b.addEventListener('click', () => { cfg.mode = b.dataset.v; changeSettings(); }));
+document.querySelectorAll('#dan button').forEach(b => b.addEventListener('click', () => { cfg.dan = +b.dataset.v; changeSettings(); }));
+document.querySelectorAll('#dom button').forEach(b => b.addEventListener('click', () => { cfg.dom = b.dataset.v; changeSettings(); }));
+$('#famsel').addEventListener('click', e => {
+  const b = e.target.closest('[data-fam]'); if (!b) return; const f = b.dataset.fam;
+  if (cfg.excl.includes(f)) cfg.excl = cfg.excl.filter(x => x !== f);
+  else { const left = famsAvail().filter(([, x]) => !cfg.excl.includes(x) && x !== f); if (!left.length) return; cfg.excl.push(f); }
+  changeSettings();
+});
+$('#prog').addEventListener('change', e => { cfg.prog = e.target.value; changeSettings(); });
+$('#dur').addEventListener('change', e => { cfg.dur = +e.target.value; changeSettings(); });
+$('#auto').addEventListener('change', e => { cfg.auto = e.target.checked; saveCfg(); });
+$('#snd').addEventListener('change', e => { cfg.snd = e.target.checked; saveCfg(); });
+document.addEventListener('keydown', e => {
+  if (e.target.closest('select,input')) return;
+  if (!document.getElementById('flash').hidden && (e.code === 'Space' || e.key === 'Enter')){ e.preventDefault(); return; }
+  if (e.code === 'Space' || e.key === 'Enter'){ e.preventDefault(); if (state === 'idle') { keepAwake(true); draw(); } else if (state === 'run') done(); }
+  else if (e.key === 'p' || e.key === 'P') pauseResume();
+  else if (e.key === 'ArrowRight' && state !== 'idle' && state !== 'roll') draw();
+  else if (e.key === 'Escape') stop();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => setClock(state === 'idle' ? cfg.dur : remain, cfg.dur));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (state === 'idle') setClock(cfg.dur, cfg.dur); });
+
+changeSettings();
+})();
+</script>
+</template>
   </section>
 
   <section class="card noprint blankc" data-steps="4" aria-label="Fiches vierges">
@@ -2145,6 +2666,7 @@ function showStep(n){
   $$('.steps button').forEach(b => { if (+b.dataset.step === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
   if (n === 3){ $('#quick').hidden = false; renderQuick(); }
   if (n === 5) renderStats();
+  if (n === 6){ const f = $('#trainf'); if (f && !f.srcdoc) f.srcdoc = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + $('#train-src').innerHTML + '</body></html>'; }
   stepStatus(); window.scrollTo({top:0});
 }
 $$('.steps button').forEach(b => b.addEventListener('click', () => showStep(+b.dataset.step)));
