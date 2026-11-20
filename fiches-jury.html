@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="fj-version" content="20261116.02">
+<meta name="fj-version" content="20261120.01">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fiches jury grades judo</title>
 <meta name="description" content="Fiches d'évaluation jury des grades judo du 1er au 4e dan, règlement FFJDA 2026-2027 : UV1 kata, UV2 technique, UV3 option combinée, import de la liste des inscriptions. Outil créé par Franck Bourasseau.">
@@ -126,6 +126,8 @@ tr.demo td:nth-child(2)::after{content:' · démontrée par le candidat';font:60
 .rinfo ul{margin:2px 0 0;padding-left:18px}
 .rinfo .w{color:var(--warn);font-weight:600}
 .dlst{font-size:13px;font-weight:600;color:var(--ok)}
+.linkb{font:inherit;border:0;background:none;color:var(--ai);text-decoration:underline;cursor:pointer;padding:0}
+#cv-body{font:14px/1.45 var(--f-body);min-height:240px}
 .rinfo .e{color:var(--bad);font-weight:600}
 .dabs{display:inline-flex;gap:8px;align-items:center;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;justify-self:start;padding:4px 10px;border-radius:999px;border:1.5px dashed var(--line)}
 .dabs:has(input:checked){color:#fff;background:#5d6370;border-style:solid;border-color:#5d6370}
@@ -580,6 +582,25 @@ html.pm .wrap{width:190mm;max-width:190mm;margin:0}
     </div>
     <p class="hint">Les durées de l'UV3-B se modifient directement dans chaque fiche (colonne « Durée max ») et valent pour toute la session, pour ce dan.</p>
   
+  </section>
+
+  <section class="card noprint" id="convc" data-steps="1" aria-label="Convocation des inscrits">
+    <h2 class="sth"><span class="sn">✉</span>Convocation des inscrits <span class="sub">(mail en Cci)</span></h2>
+    <p class="guide">Remplissez la date, le lieu et l'heure : le message se met à jour. Les candidats sont mis en <b>copie cachée (Cci)</b> : aucun ne voit l'adresse des autres.</p>
+    <div class="ident">
+      <div class="f"><label for="cv-date">Date de l'épreuve</label><input id="cv-date" type="text" data-g="cvdate" placeholder="ex. DIMANCHE 7 DÉCEMBRE 2025"></div>
+      <div class="f"><label for="cv-lieu">Lieu</label><input id="cv-lieu" type="text" data-g="cvlieu" placeholder="ex. DOJO RÉGIONAL D'HERBLAY"></div>
+      <div class="f"><label for="cv-adr">Adresse</label><input id="cv-adr" type="text" data-g="cvadr" placeholder="ex. 1 RUE ALEXANDRE DUMAS"></div>
+      <div class="f"><label for="cv-ville">Code postal et ville</label><input id="cv-ville" type="text" data-g="cvville" placeholder="ex. 95220 HERBLAY SUR SEINE"></div>
+      <div class="f"><label for="cv-h">Inscription en kimono à partir de</label><input id="cv-h" type="text" data-g="cvh" placeholder="ex. 13h"></div>
+      <div class="f"><label for="cv-lim">Désinscription sur l'extranet avant le</label><input id="cv-lim" type="text" data-g="cvlim" placeholder="ex. 1 décembre 2025"></div>
+      <div class="f" style="grid-column:span 2"><label for="cv-sig">Signature</label><textarea id="cv-sig" data-g="cvsig" rows="2" placeholder="Franck BOURASSEAU&#10;CORG IDF"></textarea></div>
+    </div>
+    <div class="f"><label for="cv-subj">Objet du mail</label><input id="cv-subj" type="text" data-g="cvsubj"></div>
+    <div class="f"><label for="cv-body">Message <span class="sub" id="cv-man" hidden>(modifié à la main · <button type="button" class="linkb" id="cv-regen">revenir au modèle</button>)</span></label><textarea id="cv-body" rows="14" spellcheck="true"></textarea></div>
+    <p class="hint" id="cv-who"></p>
+    <div class="bar" id="cv-btns"></div>
+    <p class="hint">Sur ordinateur, le message est trop long pour être placé automatiquement : il est <b>copié</b> au clic, collez-le dans le mail avec <b>Ctrl+V</b>.</p>
   </section>
 
   <section class="card noprint" data-steps="1" aria-label="Répartir sur les tables">
@@ -1216,7 +1237,83 @@ function autoTab(){
   if (stacked()){ showTab(fu && I.includes(fu) ? fu : I.includes(curU) ? curU : I[0]); return; }
   if (fu && I.includes(fu)) showTab(fu); else if (!I.includes(curU)) showTab(I[0]);
 }
-function refresh(){ $('#stack').checked = stacked(); $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = ['sep','one','big'][+r.dataset.one] === (DB.g.lay || (DB.g.one ? 'one' : 'sep'))); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
+/* ---------- Convocation des inscrits (mail en Cci) ---------- */
+const CV_JOURS = ['DIMANCHE','LUNDI','MARDI','MERCREDI','JEUDI','VENDREDI','SAMEDI'], CV_MOIS = ['JANVIER','FÉVRIER','MARS','AVRIL','MAI','JUIN','JUILLET','AOÛT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DÉCEMBRE'];
+function cvParse(){ const m = String(DB.g.date || '').match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/); if (!m) return null; const d = new Date(+m[3], +m[2] - 1, +m[1]); return isNaN(d) ? null : d; }
+function cvDef(){
+  const d = cvParse(), lim = d ? new Date(d.getFullYear(), d.getMonth(), d.getDate() - 6) : null;
+  return {
+    cvdate: d ? CV_JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + CV_MOIS[d.getMonth()] + ' ' + d.getFullYear() : 'DIMANCHE 7 DÉCEMBRE 2025',
+    cvlieu: "DOJO RÉGIONAL D'HERBLAY", cvadr: '1 RUE ALEXANDRE DUMAS', cvville: '95220 HERBLAY SUR SEINE', cvh: '13h',
+    cvlim: lim ? lim.getDate() + ' ' + CV_MOIS[lim.getMonth()].toLowerCase() + ' ' + lim.getFullYear() : '1 décembre 2025',
+    cvsig: 'Franck BOURASSEAU\nCORG IDF'
+  };
+}
+const cvV = k => { const v = DB.g[k]; return (v != null && String(v).trim() !== '') ? String(v).trim() : cvDef()[k]; };
+function convSubj(){ const v = DB.g.cvsubj; return (v && v.trim()) ? v.trim() : 'Convocation passage de grade – ' + cvV('cvdate'); }
+function convBody(){
+  return 'Bonjour,\n\nNous confirmons votre inscription au passage de grade :\n'
+  + cvV('cvdate').toUpperCase() + '\n' + cvV('cvlieu') + '\n' + cvV('cvadr') + '\n' + cvV('cvville') + '\n\n'
+  + 'Inscription en kimono :\nÀ partir de ' + cvV('cvh') + ', accompagné de votre partenaire. Veuillez présenter vos passeports à jour avec les licences.\n\n'
+  + "Règles déontologiques de l'épreuve\n\nRespect de l’éthique et des valeurs du judo\n"
+  + "• Sincérité : Réalisez les techniques avec authenticité, sans exagération ni intention de tromper le jury. Les gestes doivent refléter une maîtrise technique réelle.\n"
+  + "• Honneur : Montrez du respect pour l'épreuve en la prenant au sérieux et en donnant le meilleur de vous-même.\n"
+  + "• Neutralité : Évitez de vous faire juger par une personne que vous connaissez.\n\n"
+  + "Respect de la décision du jury\n"
+  + "• Acceptation des critiques : Recevez les remarques ou les corrections du jury avec respect et humilité.\n"
+  + "• Pas de contestation : Ne remettez pas en question les décisions des examinateurs. Les vidéos ne sont pas recevables.\n"
+  + "• Esprit sportif : Acceptez le résultat final, qu’il soit positif ou négatif, comme une opportunité d'apprentissage.\n\n"
+  + "Respect des consignes de l’épreuve\n"
+  + "• Compréhension du programme : Respectez les techniques demandées et présentez-les avec précision.\n"
+  + "• Salutations : Saluez votre partenaire, les évaluateurs et le jury avant et après la démonstration, conformément à l’étiquette du judo.\n"
+  + "• Temps imparti : Réalisez les techniques dans les délais prévus, en respectant les consignes de l’épreuve.\n\n"
+  + "Dans le cas où vous ne pourriez pas vous présenter à l’épreuve, nous vous invitons vivement à vous désinscrire sur l’extranet avant le " + cvV('cvlim') + " afin de faciliter la gestion administrative.\n\n"
+  + 'Bien cordialement et bonne fin de préparation\n' + cvV('cvsig');
+}
+const cvOkMail = m => /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(m);
+function convRecipients(){
+  const seen = new Set(), ok = [], miss = [];
+  DB.list.forEach(c => { const m = String(c.mail || '').trim().toLowerCase(); const nm = ((c.nom || '') + ' ' + (c.prenom || '')).trim() || 'candidat';
+    if (!cvOkMail(m)) miss.push(nm); else if (!seen.has(m)){ seen.add(m); ok.push(m); } });
+  return {ok, miss};
+}
+function convBatches(addrs){
+  const subj = encodeURIComponent(convSubj()), out = []; let cur = [];
+  const len = a => ('mailto:?bcc=' + a.map(x => encodeURIComponent(x).replace(/%40/g,'@')).join(',') + '&subject=' + subj).length;
+  addrs.forEach(a => { if (cur.length && len(cur.concat(a)) > 1900){ out.push(cur); cur = []; } cur.push(a); });
+  if (cur.length) out.push(cur); return out;
+}
+async function cvCopy(txt){
+  try{ if (navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(txt); return true; } }catch(e){}
+  try{ const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly',''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; }catch(e){ return false; }
+}
+function renderConv(){
+  if (!$('#convc')) return;
+  const def = cvDef();
+  [['cv-date','cvdate'],['cv-lieu','cvlieu'],['cv-adr','cvadr'],['cv-ville','cvville'],['cv-h','cvh'],['cv-lim','cvlim'],['cv-sig','cvsig']].forEach(([id,k]) => { const el = $('#'+id); if (document.activeElement !== el){ el.value = (DB.g[k] != null && String(DB.g[k]).trim() !== '') ? DB.g[k] : def[k]; } });
+  const sj = $('#cv-subj'); if (document.activeElement !== sj) sj.value = convSubj();
+  const bd = $('#cv-body'), man = !!DB.g.cvman && DB.g.cvbody;
+  if (document.activeElement !== bd) bd.value = man ? DB.g.cvbody : convBody();
+  $('#cv-man').hidden = !man;
+  const r = convRecipients(), bt = convBatches(r.ok);
+  $('#cv-who').innerHTML = DB.list.length ? '<b>' + r.ok.length + ' adresse' + (r.ok.length > 1 ? 's' : '') + '</b> sur ' + DB.list.length + ' inscrit' + (DB.list.length > 1 ? 's' : '') + (r.miss.length ? ' · <span style="color:var(--bad)">sans adresse valide : ' + r.miss.map(esc).join(', ') + '</span> (ajoutez-la dans la fiche du candidat, étape 2)' : '') : 'Importez d\'abord la liste des inscrits (Excel) ci-dessus.';
+  $('#cv-btns').innerHTML = !r.ok.length ? '' : bt.map((b,i) => '<button class="btn big res" type="button" data-cvsend="' + i + '">✉ ' + (bt.length > 1 ? 'Envoi ' + (i+1) + '/' + bt.length + ' (' + b.length + ' candidats)' : 'Ouvrir le mail de convocation') + '</button>').join('')
+    + '<button class="btn ghost" type="button" id="cv-cpa">📋 Copier les adresses</button><button class="btn ghost" type="button" id="cv-cpb">📋 Copier le message</button><span class="dlst" id="cv-st" aria-live="polite"></span>';
+}
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-cvsend], #cv-cpa, #cv-cpb, #cv-regen'); if (!t) return;
+  if (t.id === 'cv-regen'){ DB.g.cvman = 0; DB.g.cvbody = ''; save(); renderConv(); return; }
+  const r = convRecipients(), body = $('#cv-body').value;
+  if (t.id === 'cv-cpa'){ const ok = await cvCopy(r.ok.join('; ')); $('#cv-st').textContent = ok ? r.ok.length + ' adresses copiées : collez-les dans le champ Cci' : 'Copie impossible sur cet appareil'; return; }
+  if (t.id === 'cv-cpb'){ const ok = await cvCopy(body); $('#cv-st').textContent = ok ? 'Message copié : collez-le dans le mail (Ctrl+V)' : 'Copie impossible : sélectionnez le texte du message'; return; }
+  const b = convBatches(r.ok)[+t.dataset.cvsend]; if (!b) return;
+  const copied = await cvCopy(body);
+  const base = 'mailto:?bcc=' + b.map(x => encodeURIComponent(x).replace(/%40/g,'@')).join(',') + '&subject=' + encodeURIComponent(convSubj());
+  const full = base + '&body=' + encodeURIComponent(body);
+  const a = document.createElement('a'); a.href = full.length <= 1900 ? full : base; a.click();
+  $('#cv-st').textContent = (full.length <= 1900 ? 'Mail ouvert' : 'Mail ouvert avec ' + b.length + ' candidats en Cci') + (copied ? ' · message copié : collez-le (Ctrl+V)' : ' · copiez le message ci-dessus');
+});
+function refresh(){ renderConv(); $('#stack').checked = stacked(); $$('[data-pr]').forEach(c => c.checked = DB.g['p'+c.dataset.pr] !== false); $$('[data-one]').forEach(r => r.checked = ['sep','one','big'][+r.dataset.one] === (DB.g.lay || (DB.g.one ? 'one' : 'sep'))); loadCurrent(); rendered = ''; renderSheets(); restore(); calc(); renderList(); autoTab(); renderTableSel(); }
 $('#csel').addEventListener('change', e => { if (!e.target.value) return; DB.cur = e.target.value; save(); refresh(); });
 
 /* ===== Import Excel ===== */
@@ -1480,7 +1577,9 @@ document.addEventListener('input', e => {
   if (t.id === 'i-mail'){ const c = cur(); if (c){ c.mail = t.value.trim(); c.mailm = true; save(); renderQuick(); } return; }
   if (t.dataset.pr){ DB.g['p'+t.dataset.pr] = t.checked; $$(`[data-pr="${t.dataset.pr}"]`).forEach(x => x.checked = t.checked); save(); syncFiche(); return; }
   if (t.dataset.one){ DB.g.lay = ['sep','one','big'][+t.dataset.one]; DB.g.one = DB.g.lay === 'one'; save(); return; }
-  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); if (/^(ntab|h0|du\d|dub)$/.test(t.dataset.g)){ stepStatus(); renderList(); } return; }
+  if (t.id === 'cv-body'){ DB.g.cvbody = t.value; DB.g.cvman = 1; save(); $('#cv-man').hidden = false; return; }
+  if (t.dataset.g && /^cv/.test(t.dataset.g)){ DB.g[t.dataset.g] = t.value; save(); renderConv(); return; }
+  if (t.dataset.g){ DB.g[t.dataset.g] = t.value; save(); if (t.dataset.g === 'date') renderConv(); if (t.dataset.g === 'ntab') renderTableSel(); if (t.dataset.g === 'ky' || t.dataset.g === 'cumul'){ rendered=''; renderSheets(); restore(); } calc(); if (/^(ntab|h0|du\d|dub)$/.test(t.dataset.g)){ stepStatus(); renderList(); } return; }
   if (!t.closest('#ident, .sheet')) return;
   if (!cur()){ addManual(); }
   if (t.dataset.kata){ const k = t.dataset.kata; S.katas = (S.katas||[]).filter(x => x !== k); if (t.checked) S.katas.push(k); store(); rendered=''; renderSheets(); restore(); calc(); return; }
